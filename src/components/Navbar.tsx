@@ -4,7 +4,7 @@ export default function Navbar() {
       <nav className="w-full max-w-6xl backdrop-blur-md bg-zinc-900/70 border border-zinc-700/50 rounded-full px-6 py-3 flex justify-between items-center shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300">
         
         <a href="#" className="text-lg font-bold text-white tracking-tighter hover:opacity-90 transition-opacity">
-          Dev<span className="text-blue-500">Folio.</span>
+          miii.
         </a>
         
         <div className="flex gap-5 sm:gap-6">
