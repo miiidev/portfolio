@@ -55,7 +55,7 @@ export default function App() {
             {personalInfo.name}.
           </h1>
           <h2 className="text-3xl md:text-5xl font-bold text-zinc-400 mb-6">
-            I build digital experiences as a {personalInfo.role}.
+            {personalInfo.role}.
           </h2>
           <p className="text-lg text-zinc-400 max-w-xl leading-relaxed mb-8">
             {personalInfo.bio} Based in <span className="text-zinc-300 font-medium">{personalInfo.location}</span>.

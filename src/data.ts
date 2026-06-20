@@ -21,8 +21,8 @@ export interface PersonalInfo {
 
 export const personalInfo: PersonalInfo = {
   name: "Ahmad Syahmi",
-  role: "Frontend Developer",
-  bio: "I love building highly interactive, accessible, and performant digital experiences. Turning complex problems into elegant, user-friendly applications is my jam.",
+  role: "Software & AI Developer",
+  bio: "I build AI-powered and security-focused applications, focusing on machine learning, computer vision, and real-time systems that solve practical problems.",
   location: "Malaysia",
   socials: {
     github: "https://github.com/miiidev",
@@ -30,13 +30,13 @@ export const personalInfo: PersonalInfo = {
     email: "mailto:ahmad.syahmi3211@gmail.com",
   },
   skills: [
-    "React", 
-    "TypeScript", 
-    "Tailwind CSS", 
-    "Next.js", 
-    "Node.js", 
-    "Framer Motion", 
-    "Git", 
+    "React",
+    "TypeScript",
+    "Tailwind CSS",
+    "Next.js",
+    "Node.js",
+    "Framer Motion",
+    "Git",
     "Vite"
   ],
 };
