@@ -22,9 +22,9 @@ export default function Navbar() {
       variants={{ visible: { y: 0 }, hidden: { y: -100 } }}
       animate={hidden ? 'hidden' : 'visible'}
       transition={{ duration: 0.3 }}
-      className="fixed top-4 inset-x-0 z-50 flex justify-center px-4"
+      className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 sm:px-0"
     >
-      <nav className="w-full max-w-6xl backdrop-blur-md bg-surface/70 border border-edge/50 rounded-full px-6 py-3 flex justify-between items-center shadow-glow-nav transition-all duration-300">
+      <nav className="w-full max-w-6xl backdrop-blur-md bg-surface/70 border border-edge/50 rounded-full px-4 sm:px-6 py-3 flex justify-between items-center shadow-glow-nav transition-all duration-300">
         
         <a href="#" className="text-lg font-bold text-copy tracking-tighter hover:opacity-90 transition-opacity">
           miii.

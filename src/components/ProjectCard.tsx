@@ -26,8 +26,8 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
           </div>
         </div>
       )}
-      <div className="p-8 flex flex-col flex-1">
-      <h3 className="text-2xl font-bold text-copy mb-3">{project.title}</h3>
+      <div className="p-5 sm:p-8 flex flex-col flex-1">
+      <h3 className="text-xl sm:text-2xl font-bold text-copy mb-3">{project.title}</h3>
       <p className="text-muted text-sm mb-6 leading-relaxed flex-grow">{project.description}</p>
       
       <div className="flex flex-wrap gap-2 mb-6">

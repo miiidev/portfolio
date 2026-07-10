@@ -26,28 +26,47 @@ export default function SideStepper() {
   });
 
   return (
-    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
-      <div className="flex flex-col items-center">
-        {sections.map((section, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="relative group/step">
-              <button
-                onClick={() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 shrink-0 ${
-                  activeSection === i
-                    ? 'bg-inverse shadow-glow-dot'
-                    : 'bg-dim hover:bg-muted'
-                }`}
-                aria-label={section.label}
-              />
-              <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 text-xs font-medium font-mono text-muted whitespace-nowrap opacity-0 group-hover/step:opacity-100 transition-opacity duration-200 pointer-events-none">
-                {section.label}
-              </span>
+    <>
+      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
+        <div className="flex flex-col items-center">
+          {sections.map((section, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="relative group/step">
+                <button
+                  onClick={() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 shrink-0 ${
+                    activeSection === i
+                      ? 'bg-inverse shadow-glow-dot'
+                      : 'bg-dim hover:bg-muted'
+                  }`}
+                  aria-label={section.label}
+                />
+                <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 text-xs font-medium font-mono text-muted whitespace-nowrap opacity-0 group-hover/step:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  {section.label}
+                </span>
+              </div>
+              {i < sections.length - 1 && <div className="w-px h-6 bg-edge" />}
             </div>
-            {i < sections.length - 1 && <div className="w-px h-6 bg-edge" />}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 lg:hidden">
+        <div className="flex items-center gap-3 bg-surface/80 backdrop-blur-md border border-edge/50 rounded-full px-4 py-2.5 shadow-glow-nav">
+          {sections.map((section, i) => (
+            <button
+              key={i}
+              onClick={() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+              className={`w-2 h-2 rounded-full transition-all duration-300 shrink-0 ${
+                activeSection === i
+                  ? 'bg-inverse shadow-glow-dot scale-125'
+                  : 'bg-dim hover:bg-muted'
+              }`}
+              aria-label={section.label}
+            />
+          ))}
+        </div>
+      </div>
+    </>
   );
 }

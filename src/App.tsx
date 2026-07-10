@@ -17,7 +17,7 @@ export default function App() {
       <SideStepper />
       <BackToTop />
       <HeroSection />
-      <main className="px-6 md:px-12 max-w-6xl mx-auto">
+      <main className="px-6 md:px-12 max-w-6xl mx-auto overflow-hidden">
         <SkillsSection />
         <ProjectsSection />
         <ContactFooter />

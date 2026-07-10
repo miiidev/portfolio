@@ -8,7 +8,7 @@ export default function SkillsSection() {
       <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-6 flex items-center gap-3">
         <span className="text-dim font-mono text-sm">01.</span> Tech Stacks
       </motion.h2>
-      <motion.div variants={containerVariants} className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
         {personalInfo.skills.map((skill, index) => (
           <motion.div
             key={index}

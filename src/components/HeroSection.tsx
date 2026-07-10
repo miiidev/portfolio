@@ -55,7 +55,7 @@ export default function HeroSection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: false, amount: 0.1, margin: "-100px" }}
-      className="min-h-screen flex relative"
+      className="min-h-screen flex relative overflow-hidden"
     >
       <div
         onMouseMove={handleMouseMove}
@@ -80,16 +80,17 @@ export default function HeroSection() {
             }}
           />
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-canvas to-transparent hidden lg:block" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-canvas to-transparent lg:hidden pointer-events-none" />
         </div>
 
-        <div className="lg:w-1/2 w-full min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-16 py-12">
+        <div className="lg:w-1/2 w-full flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-16 py-12">
           <motion.p variants={heroItemVariants} className="text-muted font-mono text-sm mb-3 font-semibold tracking-wider uppercase">
             Hi, my name is
           </motion.p>
-          <motion.h1 variants={heroItemVariants} className="text-5xl md:text-7xl font-extrabold text-copy mb-4 tracking-tight">
+          <motion.h1 variants={heroItemVariants} className="text-4xl md:text-7xl font-extrabold text-copy mb-4 tracking-tight">
             {personalInfo.name}.
           </motion.h1>
-          <motion.h2 variants={heroItemVariants} className="text-3xl md:text-5xl font-bold text-muted mb-6 min-h-[1.2em]">
+          <motion.h2 variants={heroItemVariants} className="text-2xl md:text-5xl font-bold text-muted mb-6 min-h-[1.2em]">
               {displayedRole}
               {!typingDone && <span className="text-copy animate-pulse">|</span>}
             </motion.h2>
@@ -108,7 +109,6 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-canvas to-transparent pointer-events-none" />
       <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
     </motion.header>
   );

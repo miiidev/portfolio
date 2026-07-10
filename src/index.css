@@ -5,6 +5,7 @@
 }
 
 @theme {
+  --breakpoint-xs: 25rem;
   --color-canvas: #0a0a0b;
   --color-surface: #171717;
   --color-elevated: #262626;
@@ -49,6 +50,11 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 /* Skill icon inversion for light mode */
