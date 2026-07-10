@@ -76,10 +76,11 @@ export default function ProjectsSection() {
       </div>
 
       {isMobile ? (
-        <div className="relative w-full h-[500px] mt-8">
+        <div className="relative w-full h-[450px] mt-8">
           <MobileCardStack
             projects={projects}
             onIndexChange={setCurrentIndex}
+            sensitivity={100}
           />
         </div>
       ) : (
