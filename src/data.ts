@@ -43,14 +43,14 @@ export const personalInfo: PersonalInfo = {
     x: "https://x.com/yourusername",
   },
   skills: [
-    { name: "React",        icon: "react",      color: "#61DAFB" },
-    { name: "TypeScript",   icon: "typescript",  color: "#3178C6" },
+    { name: "React", icon: "react", color: "#61DAFB" },
+    { name: "TypeScript", icon: "typescript", color: "#3178C6" },
     { name: "Tailwind CSS", icon: "tailwindcss", color: "#10B981" },
-    { name: "Next.js",      icon: "nextdotjs",   color: "#FFFFFF" },
-    { name: "Node.js",      icon: "nodedotjs",   color: "#5FA04E" },
-    { name: "Framer Motion",icon: "framer",      color: "#EF0076" },
-    { name: "Git",          icon: "git",         color: "#F05032" },
-    { name: "Vite",         icon: "vite",        color: "#646CFF" },
+    { name: "Next.js", icon: "nextdotjs", color: "#FFFFFF" },
+    { name: "Node.js", icon: "nodedotjs", color: "#5FA04E" },
+    { name: "Framer Motion", icon: "framer", color: "#EF0076" },
+    { name: "Git", icon: "git", color: "#F05032" },
+    { name: "Vite", icon: "vite", color: "#646CFF" },
   ],
   formspreeId: "mnjkyepw",
 };
@@ -66,11 +66,12 @@ export const projects: Project[] = [
     image: "/portfolio/assets/projects/autoteambuild.png"
   },
   {
-    id: 2,
-    title: "E-Commerce Experience",
-    description: "A lightning-fast storefront featuring server-side rendering, global state management, and seamless micro-interactions.",
-    tags: ["React", "Next.js", "Tailwind v4"],
-    repo: "https://github.com/yourusername/project-one"
+    id: 1,
+    title: "autoteambuild",
+    description: "Local, offline deepfake video detection tool.",
+    tags: ["React", "Tailwind", "Python", "TypeScript", "PyTorch"],
+    repo: "https://github.com/miiidev/deepsleuth",
+    image: "/portfolio/assets/projects/deepsleuth.png"
   },
   {
     id: 3,
