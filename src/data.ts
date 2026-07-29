@@ -66,25 +66,20 @@ export const projects: Project[] = [
     image: "/portfolio/assets/projects/autoteambuild.png"
   },
   {
-    id: 1,
-    title: "autoteambuild",
+    id: 2,
+    title: "rikugan",
     description: "Local, offline deepfake video detection tool.",
     tags: ["React", "Tailwind", "Python", "TypeScript", "PyTorch"],
-    repo: "https://github.com/miiidev/deepsleuth",
-    image: "/portfolio/assets/projects/deepsleuth.png"
+    repo: "https://github.com/miiidev/rikugan",
+    image: "/portfolio/assets/projects/rikugan.png"
   },
   {
     id: 3,
-    title: "E-Commerce Experience",
-    description: "A lightning-fast storefront featuring server-side rendering, global state management, and seamless micro-interactions.",
-    tags: ["React", "Next.js", "Tailwind v4"],
-    repo: "https://github.com/yourusername/project-one"
+    title: "LAWCATOR",
+    description: "a lightweight static web application for discovering lawyers and law firms in Malaysia.",
+    tags: ["JavaScript", "HTML", "CSS"],
+    repo: "https://github.com/miiidev/autoteambuild",
+    demo: "https://lawcator.vercel.app",
+    image: "/portfolio/assets/projects/lawcator.png"
   },
-  {
-    id: 4,
-    title: "AI Dashboard UI",
-    description: "An analytics dashboard featuring real-time data streaming, dynamic grid systems, and custom Framer Motion components.",
-    tags: ["TypeScript", "React", "Framer Motion"],
-    repo: "https://github.com/yourusername/project-two"
-  }
 ];
