@@ -1,19 +1,5 @@
 import type { Variants } from 'framer-motion';
 
-export const fadeUpConfig = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: false, amount: 0.2, margin: "-100px" },
-  transition: { duration: 0.6, ease: "easeOut" },
-} as const;
-
-export const fadeLeftConfig = {
-  initial: { opacity: 0, x: -40 },
-  whileInView: { opacity: 1, x: 0 },
-  viewport: { once: false, amount: 0.2, margin: "-100px" },
-  transition: { duration: 0.6, ease: "easeOut" },
-} as const;
-
 export const fadeRightConfig = {
   initial: { opacity: 0, x: 40 },
   whileInView: { opacity: 1, x: 0 },
