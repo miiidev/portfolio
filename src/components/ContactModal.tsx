@@ -1,6 +1,7 @@
-import { useState, useEffect, type JSX } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { personalInfo } from '../data';
+import ContactForm from './ContactForm';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -25,18 +26,46 @@ type Platform = PlatformLink | PlatformActions;
 
 export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [copied, setCopied] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    if (!isOpen) return;
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    document.body.style.overflow = 'hidden';
+
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+        const focusables = dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
+
+    document.addEventListener('keydown', handleKeydown);
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeydown);
       document.body.style.overflow = '';
+      previouslyFocusedRef.current?.focus();
     };
   }, [isOpen, onClose]);
 
@@ -44,9 +73,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const cleanEmail = socials.email;
 
   const copyEmail = async () => {
-    await navigator.clipboard.writeText(cleanEmail);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(cleanEmail);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable; nothing to show
+    }
   };
 
   const platforms: Platform[] = [
@@ -87,7 +120,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       ),
       href: socials.github,
     },
-    ];
+  ];
 
   if (socials.whatsapp) {
     platforms.push({
@@ -111,30 +144,35 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           transition={{ duration: 0.2 }}
         >
           <motion.div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
           <motion.div
-            className="relative bg-surface border border-edge rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Get in Touch"
+            className="relative bg-surface border border-edge rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-edge">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-edge shrink-0">
               <h2 className="text-lg font-semibold text-copy">Get in Touch</h2>
               <button
+                ref={closeRef}
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
+                className="p-2 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
                 aria-label="Close"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 overflow-y-auto">
               {platforms.map((p) => (
                 <div key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-elevated/50 transition-colors group">
                   <span className="text-muted group-hover:text-copy transition-colors shrink-0">{p.icon}</span>
@@ -157,6 +195,9 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   )}
                 </div>
               ))}
+              <div className="px-4 pt-4 pb-2 border-t border-edge">
+                <ContactForm />
+              </div>
             </div>
           </motion.div>
         </motion.div>
