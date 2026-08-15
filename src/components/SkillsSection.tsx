@@ -8,31 +8,38 @@ export default function SkillsSection() {
       <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-6 flex items-center gap-3">
         <span className="text-dim font-mono text-sm">01.</span> Tech Stacks
       </motion.h2>
-      <motion.div variants={containerVariants} className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
-        {personalInfo.skills.map((skill, index) => (
-          <motion.div
-            key={index}
-            variants={itemVariants}
-            className="group bg-surface/50 border border-edge rounded-xl p-5 transition-all duration-200 hover:border-edge-hover hover:text-copy hover:shadow-glow-card hover:-translate-y-1 cursor-default"
-          >
-            <div className="flex items-center gap-4">
-              <img
-                src={`https://cdn.simpleicons.org/${skill.icon}/white`}
-                alt=""
-                className="w-7 h-7 block group-hover:hidden shrink-0 skill-icon-base"
-              />
-              <img
-                src={`https://cdn.simpleicons.org/${skill.icon}/${skill.color.replace('#', '')}`}
-                alt=""
-                className="w-7 h-7 hidden group-hover:block shrink-0"
-              />
-              <span className="text-base font-medium font-mono text-muted group-hover:text-copy transition-colors">
-                {skill.name}
-              </span>
-            </div>
+      {personalInfo.skills.map((group) => (
+        <div key={group.domain} className="mb-6 last:mb-0">
+          <motion.h3 variants={itemVariants} className="text-sm font-mono text-dim uppercase tracking-wider mb-3">
+            {group.domain}
+          </motion.h3>
+          <motion.div variants={containerVariants} className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
+            {group.items.map((skill, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                className="group bg-surface/50 border border-edge rounded-xl p-5 transition-all duration-200 hover:border-edge-hover hover:text-copy hover:shadow-glow-card hover:-translate-y-1 cursor-default"
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src={`https://cdn.simpleicons.org/${skill.icon}/white`}
+                    alt=""
+                    className="w-7 h-7 block group-hover:hidden shrink-0 skill-icon-base"
+                  />
+                  <img
+                    src={`https://cdn.simpleicons.org/${skill.icon}/${skill.color.replace('#', '')}`}
+                    alt=""
+                    className="w-7 h-7 hidden group-hover:block shrink-0"
+                  />
+                  <span className="text-base font-medium font-mono text-muted group-hover:text-copy transition-colors">
+                    {skill.name}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
-        ))}
-      </motion.div>
+        </div>
+      ))}
     </motion.section>
   );
 }

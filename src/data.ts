@@ -14,6 +14,19 @@ export interface Skill {
   color: string;
 }
 
+export interface SkillGroup {
+  domain: string;
+  items: Skill[];
+}
+
+export interface TimelineItem {
+  year: string;
+  title: string;
+  org?: string;
+  description: string;
+  type: 'work' | 'achievement' | 'focus';
+}
+
 export interface PersonalInfo {
   name: string;
   role: string;
@@ -21,12 +34,10 @@ export interface PersonalInfo {
   location: string;
   socials: {
     github: string;
-    linkedin: string;
     email: string;
     whatsapp?: string;
-    x?: string;
   };
-  skills: Skill[];
+  skills: SkillGroup[];
   formspreeId: string;
 }
 
@@ -37,22 +48,64 @@ export const personalInfo: PersonalInfo = {
   location: "Malaysia",
   socials: {
     github: "https://github.com/miiidev",
-    linkedin: "https://linkedin.com/in/yourusername",
-    email: "mailto:ahmad.syahmi3211@gmail.com",
+    email: "ahmad.syahmi3211@gmail.com",
     whatsapp: "https://wa.me/60104246750",
-    x: "https://x.com/yourusername",
   },
   skills: [
-    { name: "React", icon: "react", color: "#61DAFB" },
-    { name: "TypeScript", icon: "typescript", color: "#3178C6" },
-    { name: "Tailwind CSS", icon: "tailwindcss", color: "#10B981" },
-    { name: "Next.js", icon: "nextdotjs", color: "#FFFFFF" },
-    { name: "Node.js", icon: "nodedotjs", color: "#5FA04E" },
-    { name: "Framer Motion", icon: "framer", color: "#EF0076" },
-    { name: "Git", icon: "git", color: "#F05032" },
-    { name: "Vite", icon: "vite", color: "#646CFF" },
+    {
+      domain: "AI/ML & Data",
+      items: [
+        { name: "Python", icon: "python", color: "#3776AB" },
+        { name: "PyTorch", icon: "pytorch", color: "#EE4C2C" },
+      ],
+    },
+    {
+      domain: "Frontend",
+      items: [
+        { name: "React", icon: "react", color: "#61DAFB" },
+        { name: "TypeScript", icon: "typescript", color: "#3178C6" },
+        { name: "Tailwind CSS", icon: "tailwindcss", color: "#10B981" },
+        { name: "Next.js", icon: "nextdotjs", color: "#FFFFFF" },
+        { name: "Framer Motion", icon: "framer", color: "#EF0076" },
+      ],
+    },
+    {
+      domain: "Tools & Backend",
+      items: [
+        { name: "Node.js", icon: "nodedotjs", color: "#5FA04E" },
+        { name: "Git", icon: "git", color: "#F05032" },
+        { name: "Vite", icon: "vite", color: "#646CFF" },
+      ],
+    },
   ],
   formspreeId: "mnjkyepw",
+};
+
+export const timeline: TimelineItem[] = [
+  {
+    year: "Now",
+    title: "Programming Tutor",
+    description: "Teaching Java to beginners, which keeps my fundamentals sharp and my communication clear.",
+    type: "work",
+  },
+  {
+    year: "2023",
+    title: "3rd Place, Pertandingan Pembangunan Aplikasi Android",
+    description: "Built an Android app from scratch and placed 3rd in a state-level competition.",
+    type: "achievement",
+  },
+  {
+    year: "Current focus",
+    title: "Software & AI Developer",
+    description: "Shipping autoteambuild (RL-powered Pokémon VGC team builder), rikugan (offline deepfake detection), and LAWCATOR.",
+    type: "focus",
+  },
+];
+
+export const githubFallback = {
+  publicRepos: 24,
+  topLanguages: ["Python", "TypeScript", "JavaScript"],
+  lastPush: null,
 };
 
 export const projects: Project[] = [
@@ -76,9 +129,9 @@ export const projects: Project[] = [
   {
     id: 3,
     title: "LAWCATOR",
-    description: "a lightweight static web application for discovering lawyers and law firms in Malaysia.",
+    description: "A lightweight static web application for discovering lawyers and law firms in Malaysia.",
     tags: ["JavaScript", "HTML", "CSS"],
-    repo: "https://github.com/miiidev/autoteambuild",
+    repo: "https://github.com/miiidev/LAWCATOR",
     demo: "https://lawcator.vercel.app",
     image: "/portfolio/assets/projects/lawcator.png"
   },
