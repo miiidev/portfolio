@@ -56,7 +56,7 @@ export default function SideStepper() {
       </div>
 
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 lg:hidden">
-        <div className="flex items-center gap-3 bg-surface/80 backdrop-blur-md border border-edge/50 rounded-full px-4 py-2.5 shadow-glow-nav">
+        <div className="flex items-center gap-3 bg-surface border border-edge/50 rounded-full px-4 py-2.5">
           {sections.map((section, i) => (
             <button
               key={i}
