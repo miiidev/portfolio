@@ -16,6 +16,18 @@ export default function ProjectsSection() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const idx = (e as CustomEvent<number>).detail;
+      if (idx >= 0 && idx < projects.length) {
+        setCurrentIndex(idx);
+        document.getElementById('work')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+    window.addEventListener('portfolio:project', handler);
+    return () => window.removeEventListener('portfolio:project', handler);
+  }, []);
+
   const offset = isMobile ? 60 : 260;
   const farOffset = isMobile ? 100 : 420;
 
@@ -51,11 +63,9 @@ export default function ProjectsSection() {
   };
 
   return (
-    <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12 overflow-clip">
+    <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-bold text-copy flex items-center gap-3">
-          <span className="text-dim font-mono text-sm">02.</span> My Projects
-        </h2>
+        <h2 className="text-2xl font-bold text-copy">My Projects</h2>
 
         <div className="hidden sm:flex gap-3 relative z-10">
           <button
@@ -79,6 +89,7 @@ export default function ProjectsSection() {
         <div className="relative w-full h-[450px] mt-8">
           <MobileCardStack
             projects={projects}
+            currentIndex={currentIndex}
             onIndexChange={setCurrentIndex}
             sensitivity={100}
           />
@@ -111,8 +122,7 @@ export default function ProjectsSection() {
                 animate={{
                   x: pos === 0 ? 0 : pos === -1 ? -offset : pos === 1 ? offset : pos < 0 ? -farOffset : farOffset,
                   scale: pos === 0 ? 1 : abs === 1 ? 0.9 : 0.78,
-                  opacity: abs <= 1 ? (pos === 0 ? 1 : 0.6) : 0,
-                  filter: abs === 1 ? 'blur(1px)' : 'blur(0px)',
+                  opacity: abs <= 1 ? (pos === 0 ? 1 : 0.7) : 0,
                 }}
                 transition={{
                   type: 'spring',
@@ -130,6 +140,24 @@ export default function ProjectsSection() {
           })}
         </motion.div>
       )}
+
+      <div className="flex items-center justify-center gap-2 mt-8">
+        {projects.map((project, i) => (
+          <button
+            key={project.id}
+            onClick={() => setCurrentIndex(i)}
+            className="w-11 h-11 flex items-center justify-center"
+            aria-label={`Go to ${project.title}`}
+            aria-current={i === currentIndex ? 'true' : undefined}
+          >
+            <span
+              className={`block w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
+                i === currentIndex ? 'bg-inverse shadow-glow-dot' : 'bg-dim hover:bg-muted'
+              }`}
+            />
+          </button>
+        ))}
+      </div>
     </motion.section>
   );
 }

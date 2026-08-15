@@ -4,7 +4,7 @@ import LazyImage from './LazyImage';
 export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
   return (
     <div 
-      className={`bg-surface/90 backdrop-blur-md border border-edge rounded-xl overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-edge-hover hover:shadow-glow-card card-lift-hover' : ''}`}
+      className={`bg-surface border border-edge rounded-xl overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-edge-hover card-lift-hover' : ''}`}
     >
       {project.image ? (
         <div className="shrink-0">
@@ -40,26 +40,25 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
       
       <div className="flex items-center gap-4 mt-auto">
         {project.repo && (
-          <a 
-            href={project.repo} 
-            target="_blank" 
-            rel="noreferrer" 
-            className="inline-flex items-center gap-2 text-sm font-semibold text-copy transition-colors duration-200 link-glow"
+          <a
+            href={project.repo}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:opacity-80 transition-opacity duration-200"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="16 18 22 12 16 6"/>
               <polyline points="8 6 2 12 8 18"/>
             </svg>
             Code
-            <span className="link-arrow">→</span>
           </a>
         )}
         {project.demo && (
-          <a 
-            href={project.demo} 
-            target="_blank" 
-            rel="noreferrer" 
-            className="inline-flex items-center gap-2 text-sm font-semibold text-copy transition-colors duration-200 link-glow"
+          <a
+            href={project.demo}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:opacity-80 transition-opacity duration-200"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -67,7 +66,6 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
               <line x1="10" y1="14" x2="21" y2="3"/>
             </svg>
             Demo
-            <span className="link-arrow">→</span>
           </a>
         )}
       </div>

@@ -40,6 +40,7 @@ function CardRotate({ children, onSendToBack, sensitivity }: CardRotateProps) {
 
 interface MobileCardStackProps {
   projects: Project[];
+  currentIndex?: number;
   onIndexChange?: (index: number) => void;
   animationConfig?: { stiffness: number; damping: number };
   sensitivity?: number;
@@ -47,21 +48,20 @@ interface MobileCardStackProps {
 
 export default function MobileCardStack({
   projects,
+  currentIndex,
   onIndexChange,
   animationConfig = { stiffness: 260, damping: 20 },
   sensitivity = 200,
 }: MobileCardStackProps) {
-  const [hasInteracted, setHasInteracted] = useState(false);
   const [stack, setStack] = useState<{ id: number; project: Project; rotation: number }[]>(() =>
     projects.map((project, index) => ({
       id: index + 1,
       project,
-      rotation: Math.random() * 10 - 5,
+      rotation: (index - 1) * 4,
     }))
   );
 
   const sendToBack = (id: number) => {
-    setHasInteracted(true);
     setStack((prev) => {
       const newStack = [...prev];
       const index = newStack.findIndex((card) => card.id === id);
@@ -70,6 +70,20 @@ export default function MobileCardStack({
       return newStack;
     });
   };
+
+  useEffect(() => {
+    if (currentIndex == null) return;
+    const target = projects[currentIndex];
+    if (!target) return;
+    queueMicrotask(() => {
+      setStack((prev) => {
+        if (prev.length === 0 || prev[prev.length - 1].project.id === target.id) return prev;
+        const card = prev.find((c) => c.project.id === target.id);
+        if (!card) return prev;
+        return [...prev.filter((c) => c.id !== card.id), card];
+      });
+    });
+  }, [currentIndex, projects]);
 
   useEffect(() => {
     const topIndex = stack.length > 0
@@ -110,29 +124,6 @@ export default function MobileCardStack({
           </CardRotate>
         );
       })}
-
-      <motion.div
-        className="absolute -bottom-10 left-1/2 -translate-x-1/2 z-10"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: hasInteracted ? 0 : 1, y: hasInteracted ? 10 : 0 }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
-      >
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/80 backdrop-blur-sm border border-edge text-xs text-muted font-medium">
-          <motion.span
-            animate={{ x: [-4, 4, -4] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            ←
-          </motion.span>
-          Swipe
-          <motion.span
-            animate={{ x: [-4, 4, -4] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
-          >
-            →
-          </motion.span>
-        </div>
-      </motion.div>
     </div>
   );
 }
