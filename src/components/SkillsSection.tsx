@@ -4,42 +4,45 @@ import { containerVariants, itemVariants } from '../utils/animations';
 
 export default function SkillsSection() {
   return (
-    <motion.section id="about" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.1, margin: "-100px" }} className="min-h-screen flex flex-col justify-center py-12">
-      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-6 flex items-center gap-3">
-        <span className="text-dim font-mono text-sm">01.</span> Tech Stacks
+    <motion.section
+      id="skills"
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1, margin: '-100px' }}
+      className="min-h-screen flex flex-col justify-center py-12"
+    >
+      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-8">
+        Skills
       </motion.h2>
-      {personalInfo.skills.map((group) => (
-        <div key={group.domain} className="mb-6 last:mb-0">
-          <motion.h3 variants={itemVariants} className="text-sm font-mono text-dim uppercase tracking-wider mb-3">
-            {group.domain}
-          </motion.h3>
-          <motion.div variants={containerVariants} className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
-            {group.items.map((skill, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="group bg-surface/50 border border-edge rounded-xl p-5 transition-all duration-200 hover:border-edge-hover hover:text-copy hover:shadow-glow-card hover:-translate-y-1 cursor-default"
-              >
-                <div className="flex items-center gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {personalInfo.skills.map((group) => (
+          <motion.div
+            key={group.domain}
+            variants={itemVariants}
+            className="bg-surface/50 border border-edge rounded-xl p-6"
+          >
+            <h3 className="text-sm font-semibold text-muted mb-4 font-mono uppercase tracking-wide">
+              {group.domain}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {group.items.map((skill) => (
+                <span
+                  key={skill.name}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-canvas text-copy/80 text-sm"
+                >
                   <img
                     src={`https://cdn.simpleicons.org/${skill.icon}/white`}
                     alt=""
-                    className="w-7 h-7 block group-hover:hidden shrink-0 skill-icon-base"
+                    className="w-4 h-4 skill-icon-base"
                   />
-                  <img
-                    src={`https://cdn.simpleicons.org/${skill.icon}/${skill.color.replace('#', '')}`}
-                    alt=""
-                    className="w-7 h-7 hidden group-hover:block shrink-0"
-                  />
-                  <span className="text-base font-medium font-mono text-muted group-hover:text-copy transition-colors">
-                    {skill.name}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+                  {skill.name}
+                </span>
+              ))}
+            </div>
           </motion.div>
-        </div>
-      ))}
+        ))}
+      </div>
     </motion.section>
   );
 }
