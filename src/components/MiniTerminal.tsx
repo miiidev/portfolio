@@ -110,6 +110,10 @@ export default function MiniTerminal() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                (e.target as HTMLInputElement).blur();
+                return;
+              }
               if (e.key === 'Enter' && input.trim()) {
                 run(input);
                 setInput('');
