@@ -120,7 +120,7 @@ Folded in from the 2026-08-15 Uizze critique (23/40). All apply to existing comp
 
 **P2 — Carousel position indicator**: show which of the N projects is active (dots or 1/N counter) in `ProjectsSection`.
 
-**Minor fixes**: LAWCATOR description capitalization + trailing period; `main` `overflow-hidden` clipped effects (revisit after glow removal; keep only if needed); footer: replace boilerplate sign-off with a real close (availability signal, no em-dashes); nav "About" label vs "Tech Stacks" heading mismatch (rename heading or nav link for consistency); `LazyImage` `onError` fallback (show placeholder instead of empty box); clipboard copy try/catch; MobileCardStack random rotation → deterministic layout; single contact path (hero modal is primary; footer links to it instead of duplicating the form).
+**Minor fixes**: LAWCATOR description capitalization + trailing period; `main` `overflow-hidden` clipped effects (revisit after glow removal; keep only if needed); footer: replace boilerplate sign-off with a real close — closing line "Currently open to software & AI roles" + the email CTA, no em-dashes; nav "About" label vs "Tech Stacks" heading mismatch (rename heading or nav link for consistency); `LazyImage` `onError` fallback (show placeholder instead of empty box); clipboard copy try/catch; MobileCardStack random rotation → deterministic layout; single contact path — hero modal is primary, footer links to it via the same custom-event pattern as the terminal (`portfolio:contact`), and the duplicate inline `ContactForm` is removed from the footer.
 
 ## Error handling
 
