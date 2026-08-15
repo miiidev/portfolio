@@ -3,7 +3,9 @@ import { useMotionValueEvent, useScroll } from 'framer-motion';
 
 const sections = [
   { id: 'hero', label: 'Home' },
-  { id: 'about', label: 'Skills' },
+  { id: 'about', label: 'About' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'timeline', label: 'Timeline' },
   { id: 'work', label: 'Work' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -34,13 +36,15 @@ export default function SideStepper() {
               <div className="relative group/step">
                 <button
                   onClick={() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 shrink-0 ${
-                    activeSection === i
-                      ? 'bg-inverse shadow-glow-dot'
-                      : 'bg-dim hover:bg-muted'
-                  }`}
+                  className="w-11 h-11 flex items-center justify-center shrink-0"
                   aria-label={section.label}
-                />
+                >
+                  <span
+                    className={`block w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      activeSection === i ? 'bg-inverse shadow-glow-dot' : 'bg-dim hover:bg-muted'
+                    }`}
+                  />
+                </button>
                 <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 text-xs font-medium font-mono text-muted whitespace-nowrap opacity-0 group-hover/step:opacity-100 transition-opacity duration-200 pointer-events-none">
                   {section.label}
                 </span>
@@ -57,13 +61,15 @@ export default function SideStepper() {
             <button
               key={i}
               onClick={() => document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-              className={`w-2 h-2 rounded-full transition-all duration-300 shrink-0 ${
-                activeSection === i
-                  ? 'bg-inverse shadow-glow-dot scale-125'
-                  : 'bg-dim hover:bg-muted'
-              }`}
+              className="w-11 h-11 flex items-center justify-center shrink-0"
               aria-label={section.label}
-            />
+            >
+              <span
+                className={`block w-2 h-2 rounded-full transition-all duration-300 ${
+                  activeSection === i ? 'bg-inverse shadow-glow-dot scale-125' : 'bg-dim hover:bg-muted'
+                }`}
+              />
+            </button>
           ))}
         </div>
       </div>

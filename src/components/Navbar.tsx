@@ -24,16 +24,28 @@ export default function Navbar() {
       transition={{ duration: 0.3 }}
       className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 sm:px-0"
     >
-      <nav className="w-full max-w-6xl backdrop-blur-md bg-surface/70 border border-edge/50 rounded-full px-4 sm:px-6 py-3 flex justify-between items-center shadow-glow-nav transition-all duration-300">
+      <nav className="w-full max-w-6xl backdrop-blur-md bg-surface/70 border border-edge/50 rounded-full px-4 sm:px-6 py-3 flex justify-between items-center transition-all duration-300">
         
         <a href="#" className="text-lg font-bold text-copy tracking-tighter hover:opacity-90 transition-opacity">
           miii.
         </a>
-        
-        <div className="flex items-center gap-5 sm:gap-6">
-          <a href="#about" className="text-xs sm:text-sm font-medium text-muted hover:text-copy hover:drop-shadow-glow transition-all duration-200">About</a>
-          <a href="#work" className="text-xs sm:text-sm font-medium text-muted hover:text-copy hover:drop-shadow-glow transition-all duration-200">Work</a>
-          <a href="#contact" className="text-xs sm:text-sm font-medium text-muted hover:text-copy hover:drop-shadow-glow transition-all duration-200">Contact</a>
+
+        <div className="flex items-center gap-1 sm:gap-2">
+          {[
+            { href: '#about', label: 'About' },
+            { href: '#skills', label: 'Skills' },
+            { href: '#timeline', label: 'Timeline' },
+            { href: '#work', label: 'Work' },
+            { href: '#contact', label: 'Contact' },
+          ].map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="inline-flex items-center px-3 py-3 text-xs sm:text-sm font-medium text-muted hover:text-copy transition-colors duration-200 min-h-11"
+            >
+              {link.label}
+            </a>
+          ))}
           <ThemeToggle />
         </div>
         
