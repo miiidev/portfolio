@@ -4,7 +4,7 @@ import LazyImage from './LazyImage';
 export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
   return (
     <div 
-      className={`bg-surface border border-edge rounded-xl overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-edge-hover card-lift-hover' : ''}`}
+      className={`bg-surface border border-edge rounded-xl overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-edge-hover' : ''}`}
     >
       {project.image ? (
         <div className="shrink-0">
