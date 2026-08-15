@@ -1,11 +1,13 @@
 # Portfolio Standout — Design Spec
 
 Date: 2026-08-16
-Status: Approved (awaiting implementation plan)
+Status: Approved with critique fixes (awaiting implementation plan)
 
 ## Context
 
 The portfolio (React 19 + Vite + TypeScript + Tailwind 4 + Framer Motion, deployed to GitHub Pages) currently has: Hero with typing effect and parallax photo, flat skills grid, 3D project carousel, Formspree contact form, theme toggle, particles, side/bottom steppers.
+
+A Uizze critique (2026-08-15, score 23/40) found the current design reads as AI-generated (numbered section markers, eyebrow, glow-on-everything, uniform reveals) and carries two P0 issues (dead placeholder social links, zero reduced-motion handling). All critique fixes are folded into this spec.
 
 Goal: make it stand out for a **mixed audience — job applications and personal brand** — using only content the owner actually has. Available material: current Java tutoring gig, 3rd place in a state-level Android app competition (2023), and 3 shipped projects (autoteambuild, rikugan, LAWCATOR). No impact numbers, no writing samples, no resume file.
 
@@ -19,7 +21,7 @@ New components under `src/components/`:
 - `TimelineSection.tsx` — achievement timeline
 - `GitHubStats.tsx` — live stats card (rendered inside About)
 - `MiniTerminal.tsx` — interactive terminal card in the hero
-- `SectionHeading.tsx` — shared numbered heading (only if reuse justifies it; otherwise inline the heading as the other sections do)
+- `SectionHeading.tsx` — shared heading (only if reuse justifies it; otherwise inline the heading as the other sections do). **No numbered markers** (critique ban).
 
 New page order: Hero (with terminal) → About (story + GitHub stats) → Skills → Timeline → Projects → Contact.
 
@@ -27,6 +29,8 @@ Navbar/steppers: `#about` link already exists; add `#timeline` entry to `SideSte
 
 ## Data model (`src/data.ts`)
 
+- **Remove placeholder socials (P0)**: `linkedin` and `x` in `personalInfo.socials` point to `yourusername` URLs. Delete both fields and their conditional rendering blocks.
+- **Normalize email**: store the bare address, build `mailto:` at render (currently stored with prefix and stripped — fragile).
 - `personalInfo.skills` restructured from flat `Skill[]` to grouped:
   ```ts
   skills: { domain: string; icon: string; items: Skill[] }[]
@@ -88,21 +92,49 @@ Vertical line with dots, alternating sides on desktop, stacked on mobile. Three 
 
 ### Skills
 
-Grouped cards: group headers + skill items, same hover-glow card style. No proficiency bars.
+Grouped cards: group headers + skill items, same card style as the rest of the page after the motion diet (see below). No proficiency bars. Fix the Next.js icon color (`#FFFFFF` makes the hover swap invisible on light surfaces; use a dark-theme-appropriate color or drop the swap for white icons).
+
+## Critique fixes (full motion diet + cleanup)
+
+Folded in from the 2026-08-15 Uizze critique (23/40). All apply to existing components as well as new ones:
+
+**P0 — Remove placeholder socials**: delete `linkedin`/`x` from `data.ts` and their conditional render blocks (done via data model above).
+
+**P0 — Reduced motion**: gate every animation behind `prefers-reduced-motion` via a shared `useMediaQuery('(prefers-reduced-motion: reduce)')` hook: no particles, no typing effect (render full text instantly), no glows, no parallax, no springs (carousel snaps), no pulse cursor. Add CSS fallbacks where applicable. This is a hard requirement, not optional.
+
+**P1 — Kill the glow system**: remove all 5 glow shadow tokens (`--shadow-glow-*`, `--drop-shadow-glow`) from `index.css` and every `shadow-glow-*` / `drop-shadow-glow` / `hover:shadow-glow-*` usage. Remove the Particles component entirely. Remove the cursor-tracking radial spotlight over the portrait (HeroSection mouse handler). Keep exactly one glow: the active stepper dot. Remove `--glow-rgb` machinery if unused afterwards.
+
+**P1 — Kill the template scaffold**:
+- Remove numbered markers (`01.` `02.`) from all section headings
+- Remove the `HI, MY NAME IS` eyebrow; replace with a concrete fact (e.g. location + availability) or nothing
+- Set `viewport={{ once: true }}` on all section reveals; vary choreography per section instead of the identical `containerVariants` stagger everywhere
+- The hero typing effect on the role line: remove it (render the role statically). The mini terminal's typed output is the one place typed text stays — it is interactive, user-invoked output, not decoration
+
+**P1 — Hero portrait**: keep the image; remove parallax drift (`imageY`) and the spotlight overlay. Clean photo with LazyImage crossfade only.
+
+**P2 — Contrast (light theme)**: darken `--color-dim` (#a3a3a3 → ≈ #737373 or darker) so muted text and placeholders hit ≥4.5:1 on canvas #fafafa; errors to red-500/600 instead of red-400.
+
+**P2 — Touch targets**: stepper dots ≥44px hit area (visual size can stay small, padding expands the target); nav links and hero buttons ≥44px height.
+
+**P2 — Forms**: add `autocomplete` attributes (`name`, `email`); add `maxlength` where sensible; show per-field errors (currently only the first is shown); error messages specific and in `aria-live` region.
+
+**P2 — Carousel position indicator**: show which of the N projects is active (dots or 1/N counter) in `ProjectsSection`.
+
+**Minor fixes**: LAWCATOR description capitalization + trailing period; `main` `overflow-hidden` clipped effects (revisit after glow removal; keep only if needed); footer: replace boilerplate sign-off with a real close (availability signal, no em-dashes); nav "About" label vs "Tech Stacks" heading mismatch (rename heading or nav link for consistency); `LazyImage` `onError` fallback (show placeholder instead of empty box); clipboard copy try/catch; MobileCardStack random rotation → deterministic layout; single contact path (hero modal is primary; footer links to it instead of duplicating the form).
 
 ## Error handling
 
 - GitHub API: try/catch on both fetches; either failure → static fallback card.
 - Terminal: unknown command → typed "command not found" message; empty input → no-op.
-- Images: reuse existing `LazyImage`.
+- Images: reuse existing `LazyImage` with `onError` fallback.
 
 ## Testing & verification
 
 - `npm run build` (tsc -b && vite build) passes.
 - `npm run lint` passes.
-- Manual checks: all terminal commands work; GitHub stats render and fallback renders when offline; timeline/skills responsive at mobile widths; dark and light themes both correct.
+- Manual checks: all terminal commands work; GitHub stats render and fallback renders when offline; timeline/skills responsive at mobile widths; dark and light themes both correct; `prefers-reduced-motion` enabled → no particles, no typing, no glows, carousel snaps; all touch targets ≥44px; contrast spot-checks in light theme.
 - No automated test framework exists in the project; keep parity (no new test infra).
 
 ## Non-goals (YAGNI)
 
-No blog, no resume PDF, no SEO/meta overhaul, no project detail modals, no proficiency bars, no testimonials. Future iterations once more content exists.
+No blog, no resume PDF, no SEO/meta overhaul, no project detail modals, no proficiency bars, no testimonials. No new glow/particle effects of any kind (the motion diet applies to new sections too). Future iterations once more content exists.
