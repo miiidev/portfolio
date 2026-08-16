@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ProjectCard from './ProjectCard';
 import type { Project } from '../data';
 
@@ -53,13 +53,17 @@ export default function MobileCardStack({
   animationConfig = { stiffness: 260, damping: 20 },
   sensitivity = 200,
 }: MobileCardStackProps) {
-  const [stack, setStack] = useState<{ id: number; project: Project; rotation: number }[]>(() =>
-    projects.map((project, index) => ({
+  const [stack, setStack] = useState<{ id: number; project: Project; rotation: number }[]>(() => {
+    const n = projects.length;
+    const start = currentIndex ?? 0;
+    const ordered = Array.from({ length: n }, (_, i) => projects[(start + 1 + i) % n]);
+    return ordered.map((project, index) => ({
       id: index + 1,
       project,
-      rotation: (index - 1) * 4,
-    }))
-  );
+      rotation: (projects.findIndex((p) => p.id === project.id) - 1) * 4,
+    }));
+  });
+  const reportTop = useRef(false);
 
   const sendToBack = (id: number) => {
     setStack((prev) => {
@@ -69,27 +73,28 @@ export default function MobileCardStack({
       newStack.unshift(card);
       return newStack;
     });
+    reportTop.current = true;
   };
 
   useEffect(() => {
     if (currentIndex == null) return;
     const target = projects[currentIndex];
     if (!target) return;
-    queueMicrotask(() => {
-      setStack((prev) => {
-        if (prev.length === 0 || prev[prev.length - 1].project.id === target.id) return prev;
-        const card = prev.find((c) => c.project.id === target.id);
-        if (!card) return prev;
-        return [...prev.filter((c) => c.id !== card.id), card];
-      });
+    setStack((prev) => {
+      if (prev.length === 0 || prev[prev.length - 1].project.id === target.id) return prev;
+      const card = prev.find((c) => c.project.id === target.id);
+      if (!card) return prev;
+      reportTop.current = false;
+      return [...prev.filter((c) => c.id !== card.id), card];
     });
   }, [currentIndex, projects]);
 
   useEffect(() => {
-    const topIndex = stack.length > 0
-      ? projects.findIndex((p) => p.id === stack[stack.length - 1].project.id)
-      : 0;
-    if (onIndexChange) onIndexChange(topIndex >= 0 ? topIndex : 0);
+    if (!reportTop.current) return;
+    reportTop.current = false;
+    if (stack.length === 0) return;
+    const topIndex = projects.findIndex((p) => p.id === stack[stack.length - 1].project.id);
+    if (onIndexChange && topIndex >= 0) onIndexChange(topIndex);
   }, [stack, projects, onIndexChange]);
 
   return (
