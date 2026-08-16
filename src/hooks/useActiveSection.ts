@@ -17,11 +17,10 @@ export function useActiveSection() {
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', () => {
-    const pos = window.scrollY + 200;
     let current = sectionFiles[0].id;
     for (const section of sectionFiles) {
       const el = document.getElementById(section.id);
-      if (el && el.offsetTop <= pos) current = section.id;
+      if (el && el.getBoundingClientRect().top <= 200) current = section.id;
     }
     setActive(current);
   });

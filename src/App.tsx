@@ -26,7 +26,7 @@ export default function App() {
         <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
           <Navbar />
           <FileExplorer />
-          <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6">
+          <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6 md:pb-12">
             <HeroSection />
             <AboutSection />
             <ExperienceSection />
