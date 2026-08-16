@@ -4,6 +4,7 @@ import ProjectCard from './ProjectCard';
 import MobileCardStack from './MobileCardStack';
 import { projects } from '../data';
 import { fadeRightConfig } from '../utils/animations';
+import SectionHeading from './SectionHeading';
 
 export default function ProjectsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -65,19 +66,19 @@ export default function ProjectsSection() {
   return (
     <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-bold text-copy">My Projects</h2>
+        <SectionHeading file="projects.tsx">Work</SectionHeading>
 
         <div className="hidden sm:flex gap-3 relative z-10">
           <button
             onClick={prevProject}
-            className="p-3 bg-surface border border-edge rounded-full text-muted hover:text-copy hover:border-edge-hover transition-all hover:scale-105"
+            className="p-3 bg-surface border border-edge rounded-md text-muted hover:text-copy hover:border-accent transition-all"
             aria-label="Previous"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           </button>
           <button
             onClick={nextProject}
-            className="p-3 bg-surface border border-edge rounded-full text-muted hover:text-copy hover:border-edge-hover transition-all hover:scale-105"
+            className="p-3 bg-surface border border-edge rounded-md text-muted hover:text-copy hover:border-accent transition-all"
             aria-label="Next"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>

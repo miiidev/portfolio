@@ -3,9 +3,13 @@ import LazyImage from './LazyImage';
 
 export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
   return (
-    <div 
-      className={`bg-surface border border-edge rounded-xl overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-edge-hover' : ''}`}
+    <div
+      className={`bg-surface border border-edge rounded-md overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-accent/60' : ''}`}
     >
+      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2 shrink-0">
+        <span className="font-mono text-xs text-muted">projects/{project.title}.tsx</span>
+        <span className="font-mono text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
+      </div>
       {project.image ? (
         <div className="shrink-0">
           <LazyImage
@@ -27,49 +31,50 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
         </div>
       )}
       <div className="p-5 sm:p-8 flex flex-col flex-1">
-      <h3 className="text-xl sm:text-2xl font-bold text-copy mb-3">{project.title}</h3>
-      <p className="text-muted text-sm mb-6 leading-relaxed flex-grow">{project.description}</p>
-      
-      <div className="flex flex-wrap gap-2 mb-6">
-        {project.tags.map((tag, index) => (
-          <span key={index} className="text-xs font-semibold bg-canvas text-copy/80 px-3 py-1.5 rounded-full border-edge">
-            {tag}
-          </span>
-        ))}
+        <p className="font-mono text-xs text-code-comment mb-2">// {project.title}</p>
+        <h3 className="text-xl sm:text-2xl font-bold text-copy mb-3">{project.title}</h3>
+        <p className="text-muted text-sm mb-6 leading-relaxed flex-grow">{project.description}</p>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          {project.tags.map((tag, index) => (
+            <span key={index} className="font-mono text-xs bg-canvas text-muted px-3 py-1.5 rounded-full border border-edge">
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-4 mt-auto">
+          {project.repo && (
+            <a
+              href={project.repo}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:text-accent transition-colors duration-200"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+              Code
+            </a>
+          )}
+          {project.demo && (
+            <a
+              href={project.demo}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:text-accent transition-colors duration-200"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Demo
+            </a>
+          )}
+        </div>
       </div>
-      
-      <div className="flex items-center gap-4 mt-auto">
-        {project.repo && (
-          <a
-            href={project.repo}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:opacity-80 transition-opacity duration-200"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="16 18 22 12 16 6"/>
-              <polyline points="8 6 2 12 8 18"/>
-            </svg>
-            Code
-          </a>
-        )}
-        {project.demo && (
-          <a
-            href={project.demo}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:opacity-80 transition-opacity duration-200"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            Demo
-          </a>
-        )}
-      </div>
-    </div>
     </div>
   );
 }
