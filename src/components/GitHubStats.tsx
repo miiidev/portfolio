@@ -75,30 +75,36 @@ export default function GitHubStats() {
   }, []);
 
   return (
-    <div className="bg-surface/50 border border-edge rounded-xl p-6">
-      <h3 className="text-sm font-semibold text-muted mb-4 font-mono uppercase tracking-wide">GitHub</h3>
-      <div className="space-y-4">
-        <div>
-          <p className="text-3xl font-extrabold text-copy">{stats.publicRepos}+</p>
-          <p className="text-sm text-muted">repos built</p>
-        </div>
-        {stats.topLanguages.length > 0 && (
+    <div className="bg-surface/50 border border-edge rounded-md overflow-hidden">
+      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+        <span className="text-xs text-muted">github-stats.ts</span>
+        <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+      </div>
+      <div className="p-6">
+        <h3 className="text-sm font-semibold text-muted mb-4 font-mono uppercase tracking-wide">GitHub</h3>
+        <div className="space-y-4">
           <div>
-            <p className="text-sm text-muted mb-2">Top languages</p>
-            <div className="flex flex-wrap gap-2">
-              {stats.topLanguages.map((lang) => (
-                <span key={lang} className="text-xs font-semibold bg-canvas text-copy/80 px-3 py-1.5 rounded-full border border-edge">
-                  {lang}
-                </span>
-              ))}
-            </div>
+            <p className="text-3xl font-extrabold text-copy">{stats.publicRepos}+</p>
+            <p className="text-sm text-muted">repos built</p>
           </div>
-        )}
-        <div>
-          <p className="text-sm text-muted mb-1">Last push</p>
-          <p className="text-sm text-copy/80 font-medium">
-            {stats.lastPush ? formatLastPush(stats.lastPush) : 'Always building'}
-          </p>
+          {stats.topLanguages.length > 0 && (
+            <div>
+              <p className="text-sm text-muted mb-2">Top languages</p>
+              <div className="flex flex-wrap gap-2">
+                {stats.topLanguages.map((lang) => (
+                  <span key={lang} className="text-xs font-semibold bg-canvas text-copy/80 px-3 py-1.5 rounded-full border border-edge">
+                    {lang}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <p className="text-sm text-muted mb-1">Last push</p>
+            <p className="text-sm text-copy/80 font-medium">
+              {stats.lastPush ? formatLastPush(stats.lastPush) : 'Always building'}
+            </p>
+          </div>
         </div>
       </div>
     </div>
