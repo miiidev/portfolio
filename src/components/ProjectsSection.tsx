@@ -140,24 +140,6 @@ export default function ProjectsSection() {
           })}
         </motion.div>
       )}
-
-      <div className="flex items-center justify-center gap-2 mt-8">
-        {projects.map((project, i) => (
-          <button
-            key={project.id}
-            onClick={() => setCurrentIndex(i)}
-            className="w-11 h-11 flex items-center justify-center"
-            aria-label={`Go to ${project.title}`}
-            aria-current={i === currentIndex ? 'true' : undefined}
-          >
-            <span
-              className={`block w-2.5 h-2.5 rounded-full transition-colors duration-200 ${
-                i === currentIndex ? 'bg-inverse shadow-glow-dot' : 'bg-dim hover:bg-muted'
-              }`}
-            />
-          </button>
-        ))}
-      </div>
     </motion.section>
   );
 }

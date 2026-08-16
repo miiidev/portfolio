@@ -5,16 +5,16 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 type FieldErrors = {
   name?: string;
-  email?: string;
+  subject?: string;
   message?: string;
 };
 
 const inputClass =
-  'w-full bg-surface border border-edge rounded-lg px-4 py-3 text-sm text-copy placeholder:text-dim focus:outline-none focus:border-edge-hover transition-colors duration-200';
+  'w-full rounded-md border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-edge-hover transition-colors duration-200';
 
 export default function ContactForm() {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [formState, setFormState] = useState<FormState>('idle');
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -23,8 +23,6 @@ export default function ContactForm() {
   const validate = (): FieldErrors => {
     const errs: FieldErrors = {};
     if (!name.trim()) errs.name = 'Name is required';
-    if (!email.trim()) errs.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Enter a valid email address';
     if (!message.trim()) errs.message = 'Message is required';
     else if (message.trim().length < 10) errs.message = 'Message must be at least 10 characters';
     return errs;
@@ -47,14 +45,14 @@ export default function ContactForm() {
       const res = await fetch(`https://formspree.io/f/${personalInfo.formspreeId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name, subject, message }),
       });
 
       if (!res.ok) throw new Error('Failed to send message');
 
       setFormState('success');
       setName('');
-      setEmail('');
+      setSubject('');
       setMessage('');
     } catch {
       setFormState('error');
@@ -65,19 +63,23 @@ export default function ContactForm() {
   if (formState === 'success') {
     return (
       <div className="text-center py-8">
-        <p className="text-lg text-copy/80 font-semibold mb-2">Message sent!</p>
+        <p className="text-base text-copy/80 font-semibold mb-2">Message sent!</p>
         <p className="text-sm text-muted">Thanks for reaching out. I'll get back to you soon.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto text-left space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 font-mono text-sm">
       <div>
+        <label htmlFor="contact-name" className="block text-xs text-muted mb-1.5">
+          $ set --name
+        </label>
         <input
           type="text"
+          id="contact-name"
           name="name"
-          placeholder="Your Name"
+          placeholder="Your name"
           autoComplete="name"
           maxLength={80}
           value={name}
@@ -95,31 +97,30 @@ export default function ContactForm() {
         )}
       </div>
       <div>
+        <label htmlFor="contact-subject" className="block text-xs text-muted mb-1.5">
+          $ set --subject
+        </label>
         <input
-          type="email"
-          name="email"
-          placeholder="Your Email"
-          autoComplete="email"
-          maxLength={120}
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-          }}
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? 'email-error' : undefined}
+          type="text"
+          id="contact-subject"
+          name="subject"
+          placeholder="Subject"
+          maxLength={160}
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
           className={inputClass}
           disabled={formState === 'loading'}
         />
-        {errors.email && (
-          <p id="email-error" className="text-xs text-danger mt-1.5">{errors.email}</p>
-        )}
       </div>
       <div>
+        <label htmlFor="contact-message" className="block text-xs text-muted mb-1.5">
+          $ cat message.txt
+        </label>
         <textarea
+          id="contact-message"
           name="message"
-          placeholder="Your Message"
-          rows={4}
+          placeholder="Your message"
+          rows={5}
           maxLength={2000}
           value={message}
           onChange={(e) => {
@@ -137,15 +138,19 @@ export default function ContactForm() {
       </div>
 
       {submitError && (
-        <p role="alert" className="text-xs text-danger text-center">{submitError}</p>
+        <p role="alert" className="text-xs text-danger">{submitError}</p>
       )}
 
       <button
         type="submit"
         disabled={formState === 'loading'}
-        className="w-full py-3 bg-inverse text-inverse-copy font-semibold rounded-lg text-sm transition-all border border-edge hover:border-edge-hover disabled:opacity-50 disabled:cursor-not-allowed min-h-11"
+        className="inline-flex items-center gap-2 rounded-md bg-inverse text-inverse-copy font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {formState === 'loading' ? 'Sending...' : 'Send Message'}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m22 2-7 20-4-9-9-4Z" />
+          <path d="M22 2 11 13" />
+        </svg>
+        {formState === 'loading' ? 'Sending...' : 'Send message'}
       </button>
     </form>
   );

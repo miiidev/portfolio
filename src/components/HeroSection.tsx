@@ -25,15 +25,21 @@ export default function HeroSection() {
       className="min-h-screen flex relative overflow-hidden"
     >
       <div className="flex flex-1 flex-col lg:flex-row">
-        <div className="relative lg:w-1/2 w-full lg:h-screen h-[50vh] flex items-center justify-center shrink-0">
+        <div className="relative lg:w-1/2 w-full lg:h-screen flex flex-col items-center justify-center gap-6 py-10 shrink-0">
           <div className="w-64 h-64 lg:w-80 lg:h-80 rounded-full overflow-hidden border border-edge">
             <LazyImage
               src="/portfolio/assets/profile-image.jpeg"
               alt={personalInfo.name}
               className="w-full h-full"
               imgClassName="object-cover w-full h-full"
+              loading="eager"
+              fetchPriority="high"
+              decoding="sync"
             />
           </div>
+          <motion.div variants={heroItemVariants} className="w-full max-w-md px-6 lg:px-0">
+            <MiniTerminal />
+          </motion.div>
         </div>
 
         <div className="lg:w-1/2 w-full flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-16 py-12">
@@ -60,9 +66,6 @@ export default function HeroSection() {
             >
               Get In Touch
             </button>
-          </motion.div>
-          <motion.div variants={heroItemVariants} className="mt-8">
-            <MiniTerminal />
           </motion.div>
         </div>
       </div>

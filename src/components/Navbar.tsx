@@ -37,13 +37,13 @@ export default function Navbar() {
     >
       <div
         className={`mx-auto transition-all duration-300 ${
-          scrolled ? 'max-w-5xl' : 'max-w-6xl'
+          scrolled ? 'max-w-4xl' : 'max-w-6xl'
         }`}
       >
         <nav
           className={`flex items-center justify-between gap-4 transition-all duration-300 ${
             scrolled
-              ? 'h-11 md:h-12 rounded-full bg-surface border border-nav-edge px-3 sm:px-6'
+              ? 'h-11 rounded-full bg-surface border border-nav-edge px-3 sm:px-5'
               : 'h-16 rounded-none bg-transparent border border-transparent px-4 sm:px-6'
           }`}
         >

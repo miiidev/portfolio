@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
@@ -13,6 +14,11 @@ import SideStepper from './components/SideStepper';
 import BackToTop from './components/BackToTop';
 
 export default function App() {
+  useEffect(() => {
+    history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <ThemeProvider>
       <MotionConfig reducedMotion="user">
