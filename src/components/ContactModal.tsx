@@ -155,7 +155,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             role="dialog"
             aria-modal="true"
             aria-label="Get In Touch"
-            className="relative bg-surface border border-edge rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
+            className="relative bg-surface border border-edge rounded-md w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
@@ -174,7 +174,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             </div>
             <div className="px-2 py-2 overflow-y-auto">
               {platforms.map((p) => (
-                <div key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-elevated/50 transition-colors group">
+                <div key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-elevated/50 transition-colors group">
                   <span className="text-muted group-hover:text-copy transition-colors shrink-0">{p.icon}</span>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-copy">{p.name}</p>
