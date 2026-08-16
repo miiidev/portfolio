@@ -10,7 +10,7 @@ type FieldErrors = {
 };
 
 const inputClass =
-  'w-full rounded-md border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-edge-hover transition-colors duration-200';
+  'w-full rounded-md border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-accent transition-colors duration-200';
 
 export default function ContactForm() {
   const [name, setName] = useState('');
