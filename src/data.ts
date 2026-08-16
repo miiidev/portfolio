@@ -105,15 +105,15 @@ export const experience: ExperienceItem[] = [
 
 export const education: EducationItem[] = [
   {
-    period: "2020 - 2024",
-    title: "Secondary School",
-    org: "SMK Bandar Tasik Puteri",
-    description: "",
-  },
-  {
     period: "Jul 2025 - Jun 2026",
     title: "Foundation in Computer Science",
     org: "CFS IIUM",
+    description: "",
+  },
+  {
+    period: "2020 - 2024",
+    title: "Secondary School",
+    org: "SMK Bandar Tasik Puteri",
     description: "",
   },
 ];
