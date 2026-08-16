@@ -1,0 +1,68 @@
+COMMITS:
+4cfaae6 feat: restyle terminal as IDE integrated terminal panel
+
+STAT:
+ src/components/MiniTerminal.tsx | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+DIFF:
+diff --git a/src/components/MiniTerminal.tsx b/src/components/MiniTerminal.tsx
+index b392b21..6030963 100644
+--- a/src/components/MiniTerminal.tsx
++++ b/src/components/MiniTerminal.tsx
+@@ -71,50 +71,48 @@ export default function MiniTerminal() {
+       window.dispatchEvent(new CustomEvent('portfolio:project', { detail: idx }));
+       next.push({ text: `Opening project ${idx + 1}...`, kind: 'out' });
+     } else {
+       next.push(...outputFor(raw));
+     }
+     setLines((prev) => [...prev, ...next]);
+   };
+ 
+   return (
+     <div
+-      className="w-full max-w-md rounded-xl border border-edge bg-surface text-sm font-mono overflow-hidden"
++      className="w-full max-w-md rounded-md border border-edge bg-surface text-sm font-mono overflow-hidden"
+       role="region"
+       aria-label="Terminal"
+     >
+-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-edge">
+-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ff5f56' }} />
+-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ffbd2e' }} />
+-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#27c93f' }} />
+-        <span className="ml-2 text-xs text-muted">miii@portfolio: ~</span>
++      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
++        <span className="text-xs text-muted">TERMINAL</span>
++        <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+       </div>
+       <div className="p-4 h-56 overflow-y-auto">
+         {lines.map((line, i) => (
+           <motion.div
+             key={i}
+             initial={{ opacity: 0, y: 6 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.15 }}
+             className={
+               line.kind === 'cmd'
+                 ? 'text-copy font-semibold'
+                 : line.kind === 'err'
+                   ? 'text-danger'
+                   : 'text-muted'
+             }
+           >
+             {line.text}
+           </motion.div>
+         ))}
+         <div className="flex items-center gap-2 mt-1">
+-          <span className="text-copy font-semibold">&gt;</span>
++          <span className="text-code-keyword font-semibold shrink-0">miii@portfolio:~$</span>
+           <input
+             value={input}
+             onChange={(e) => setInput(e.target.value)}
+             onKeyDown={(e) => {
+               if (e.key === 'Escape') {
+                 (e.target as HTMLInputElement).blur();
+                 return;
+               }
+               if (e.key === 'Enter' && input.trim()) {
+                 run(input);

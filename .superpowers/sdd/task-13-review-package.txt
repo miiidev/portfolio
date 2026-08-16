@@ -1,0 +1,197 @@
+COMMITS:
+780dd5f feat: restyle project cards with editor tab headers
+
+STAT:
+ src/components/ProjectCard.tsx     | 93 ++++++++++++++++++++------------------
+ src/components/ProjectsSection.tsx |  7 +--
+ 2 files changed, 53 insertions(+), 47 deletions(-)
+
+DIFF:
+diff --git a/src/components/ProjectCard.tsx b/src/components/ProjectCard.tsx
+index ce80160..8de2544 100644
+--- a/src/components/ProjectCard.tsx
++++ b/src/components/ProjectCard.tsx
+@@ -1,18 +1,22 @@
+ import type { Project } from '../data';
+ import LazyImage from './LazyImage';
+ 
+ export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
+   return (
+-    <div 
+-      className={`bg-surface border border-edge rounded-xl overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-edge-hover' : ''}`}
++    <div
++      className={`bg-surface border border-edge rounded-md overflow-hidden group h-full w-full flex flex-col ${isCenter ? 'hover:border-accent/60' : ''}`}
+     >
++      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2 shrink-0">
++        <span className="font-mono text-xs text-muted">projects/{project.title}.tsx</span>
++        <span className="font-mono text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
++      </div>
+       {project.image ? (
+         <div className="shrink-0">
+           <LazyImage
+             src={project.image}
+             alt={project.title}
+             className="w-full aspect-video"
+           />
+         </div>
+       ) : (
+         <div className="shrink-0 w-full aspect-video bg-gradient-to-br from-surface via-elevated to-surface flex items-center justify-center border-b border-edge">
+@@ -20,56 +24,57 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
+             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
+               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+               <line x1="8" y1="21" x2="16" y2="21"/>
+               <line x1="12" y1="17" x2="12" y2="21"/>
+             </svg>
+             <span className="text-xs font-mono opacity-30">Screenshot</span>
+           </div>
+         </div>
+       )}
+       <div className="p-5 sm:p-8 flex flex-col flex-1">
+-      <h3 className="text-xl sm:text-2xl font-bold text-copy mb-3">{project.title}</h3>
+-      <p className="text-muted text-sm mb-6 leading-relaxed flex-grow">{project.description}</p>
+-      
+-      <div className="flex flex-wrap gap-2 mb-6">
+-        {project.tags.map((tag, index) => (
+-          <span key={index} className="text-xs font-semibold bg-canvas text-copy/80 px-3 py-1.5 rounded-full border-edge">
+-            {tag}
+-          </span>
+-        ))}
+-      </div>
+-      
+-      <div className="flex items-center gap-4 mt-auto">
+-        {project.repo && (
+-          <a
+-            href={project.repo}
+-            target="_blank"
+-            rel="noreferrer"
+-            className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:opacity-80 transition-opacity duration-200"
+-          >
+-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+-              <polyline points="16 18 22 12 16 6"/>
+-              <polyline points="8 6 2 12 8 18"/>
+-            </svg>
+-            Code
+-          </a>
+-        )}
+-        {project.demo && (
+-          <a
+-            href={project.demo}
+-            target="_blank"
+-            rel="noreferrer"
+-            className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:opacity-80 transition-opacity duration-200"
+-          >
+-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+-              <polyline points="15 3 21 3 21 9"/>
+-              <line x1="10" y1="14" x2="21" y2="3"/>
+-            </svg>
+-            Demo
+-          </a>
+-        )}
++        <p className="font-mono text-xs text-code-comment mb-2">// {project.title}</p>
++        <h3 className="text-xl sm:text-2xl font-bold text-copy mb-3">{project.title}</h3>
++        <p className="text-muted text-sm mb-6 leading-relaxed flex-grow">{project.description}</p>
++
++        <div className="flex flex-wrap gap-2 mb-6">
++          {project.tags.map((tag, index) => (
++            <span key={index} className="font-mono text-xs bg-canvas text-muted px-3 py-1.5 rounded-full border border-edge">
++              {tag}
++            </span>
++          ))}
++        </div>
++
++        <div className="flex items-center gap-4 mt-auto">
++          {project.repo && (
++            <a
++              href={project.repo}
++              target="_blank"
++              rel="noreferrer"
++              className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:text-accent transition-colors duration-200"
++            >
++              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                <polyline points="16 18 22 12 16 6"/>
++                <polyline points="8 6 2 12 8 18"/>
++              </svg>
++              Code
++            </a>
++          )}
++          {project.demo && (
++            <a
++              href={project.demo}
++              target="_blank"
++              rel="noreferrer"
++              className="inline-flex items-center gap-2 text-sm font-semibold text-copy hover:text-accent transition-colors duration-200"
++            >
++              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
++                <polyline points="15 3 21 3 21 9"/>
++                <line x1="10" y1="14" x2="21" y2="3"/>
++              </svg>
++              Demo
++            </a>
++          )}
++        </div>
+       </div>
+     </div>
+-    </div>
+   );
+ }
+diff --git a/src/components/ProjectsSection.tsx b/src/components/ProjectsSection.tsx
+index eef7f20..2f18a5c 100644
+--- a/src/components/ProjectsSection.tsx
++++ b/src/components/ProjectsSection.tsx
+@@ -1,16 +1,17 @@
+ import { useState, useEffect } from 'react';
+ import { motion, type PanInfo } from 'framer-motion';
+ import ProjectCard from './ProjectCard';
+ import MobileCardStack from './MobileCardStack';
+ import { projects } from '../data';
+ import { fadeRightConfig } from '../utils/animations';
++import SectionHeading from './SectionHeading';
+ 
+ export default function ProjectsSection() {
+   const [currentIndex, setCurrentIndex] = useState(0);
+   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+ 
+   useEffect(() => {
+     const mq = window.matchMedia('(max-width: 768px)');
+     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+     mq.addEventListener('change', handler);
+     return () => mq.removeEventListener('change', handler);
+@@ -58,33 +59,33 @@ export default function ProjectsSection() {
+     if (offset < -threshold || velocity < -500) {
+       nextProject();
+     } else if (offset > threshold || velocity > 500) {
+       prevProject();
+     }
+   };
+ 
+   return (
+     <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12">
+       <div className="flex items-center justify-between mb-2">
+-        <h2 className="text-2xl font-bold text-copy">My Projects</h2>
++        <SectionHeading file="projects.tsx">Work</SectionHeading>
+ 
+         <div className="hidden sm:flex gap-3 relative z-10">
+           <button
+             onClick={prevProject}
+-            className="p-3 bg-surface border border-edge rounded-full text-muted hover:text-copy hover:border-edge-hover transition-all hover:scale-105"
++            className="p-3 bg-surface border border-edge rounded-md text-muted hover:text-copy hover:border-accent transition-all"
+             aria-label="Previous"
+           >
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+           </button>
+           <button
+             onClick={nextProject}
+-            className="p-3 bg-surface border border-edge rounded-full text-muted hover:text-copy hover:border-edge-hover transition-all hover:scale-105"
++            className="p-3 bg-surface border border-edge rounded-md text-muted hover:text-copy hover:border-accent transition-all"
+             aria-label="Next"
+           >
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+           </button>
+         </div>
+       </div>
+ 
+       {isMobile ? (
+         <div className="relative w-full h-[450px] mt-8">
+           <MobileCardStack

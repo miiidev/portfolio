@@ -1,0 +1,135 @@
+COMMITS:
+6b8c7f6 chore: final IDE chrome consistency pass
+
+STAT:
+ src/components/BackToTop.tsx       | 2 +-
+ src/components/ContactModal.tsx    | 4 ++--
+ src/components/MobileCardStack.tsx | 2 +-
+ src/components/ThemeToggle.tsx     | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+
+DIFF:
+diff --git a/src/components/BackToTop.tsx b/src/components/BackToTop.tsx
+index 42910d3..52021c4 100644
+--- a/src/components/BackToTop.tsx
++++ b/src/components/BackToTop.tsx
+@@ -10,19 +10,19 @@ export default function BackToTop() {
+   });
+ 
+   return (
+     <AnimatePresence>
+       {showBackToTop && (
+         <motion.button
+           initial={{ opacity: 0, scale: 0.8 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 0.8 }}
+           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+-          className="fixed bottom-8 right-8 z-40 p-3 bg-surface border-edge rounded-full text-muted hover:text-copy hover:border-copy transition-all shadow-lg"
++          className="fixed bottom-8 right-8 z-40 p-3 bg-surface border-edge rounded-md text-muted hover:text-copy hover:border-copy transition-all shadow-lg"
+           aria-label="Back to top"
+         >
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+         </motion.button>
+       )}
+     </AnimatePresence>
+   );
+ }
+diff --git a/src/components/ContactModal.tsx b/src/components/ContactModal.tsx
+index 0c16924..5067720 100644
+--- a/src/components/ContactModal.tsx
++++ b/src/components/ContactModal.tsx
+@@ -148,40 +148,40 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
+             onClick={onClose}
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+           />
+           <motion.div
+             ref={dialogRef}
+             role="dialog"
+             aria-modal="true"
+             aria-label="Get In Touch"
+-            className="relative bg-surface border border-edge rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
++            className="relative bg-surface border border-edge rounded-md w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
+             initial={{ opacity: 0, scale: 0.92, y: 20 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.92, y: 20 }}
+             transition={{ duration: 0.25, ease: 'easeOut' }}
+           >
+             <div className="flex items-center justify-between px-6 py-4 border-b border-edge shrink-0">
+               <h2 className="text-lg font-semibold text-copy">Get In Touch</h2>
+               <button
+                 ref={closeRef}
+                 onClick={onClose}
+                 className="p-2 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
+                 aria-label="Close"
+               >
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+               </button>
+             </div>
+             <div className="px-2 py-2 overflow-y-auto">
+               {platforms.map((p) => (
+-                <div key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-elevated/50 transition-colors group">
++                <div key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-elevated/50 transition-colors group">
+                   <span className="text-muted group-hover:text-copy transition-colors shrink-0">{p.icon}</span>
+                   <div className="min-w-0">
+                     <p className="text-sm font-medium text-copy">{p.name}</p>
+                     <p className="text-xs text-muted truncate max-w-[180px]">{p.desc}</p>
+                   </div>
+                   {'actions' in p ? (
+                     p.actions
+                   ) : (
+                     <a
+                       href={p.href}
+diff --git a/src/components/MobileCardStack.tsx b/src/components/MobileCardStack.tsx
+index 4ab06ca..0db7ef4 100644
+--- a/src/components/MobileCardStack.tsx
++++ b/src/components/MobileCardStack.tsx
+@@ -104,21 +104,21 @@ export default function MobileCardStack({
+         const scale = 1 + index * 0.06 - stack.length * 0.06;
+         const rotate = (stack.length - index - 1) * 4 + card.rotation;
+ 
+         return (
+           <CardRotate
+             key={card.id}
+             onSendToBack={() => sendToBack(card.id)}
+             sensitivity={sensitivity}
+           >
+             <motion.div
+-              className="rounded-xl overflow-hidden w-full h-full"
++              className="rounded-md overflow-hidden w-full h-full"
+               onClick={() => sendToBack(card.id)}
+               animate={{
+                 rotateZ: isTop ? 0 : rotate,
+                 scale: isTop ? 0.9 : scale * 0.9,
+               }}
+               initial={false}
+               transition={{
+                 type: 'spring',
+                 stiffness: animationConfig.stiffness,
+                 damping: animationConfig.damping,
+diff --git a/src/components/ThemeToggle.tsx b/src/components/ThemeToggle.tsx
+index e83c7cc..99865a6 100644
+--- a/src/components/ThemeToggle.tsx
++++ b/src/components/ThemeToggle.tsx
+@@ -1,19 +1,19 @@
+ import { useTheme } from '../context/theme';
+ 
+ export default function ThemeToggle() {
+   const { theme, toggleTheme } = useTheme();
+ 
+   return (
+     <button
+       onClick={toggleTheme}
+-      className="p-2 rounded-full text-muted hover:text-copy transition-colors"
++      className="p-2 rounded-md text-muted hover:text-copy transition-colors"
+       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+     >
+       {theme === 'dark' ? (
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+           <circle cx="12" cy="12" r="5" />
+           <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+         </svg>
+       ) : (
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
