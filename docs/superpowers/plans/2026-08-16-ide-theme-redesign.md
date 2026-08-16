@@ -265,23 +265,28 @@ export default function App() {
   return (
     <ThemeProvider>
       <MotionConfig reducedMotion="user">
-        <Navbar />
-        <main className="lg:pl-48 pb-6">
-          <HeroSection />
-          <AboutSection />
-          <ExperienceSection />
-          <EducationSection />
-          <AchievementsSection />
-          <SkillsSection />
-          <ProjectsSection />
-          <ContactFooter />
-        </main>
-        <StatusBar />
-        <BackToTop />
+        <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
+          <Navbar />
+          <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6">
+            <HeroSection />
+            <AboutSection />
+            <ExperienceSection />
+            <EducationSection />
+            <AchievementsSection />
+            <SkillsSection />
+            <ProjectsSection />
+            <ContactFooter />
+          </main>
+          <StatusBar />
+          <BackToTop />
+        </div>
       </MotionConfig>
     </ThemeProvider>
   );
 }
+```
+
+Note: the outer wrapper div (page background `bg-canvas`, text color, selection styling) and the `main` max-width/padding classes are REQUIRED — they were present before this task and must be preserved. `lg:pl-48` offsets content from the fixed file-explorer rail (Task 5).
 ```
 
 - [ ] **Step 4: Delete SideStepper and its references**

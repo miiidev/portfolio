@@ -22,19 +22,21 @@ export default function App() {
   return (
     <ThemeProvider>
       <MotionConfig reducedMotion="user">
-        <Navbar />
-        <main className="lg:pl-48 pb-6">
-          <HeroSection />
-          <AboutSection />
-          <ExperienceSection />
-          <EducationSection />
-          <AchievementsSection />
-          <SkillsSection />
-          <ProjectsSection />
-          <ContactFooter />
-        </main>
-        <StatusBar />
-        <BackToTop />
+        <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
+          <Navbar />
+          <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6">
+            <HeroSection />
+            <AboutSection />
+            <ExperienceSection />
+            <EducationSection />
+            <AchievementsSection />
+            <SkillsSection />
+            <ProjectsSection />
+            <ContactFooter />
+          </main>
+          <StatusBar />
+          <BackToTop />
+        </div>
       </MotionConfig>
     </ThemeProvider>
   );
