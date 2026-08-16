@@ -96,6 +96,11 @@ body {
   animation: cursor-blink 1.1s step-end infinite;
 }
 
+/* Skill icon inversion for light mode */
+.light .skill-icon-base {
+  filter: invert(1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

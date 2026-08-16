@@ -10,7 +10,7 @@ import AchievementsSection from './components/AchievementsSection';
 import SkillsSection from './components/SkillsSection';
 import ProjectsSection from './components/ProjectsSection';
 import ContactFooter from './components/ContactFooter';
-import SideStepper from './components/SideStepper';
+import StatusBar from './components/StatusBar';
 import BackToTop from './components/BackToTop';
 
 export default function App() {
@@ -22,21 +22,19 @@ export default function App() {
   return (
     <ThemeProvider>
       <MotionConfig reducedMotion="user">
-        <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
-          <Navbar />
-          <SideStepper />
-          <BackToTop />
+        <Navbar />
+        <main className="lg:pl-48 pb-6">
           <HeroSection />
-          <main className="px-6 md:px-12 max-w-6xl mx-auto overflow-hidden">
-            <AboutSection />
-            <ExperienceSection />
-            <EducationSection />
-            <AchievementsSection />
-            <SkillsSection />
-            <ProjectsSection />
-            <ContactFooter />
-          </main>
-        </div>
+          <AboutSection />
+          <ExperienceSection />
+          <EducationSection />
+          <AchievementsSection />
+          <SkillsSection />
+          <ProjectsSection />
+          <ContactFooter />
+        </main>
+        <StatusBar />
+        <BackToTop />
       </MotionConfig>
     </ThemeProvider>
   );
