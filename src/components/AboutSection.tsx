@@ -19,9 +19,9 @@ export default function AboutSection() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <motion.div variants={itemVariants} className="rounded-xl border border-edge bg-surface overflow-hidden font-mono">
           <div className="flex items-center gap-2 px-4 py-2.5 border-b border-edge">
-            <span className="w-2.5 h-2.5 rounded-full bg-dim" />
-            <span className="w-2.5 h-2.5 rounded-full bg-dim" />
-            <span className="w-2.5 h-2.5 rounded-full bg-dim" />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ff5f56' }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ffbd2e' }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#27c93f' }} />
             <span className="ml-2 text-xs text-muted">miii@portfolio: ~/about</span>
           </div>
           <div className="p-6 space-y-3">

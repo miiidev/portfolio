@@ -83,10 +83,10 @@ export default function MiniTerminal() {
       aria-label="Terminal"
     >
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-edge">
-        <span className="w-2.5 h-2.5 rounded-full bg-dim" />
-        <span className="w-2.5 h-2.5 rounded-full bg-dim" />
-        <span className="w-2.5 h-2.5 rounded-full bg-dim" />
-        <span className="ml-2 text-xs text-muted">miii@portfolio:~</span>
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ff5f56' }} />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ffbd2e' }} />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#27c93f' }} />
+        <span className="ml-2 text-xs text-muted">miii@portfolio: ~</span>
       </div>
       <div className="p-4 h-56 overflow-y-auto">
         {lines.map((line, i) => (

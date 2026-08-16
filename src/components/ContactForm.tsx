@@ -73,7 +73,7 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-4 font-mono text-sm">
       <div>
         <label htmlFor="contact-name" className="block text-xs text-muted mb-1.5">
-          $ set --name
+          &gt; name
         </label>
         <input
           type="text"
@@ -98,7 +98,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="contact-subject" className="block text-xs text-muted mb-1.5">
-          $ set --subject
+          &gt; subject
         </label>
         <input
           type="text"
@@ -114,7 +114,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="contact-message" className="block text-xs text-muted mb-1.5">
-          $ cat message.txt
+          &gt; message
         </label>
         <textarea
           id="contact-message"
