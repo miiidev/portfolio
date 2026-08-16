@@ -25,15 +25,15 @@ export default function HeroSection() {
       className="min-h-screen flex relative overflow-hidden"
     >
       <div className="flex flex-1 flex-col lg:flex-row">
-        <div className="relative lg:w-1/2 w-full lg:h-screen h-[50vh] overflow-hidden shrink-0">
-          <LazyImage
-            src="/portfolio/assets/profile-image.jpeg"
-            alt={personalInfo.name}
-            className="w-full h-full"
-            imgClassName="object-cover object-center lg:object-[center_30%]"
-          />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-canvas to-transparent hidden lg:block" />
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-canvas to-transparent lg:hidden pointer-events-none" />
+        <div className="relative lg:w-1/2 w-full lg:h-screen h-[50vh] flex items-center justify-center shrink-0">
+          <div className="w-64 h-64 lg:w-80 lg:h-80 rounded-full overflow-hidden border border-edge">
+            <LazyImage
+              src="/portfolio/assets/profile-image.jpeg"
+              alt={personalInfo.name}
+              className="w-full h-full"
+              imgClassName="object-cover w-full h-full"
+            />
+          </div>
         </div>
 
         <div className="lg:w-1/2 w-full flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-16 py-12">

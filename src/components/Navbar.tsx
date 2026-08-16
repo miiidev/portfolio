@@ -33,8 +33,9 @@ export default function Navbar() {
         <div className="flex items-center gap-1 sm:gap-2">
           {[
             { href: '#about', label: 'About' },
+            { href: '#experience', label: 'Experience' },
+            { href: '#education', label: 'Education' },
             { href: '#skills', label: 'Skills' },
-            { href: '#timeline', label: 'Timeline' },
             { href: '#work', label: 'Work' },
             { href: '#contact', label: 'Contact' },
           ].map((link) => (

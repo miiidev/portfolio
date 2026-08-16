@@ -4,8 +4,10 @@ import { useMotionValueEvent, useScroll } from 'framer-motion';
 const sections = [
   { id: 'hero', label: 'Home' },
   { id: 'about', label: 'About' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'education', label: 'Education' },
+  { id: 'achievements', label: 'Achievements' },
   { id: 'skills', label: 'Skills' },
-  { id: 'timeline', label: 'Timeline' },
   { id: 'work', label: 'Work' },
   { id: 'contact', label: 'Contact' },
 ];

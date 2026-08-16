@@ -19,12 +19,25 @@ export interface SkillGroup {
   items: Skill[];
 }
 
-export interface TimelineItem {
-  year: string;
+export interface ExperienceItem {
+  period: string;
   title: string;
   org?: string;
   description: string;
-  type: 'work' | 'achievement' | 'focus';
+  tags: string[];
+}
+
+export interface EducationItem {
+  period: string;
+  title: string;
+  org: string;
+  description: string;
+}
+
+export interface AchievementItem {
+  year: string;
+  title: string;
+  description: string;
 }
 
 export interface PersonalInfo {
@@ -81,24 +94,35 @@ export const personalInfo: PersonalInfo = {
   formspreeId: "mnjkyepw",
 };
 
-export const timeline: TimelineItem[] = [
+export const experience: ExperienceItem[] = [
   {
-    year: "Now",
+    period: "Now",
     title: "Programming Tutor",
     description: "Teaching Java to beginners, which keeps my fundamentals sharp and my communication clear.",
-    type: "work",
+    tags: ["Java"],
   },
+];
+
+export const education: EducationItem[] = [
+  {
+    period: "2020 - 2024",
+    title: "Secondary School",
+    org: "SMK Bandar Tasik Puteri",
+    description: "",
+  },
+  {
+    period: "Jul 2025 - Jun 2026",
+    title: "Foundation in Computer Science",
+    org: "CFS IIUM",
+    description: "",
+  },
+];
+
+export const achievements: AchievementItem[] = [
   {
     year: "2023",
     title: "3rd Place, Pertandingan Pembangunan Aplikasi Android",
     description: "Built an Android app from scratch and placed 3rd in a state-level competition.",
-    type: "achievement",
-  },
-  {
-    year: "Current focus",
-    title: "Software & AI Developer",
-    description: "Shipping autoteambuild (RL-powered Pokémon VGC team builder), rikugan (offline deepfake detection), and LAWCATOR.",
-    type: "focus",
   },
 ];
 
