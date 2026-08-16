@@ -78,15 +78,13 @@ export default function MiniTerminal() {
 
   return (
     <div
-      className="w-full max-w-md rounded-xl border border-edge bg-surface text-sm font-mono overflow-hidden"
+      className="w-full max-w-md rounded-md border border-edge bg-surface text-sm font-mono overflow-hidden"
       role="region"
       aria-label="Terminal"
     >
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-edge">
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ff5f56' }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ffbd2e' }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#27c93f' }} />
-        <span className="ml-2 text-xs text-muted">miii@portfolio: ~</span>
+      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+        <span className="text-xs text-muted">TERMINAL</span>
+        <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
       </div>
       <div className="p-4 h-56 overflow-y-auto">
         {lines.map((line, i) => (
@@ -107,7 +105,7 @@ export default function MiniTerminal() {
           </motion.div>
         ))}
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-copy font-semibold">&gt;</span>
+          <span className="text-code-keyword font-semibold shrink-0">miii@portfolio:~$</span>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
