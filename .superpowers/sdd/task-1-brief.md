@@ -1,0 +1,106 @@
+﻿### Task 1: IDE color tokens in index.css
+
+**Files:**
+- Modify: `src/index.css` (whole file)
+
+**Interfaces:**
+- Produces: theme tokens used by every later task â€” `canvas/surface/elevated/copy/muted/dim/edge/edge-hover/nav-edge/inverse/inverse-copy/danger/accent` + syntax tokens `code-keyword/code-string/code-function/code-type/code-comment/code-const` (dark + `.light` variants), `shadow-glow-dot` removed, `.cursor-block` blink utility added.
+
+- [ ] **Step 1: Replace index.css**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 25rem;
+  --color-canvas: #0d1117;
+  --color-surface: #161b22;
+  --color-elevated: #21262d;
+  --color-copy: #e6edf3;
+  --color-muted: #8b949e;
+  --color-dim: #6e7781;
+  --color-edge: #30363d;
+  --color-edge-hover: #e6edf3;
+  --color-nav-edge: rgba(240, 246, 252, 0.1);
+  --color-inverse: #e6edf3;
+  --color-inverse-copy: #0d1117;
+  --color-danger: #ff7b72;
+  --color-accent: #58a6ff;
+  --color-code-keyword: #ff7b72;
+  --color-code-string: #a5d6ff;
+  --color-code-function: #d2a8ff;
+  --color-code-type: #ffa657;
+  --color-code-comment: #8b949e;
+  --color-code-const: #79c0ff;
+}
+
+.light {
+  --color-canvas: #ffffff;
+  --color-surface: #f6f8fa;
+  --color-elevated: #eaeef2;
+  --color-copy: #1f2328;
+  --color-muted: #59636e;
+  --color-dim: #6e7781;
+  --color-edge: #d0d7de;
+  --color-edge-hover: #1f2328;
+  --color-nav-edge: rgba(31, 35, 40, 0.12);
+  --color-inverse: #1f2328;
+  --color-inverse-copy: #ffffff;
+  --color-danger: #cf222e;
+  --color-accent: #0969da;
+  --color-code-keyword: #cf222e;
+  --color-code-string: #0a3069;
+  --color-code-function: #8250df;
+  --color-code-type: #953800;
+  --color-code-comment: #6e7781;
+  --color-code-const: #0550ae;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor-block {
+  animation: cursor-blink 1.1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+- [ ] **Step 2: Remove glow-dot usages elsewhere**
+
+Run: `rg -n "shadow-glow-dot" src` â€” expected: no matches (SideStepper is deleted in Task 3; ProjectsSection dots already removed). If any match remains, remove it before continuing.
+
+- [ ] **Step 3: Verify**
+
+Run: `npm run build; npm run lint` â€” expected: exit 0, no errors or warnings.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src/index.css
+git commit -m "feat: IDE theme color tokens (GitHub dark/light palettes)"
+```
+
+---
+
+
