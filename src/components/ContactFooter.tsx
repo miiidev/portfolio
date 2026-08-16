@@ -16,10 +16,10 @@ export default function ContactFooter() {
     >
       <div className="w-full py-6 text-center">
         <motion.h3 variants={itemVariants} className="text-xl font-bold text-copy mb-2">
-          Let's Connect
+          Currently open to software & AI roles
         </motion.h3>
         <motion.p variants={itemVariants} className="text-sm text-muted max-w-sm mx-auto mb-8">
-          Currently open to software & AI roles. Whether you want to collaborate or just say hi, my inbox is always open.
+          Whether you have a role in mind or just want to talk shop, email is the fastest way to reach me.
         </motion.p>
         <motion.div variants={itemVariants} className="mb-10">
           <button
@@ -41,7 +41,7 @@ export default function ContactFooter() {
           </a>
         </motion.div>
         <motion.p variants={itemVariants} className="text-xs text-dim pt-12 font-mono border-t border-edge/50 mt-12">
-          &copy; {new Date().getFullYear()} {personalInfo.name}. Built with React, TypeScript, and Tailwind.
+          &copy; {new Date().getFullYear()} {personalInfo.name}.
         </motion.p>
       </div>
     </motion.footer>

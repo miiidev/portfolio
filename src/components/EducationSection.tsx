@@ -15,12 +15,9 @@ export default function EducationSection() {
       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
       className="flex flex-col justify-center py-12"
     >
-      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-1">
+      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-8">
         Education
       </motion.h2>
-      <motion.p variants={itemVariants} className="text-sm text-muted mb-8">
-        Where I studied
-      </motion.p>
       <div className="space-y-3">
         {education.map((item, i) => {
           const isOpen = openIndex === i;

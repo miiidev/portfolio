@@ -10,6 +10,7 @@
   --color-dim: #8a8a8a;
   --color-edge: #262626;
   --color-edge-hover: #a3a3a3;
+  --color-nav-edge: rgba(255, 255, 255, 0.14);
   --color-inverse: #ffffff;
   --color-inverse-copy: #0a0a0b;
   --color-danger: #fca5a5;
@@ -25,6 +26,7 @@
   --color-dim: #737373;
   --color-edge: #d4d4d4;
   --color-edge-hover: #737373;
+  --color-nav-edge: rgba(0, 0, 0, 0.12);
   --color-inverse: #0a0a0b;
   --color-inverse-copy: #ffffff;
   --color-danger: #b91c1c;

@@ -19,15 +19,19 @@ export default function Navbar() {
     setScrolled(latest > 24);
   });
 
-  const openContact = () => window.dispatchEvent(new CustomEvent('portfolio:contact'));
-
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-surface transition-colors duration-300 ${
-        scrolled ? 'border-b border-edge' : 'border-b border-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'pt-3' : 'pt-0'
       }`}
     >
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <nav
+        className={`mx-auto flex items-center justify-between gap-4 transition-all duration-300 ${
+          scrolled
+            ? 'h-12 max-w-5xl rounded-full bg-surface border border-nav-edge px-4 sm:px-6'
+            : 'h-16 max-w-6xl rounded-none bg-transparent border border-transparent px-4 sm:px-6'
+        }`}
+      >
         <a href="#" className="text-lg font-bold text-copy tracking-tighter hover:opacity-90 transition-opacity shrink-0">
           miii.
         </a>
@@ -46,12 +50,6 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          <button
-            onClick={openContact}
-            className="px-4 py-2 bg-inverse text-inverse-copy font-semibold rounded-lg text-sm transition-opacity hover:opacity-90 min-h-11"
-          >
-            Get In Touch
-          </button>
         </div>
       </nav>
     </header>

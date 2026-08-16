@@ -12,12 +12,9 @@ export default function ExperienceSection() {
       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
       className="flex flex-col justify-center py-12"
     >
-      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-1">
+      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-8">
         Experience
       </motion.h2>
-      <motion.p variants={itemVariants} className="text-sm text-muted mb-8">
-        Where I&apos;ve worked
-      </motion.p>
       <div className="space-y-6">
         {experience.map((item, i) => (
           <motion.div

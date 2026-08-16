@@ -11,7 +11,7 @@ const HELP = [
   'Available commands:',
   '  about     - one-line summary',
   '  skills    - skill domains',
-  '  projects  - list projects (then 1-3 to jump)',
+  `  projects  - list projects (then 1-${projects.length} to jump)`,
   '  contact   - how to reach me',
   '  clear     - clear the terminal',
 ];
@@ -49,7 +49,9 @@ function outputFor(input: string): Line[] {
 }
 
 export default function MiniTerminal() {
-  const [lines, setLines] = useState<Line[]>([]);
+  const [lines, setLines] = useState<Line[]>([
+    { text: 'type "help" to see what I can do', kind: 'out' },
+  ]);
   const [input, setInput] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -64,7 +66,7 @@ export default function MiniTerminal() {
       setLines([]);
       return;
     }
-    if (/^[1-3]$/.test(cmd)) {
+    if (/^\d+$/.test(cmd) && Number(cmd) >= 1 && Number(cmd) <= projects.length) {
       const idx = Number(cmd) - 1;
       window.dispatchEvent(new CustomEvent('portfolio:project', { detail: idx }));
       next.push({ text: `Opening project ${idx + 1}...`, kind: 'out' });
@@ -119,7 +121,6 @@ export default function MiniTerminal() {
                 setInput('');
               }
             }}
-            autoFocus
             aria-label="Terminal input"
             className="flex-1 bg-transparent text-copy outline-none placeholder:text-dim"
             placeholder="type help"

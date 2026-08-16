@@ -154,7 +154,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             ref={dialogRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Get in Touch"
+            aria-label="Get In Touch"
             className="relative bg-surface border border-edge rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -162,7 +162,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-edge shrink-0">
-              <h2 className="text-lg font-semibold text-copy">Get in Touch</h2>
+              <h2 className="text-lg font-semibold text-copy">Get In Touch</h2>
               <button
                 ref={closeRef}
                 onClick={onClose}
