@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
+import FileExplorer from './components/FileExplorer';
 import HeroSection from './components/HeroSection';
 import AboutSection from './components/AboutSection';
 import ExperienceSection from './components/ExperienceSection';
@@ -24,6 +25,7 @@ export default function App() {
       <MotionConfig reducedMotion="user">
         <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
           <Navbar />
+          <FileExplorer />
           <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6">
             <HeroSection />
             <AboutSection />
