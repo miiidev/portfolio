@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { personalInfo } from '../data';
 import { containerVariants, itemVariants } from '../utils/animations';
+import SectionHeading from './SectionHeading';
+
+const domainColors = ['text-code-function', 'text-code-string', 'text-code-type'];
 
 export default function SkillsSection() {
   return (
@@ -9,39 +12,43 @@ export default function SkillsSection() {
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.1, margin: '-100px' }}
-      className="min-h-screen flex flex-col justify-center py-12"
+      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+      className="flex flex-col justify-center py-12"
     >
-      <motion.h2 variants={itemVariants} className="text-2xl font-bold text-copy mb-8">
-        Skills
-      </motion.h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {personalInfo.skills.map((group) => (
-          <motion.div
-            key={group.domain}
-            variants={itemVariants}
-            className="bg-surface/50 border border-edge rounded-xl p-6"
-          >
-            <h3 className="text-sm font-semibold text-muted mb-4 font-mono uppercase tracking-wide">
-              {group.domain}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {group.items.map((skill) => (
-                <span
-                  key={skill.name}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-canvas text-copy/80 text-sm"
-                >
-                  <img
-                    src={`https://cdn.simpleicons.org/${skill.icon}/white`}
-                    alt=""
-                    className="w-4 h-4 skill-icon-base"
-                  />
-                  {skill.name}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+      <motion.div variants={itemVariants}>
+        <SectionHeading file="skills.ts">Skills</SectionHeading>
+      </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {personalInfo.skills.map((group, gi) => {
+          const color = domainColors[gi % domainColors.length];
+          return (
+            <motion.div
+              key={group.domain}
+              variants={itemVariants}
+              className="bg-surface/50 border border-edge rounded-md p-6"
+            >
+              <h3 className={`font-mono text-sm mb-4 ${color}`}>
+                <span className="text-code-comment">// </span>
+                {group.domain}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {group.items.map((skill) => (
+                  <span
+                    key={skill.name}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-canvas text-xs font-mono ${color}`}
+                  >
+                    <img
+                      src={`https://cdn.simpleicons.org/${skill.icon}/white`}
+                      alt=""
+                      className="w-4 h-4 skill-icon-base"
+                    />
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.section>
   );
