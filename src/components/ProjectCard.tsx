@@ -14,93 +14,65 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
         <span className="font-mono text-xs text-muted">projects/{project.title}.tsx</span>
         <span className="font-mono text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 flex-1 min-h-0">
-        <div className="flex flex-col min-h-0 overflow-hidden border-t sm:border-t-0 sm:border-r border-edge">
-          <div className="flex items-center justify-between border-b border-edge bg-canvas/60 px-3 py-1.5 shrink-0">
-            <span className="font-mono text-[10px] text-muted">Preview</span>
-            <span className="font-mono text-[10px] text-dim" aria-hidden="true">&#10005;</span>
-          </div>
-          <div className="px-2 pt-1.5 pb-2 shrink-0">
-            <div
-              className="font-mono text-[10px] text-code-string bg-canvas border border-edge rounded px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis"
-              aria-hidden="true"
-            >
-              localhost:5173/{project.title}
-            </div>
-          </div>
-          {project.image ? (
-            <div className="flex-1 min-h-0 px-2 pb-2">
-              <div className="w-full h-full rounded border border-edge overflow-hidden">
-                <LazyImage
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 min-h-0 mx-2 mb-2 rounded border border-edge bg-gradient-to-br from-surface via-elevated to-surface flex items-center justify-center">
-              <div className="flex flex-col items-center gap-2 text-muted">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                  <line x1="8" y1="21" x2="16" y2="21"/>
-                  <line x1="12" y1="17" x2="12" y2="21"/>
-                </svg>
-                <span className="text-xs font-mono opacity-30">Screenshot</span>
-              </div>
-            </div>
-          )}
+      {project.image ? (
+        <div className="w-full aspect-video border-b border-edge overflow-hidden">
+          <LazyImage src={project.image} alt={project.title} className="w-full h-full object-cover" />
         </div>
-        <div className="flex flex-col min-h-0 overflow-hidden">
-          <div className="flex items-center justify-between border-b border-edge bg-canvas/60 px-3 py-1.5 shrink-0">
-            <span className="font-mono text-[10px] text-muted">README.md</span>
-            <span className="font-mono text-[10px] text-dim" aria-hidden="true">&#10005;</span>
+      ) : (
+        <div className="w-full aspect-video border-b border-edge bg-gradient-to-br from-surface via-elevated to-surface flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 text-muted">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            <span className="text-xs font-mono opacity-30">Screenshot</span>
           </div>
-          <div className="p-3 flex flex-col flex-1 min-h-0">
-            <p className="font-mono text-xs text-code-comment mb-1">// {project.title}</p>
-            <p className="font-mono text-xs text-code-comment leading-relaxed mb-3">{project.description}</p>
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {project.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className={`font-mono text-[10px] bg-canvas px-2.5 py-1 rounded-full border border-edge ${tagColors[index % tagColors.length]}`}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-4 mt-auto pt-1">
-              {project.repo && (
-                <a
-                  href={project.repo}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="16 18 22 12 16 6"/>
-                    <polyline points="8 6 2 12 8 18"/>
-                  </svg>
-                  Code
-                </a>
-              )}
-              {project.demo && (
-                <a
-                  href={project.demo}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                  Demo
-                </a>
-              )}
-            </div>
-          </div>
+        </div>
+      )}
+      <div className="p-3 flex flex-col flex-1 min-h-0">
+        <p className="font-mono text-xs text-code-comment mb-1">// {project.title}</p>
+        <p className="font-mono text-xs text-code-comment leading-relaxed mb-3">{project.description}</p>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {project.tags.map((tag, index) => (
+            <span
+              key={index}
+              className={`font-mono text-[10px] bg-canvas px-2.5 py-1 rounded-full border border-edge ${tagColors[index % tagColors.length]}`}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div className="flex items-center gap-4 mt-auto pt-1">
+          {project.repo && (
+            <a
+              href={project.repo}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+              Code
+            </a>
+          )}
+          {project.demo && (
+            <a
+              href={project.demo}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Demo
+            </a>
+          )}
         </div>
       </div>
     </div>
