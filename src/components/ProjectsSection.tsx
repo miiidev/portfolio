@@ -79,7 +79,7 @@ export default function ProjectsSection() {
           />
         </div>
       ) : (
-        <div className="hidden md:block border border-edge rounded-md overflow-hidden relative mt-8 bg-canvas/40" aria-hidden="true">
+        <div className="hidden md:block border border-edge rounded-md overflow-hidden relative mt-8 bg-canvas/40">
           {/* Breadcrumb bar */}
           <div className="flex items-center justify-between px-3 py-1 font-mono text-[10px] border-b border-edge bg-elevated/40" aria-hidden="true">
             <span>
