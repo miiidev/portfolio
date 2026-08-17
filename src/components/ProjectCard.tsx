@@ -15,7 +15,7 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
         <span className="font-mono text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
       </div>
       {project.image ? (
-        <div className="w-full aspect-video border-b border-edge overflow-hidden">
+        <div className="w-full border-b border-edge overflow-hidden">
           <LazyImage src={project.image} alt={project.title} className="w-full h-full object-cover" />
         </div>
       ) : (
