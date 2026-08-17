@@ -7,6 +7,7 @@ Status: Approved (user approved layout mockup, active state, and remaining secti
 
 - Rev 1 (initial approval): balanced split panes, 3-up carousel at 480px center card.
 - Rev 2 (2026-08-17, user-directed): cards too small → **big center + edge peeks** on desktop/tablet (center card `min(100%, 680px)`, neighbors become subtle edge slivers); mobile keeps the existing MobileCardStack (panes already stack vertically below 640px).
+- Rev 3 (2026-08-18, user-directed): whitespace around the spotlight + landscape screenshots → **stacked card inside an editor frame**. The card body becomes a vertical stack: full-width 16:9 screenshot on top, README content below (no more portrait Preview pane — screenshots are landscape, the split pane cropped them). The desktop carousel gains editor chrome: breadcrumb bar, line-number gutter, bottom status line. The Preview mini-tab and decorative URL bar are removed.
 
 ## Goal
 
@@ -62,6 +63,37 @@ Replace the current project card (tab header + screenshot + text block) with a *
 - At 769–1023px viewports the peeks are partially clipped by the container's `overflow-clip` — intended.
 - Drag/swipe, spring config, `portfolio:project` dispatch: unchanged.
 - Mobile (≤768px): MobileCardStack unchanged — panes stack vertically below 640px viewport width; `isCenter={isTop}` accent border on the top card.
+
+## Rev 3 — Stacked Card + Editor Frame (2026-08-18)
+
+Overrides Rev 1/2 card anatomy and adds carousel chrome. Carousel geometry (width, offsets, scales, opacities, pointer-events, mobile stack) is unchanged from Rev 2.
+
+### Card Anatomy (Rev 3)
+
+- Root + tab bar: unchanged from Rev 1 (tab `projects/{title}.tsx`, decorative `&#10005;`, accent border on center via `isCenter`).
+- Body: single vertical stack — no more side-by-side grid.
+  - Screenshot: full card width, `aspect-video` (16:9), `object-cover`, `border-b border-edge` divider to the content below. Missing image → existing fallback placeholder, also `aspect-video`.
+  - Content block (below shot): `// {title}` comment, description comment (`leading-relaxed`), tag chips (4-color cycle), Code/Demo links pinned bottom (`mt-auto`). Same styles as the Rev 1 README pane.
+- Removed: Preview mini-tab, decorative URL bar (`localhost:5173/...`), pane divider borders, `sm:grid-cols-2` split.
+
+### Editor Frame (ProjectsSection, desktop carousel only)
+
+- The carousel container gets `border border-edge rounded-md overflow-hidden` + a `bg-canvas/40` backdrop, visible **md+ only** (≥768px). Below md, MobileCardStack renders as today, frame absent.
+- Breadcrumb bar (top): `work` (text-dim) `/` `projects.tsx` (text-muted), right side `● main` (text-dim). font-mono text-[10px], `border-b border-edge`, `bg-elevated/40`.
+- Line-number gutter (left): static numbers `1..12`, `border-r border-edge`, `bg-canvas`, text `text-edge`, font-mono text-[10px], `aria-hidden`, width ~28px. Content column offset to the right of the gutter (carousel `left` shifts accordingly).
+- Status line (bottom): `Ln 1, Col 7` (left), `3 projects` (center), `utf-8` (right). font-mono text-[10px], `border-t border-edge`, `bg-elevated/40`.
+- Arrows: left arrow moves right of the gutter (`left: 44px`); right arrow unchanged (`right: 10px`).
+- All frame chrome is decorative: `aria-hidden="true"` on gutter numbers and breadcrumb dots; no interactive elements added.
+- Card height: shot 680px wide → ~383px tall at 16:9; total card ≈ 600px, so the card fills the `min-h-[560px]` container naturally (container grows with content; `min-h` stays a floor).
+
+### Rev 3 Acceptance Criteria (overrides Rev 1/2 where they conflict)
+
+1. Desktop (≥769px): stacked card — full-width 16:9 screenshot, README content below, accent border on center; editor frame chrome (breadcrumb, gutter, status line) visible around the carousel; arrows clear the gutter.
+2. ≤768px: MobileCardStack unchanged (stacked card layout is inherently compatible — single column).
+3. No Preview tab / URL bar anywhere; no side-by-side panes at any width.
+4. Decorative chrome is `aria-hidden`; no new interactive elements.
+5. Screenshots never crop to a portrait strip (16:9 aspect preserved).
+6. `npm run build` and `npm run lint` both exit 0.
 
 ## Out of Scope
 

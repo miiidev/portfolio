@@ -255,7 +255,209 @@ Run: `Invoke-WebRequest -Uri "https://miiidev.github.io/portfolio/" -UseBasicPar
 
 ---
 
-## Self-Review Notes
+---
+
+### Task 4: ProjectCard stacked restructure (Rev 3)
+
+**Files:**
+- Modify: `src/components/ProjectCard.tsx` (body below the tab bar becomes a vertical stack)
+
+**Interfaces:**
+- Consumes: `Project` from `../data`, `LazyImage` from `./LazyImage`.
+- Produces: same `ProjectCard` signature `{ project: Project; isCenter?: boolean }`; root classes unchanged. Removes Preview mini-tab, URL bar, `sm:grid-cols-2` split, pane dividers.
+
+- [ ] **Step 1: Replace the body**
+
+Replace the whole file with:
+
+```tsx
+import type { Project } from '../data';
+import LazyImage from './LazyImage';
+
+const tagColors = ['text-code-function', 'text-code-string', 'text-code-type', 'text-code-const'];
+
+export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
+  return (
+    <div
+      className={`bg-surface border rounded-md overflow-hidden group h-full w-full flex flex-col ${
+        isCenter ? 'border-accent/60' : 'border-edge hover:border-accent/60'
+      }`}
+    >
+      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2 shrink-0">
+        <span className="font-mono text-xs text-muted">projects/{project.title}.tsx</span>
+        <span className="font-mono text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
+      </div>
+      {project.image ? (
+        <div className="w-full aspect-video border-b border-edge overflow-hidden">
+          <LazyImage src={project.image} alt={project.title} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="w-full aspect-video border-b border-edge bg-gradient-to-br from-surface via-elevated to-surface flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 text-muted">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            <span className="text-xs font-mono opacity-30">Screenshot</span>
+          </div>
+        </div>
+      )}
+      <div className="p-3 flex flex-col flex-1 min-h-0">
+        <p className="font-mono text-xs text-code-comment mb-1">// {project.title}</p>
+        <p className="font-mono text-xs text-code-comment leading-relaxed mb-3">{project.description}</p>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {project.tags.map((tag, index) => (
+            <span
+              key={index}
+              className={`font-mono text-[10px] bg-canvas px-2.5 py-1 rounded-full border border-edge ${tagColors[index % tagColors.length]}`}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div className="flex items-center gap-4 mt-auto pt-1">
+          {project.repo && (
+            <a
+              href={project.repo}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+              Code
+            </a>
+          )}
+          {project.demo && (
+            <a
+              href={project.demo}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Demo
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: Verify**
+
+Run: `npm run build; npm run lint` — expected: both exit 0.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/components/ProjectCard.tsx
+git commit -m "feat: stack project card - full-width 16:9 shot above readme"
+```
+
+---
+
+### Task 5: Editor frame around the desktop carousel (Rev 3)
+
+**Files:**
+- Modify: `src/components/ProjectsSection.tsx`
+
+**Interfaces:**
+- Consumes: Task 4's stacked card.
+- Produces: unchanged carousel behavior (spring, drag, arrows, `portfolio:project`); the container gains frame chrome **md+ only** (hidden below `md`). MobileCardStack path untouched.
+
+- [ ] **Step 1: Wrap the carousel in frame chrome**
+
+Structure to implement inside ProjectsSection (desktop branch only; the `isMobile ? <MobileCardStack/> :` split already exists):
+
+```
+<div className="hidden md:block border border-edge rounded-md overflow-hidden relative">
+  breadcrumb bar:  work / projects.tsx  +  ● main   (font-mono text-[10px], border-b border-edge, bg-elevated/40, aria-hidden)
+  <div className="relative">           <- carousel host keeps overflow-clip + min-h-[560px]
+    gutter: absolute left-0 top-0 bottom-0 w-7, static numbers 1..12, border-r border-edge, bg-canvas, text-edge, aria-hidden
+    existing carousel content (cards, arrows) — the carousel wrapper's left offset must clear the gutter:
+      add `left-7` (or `pl-7`) to the host so cards center within the area right of the gutter
+    left arrow: absolute left-11 (44px) instead of current left position
+    right arrow: unchanged (right-3)
+  </div>
+  status line:  Ln 1, Col 7  3 projects  utf-8   (font-mono text-[10px], border-t border-edge, bg-elevated/40, aria-hidden)
+</div>
+```
+
+The outer frame wrapper is `hidden md:block`; the existing desktop carousel markup moves inside it. Keep all existing classes/behavior; only adjust the arrow offsets and add chrome. `min-h-[560px]` stays on the carousel host. Chrome copy is static text — no new data needed. All chrome elements get `aria-hidden="true"`.
+
+- [ ] **Step 2: Verify**
+
+Run: `npm run build; npm run lint` — expected: both exit 0.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/components/ProjectsSection.tsx
+git commit -m "feat: editor frame around work carousel"
+```
+
+---
+
+### Task 6: Final consistency check + push + deploy (Rev 3)
+
+**Files:**
+- Verify: `src/components/ProjectCard.tsx`, `src/components/ProjectsSection.tsx`, `src/components/MobileCardStack.tsx`
+
+**Interfaces:**
+- Consumes: Tasks 4-5.
+- Produces: shipped site.
+
+- [ ] **Step 1: Verify the mobile stack still works**
+
+Confirm `MobileCardStack.tsx` renders `<ProjectCard ... />` unchanged — the stacked card is single-column, so no edits. Check no leftover `sm:grid-cols-2`, `Preview`, `localhost:5173` strings in ProjectCard.tsx:
+
+```
+Select-String -Path src/components/ProjectCard.tsx -Pattern "grid-cols|Preview|localhost"   # expected: no matches
+```
+
+- [ ] **Step 2: Full verification**
+
+Run:
+
+```
+npm run build
+npm run lint
+```
+
+Expected: both exit 0.
+
+- [ ] **Step 3: Push and deploy**
+
+```bash
+git push origin main
+npm run deploy
+```
+
+Expected: push succeeds, `Published` output from gh-pages.
+
+- [ ] **Step 4: Smoke check**
+
+Run: `Invoke-WebRequest -Uri "https://miiidev.github.io/portfolio/" -UseBasicParsing` — expected: StatusCode 200.
+
+---
+
+## Self-Review Notes (Rev 3)
+
+- Spec coverage (Rev 3): stacked card (16:9 shot + README below, no Preview tab/URL bar) → Task 4; editor frame (breadcrumb, gutter, status line, arrow offsets, md+ only) → Task 5; mobile untouched + leftovers grep + push/deploy → Task 6.
+- Task 4 is a full-file literal; Task 5 is structural with explicit offsets (gutter w-7, left arrow left-11) — the implementer reads the existing file and nests, no invented API.
+- Carousel geometry (680px, offsets, opacity 0.4, pointer-events) untouched by Rev 3 — only chrome + card body change.
+
+## Self-Review Notes (Rev 2)
 
 - Spec coverage (Rev 2): Preview pane (URL bar decorative, mini tab, LazyImage) → Task 1; README pane (title comment, description comment, domain-colored deps chips, Code/Demo actions) → Task 1; center accent border via `isCenter` → Task 1; big center 680 + edge peeks (offset 100 / farOffset 300, scale 0.9, opacity 0.4, pointer-events none, no click-to-center) → Task 2; mobile stack unchanged → Task 3; acceptance criteria build+lint → all tasks.
 - No placeholders; Task 2 is exact literals + two small code blocks with the unused-`index` handling spelled out.
