@@ -29,8 +29,8 @@ export default function ProjectsSection() {
     return () => window.removeEventListener('portfolio:project', handler);
   }, []);
 
-  const offset = isMobile ? 60 : 280;
-  const farOffset = isMobile ? 100 : 470;
+  const offset = isMobile ? 60 : 100;
+  const farOffset = isMobile ? 100 : 300;
 
   const nextProject = () => {
     setCurrentIndex((prev) => (prev + 1) % projects.length);
@@ -116,14 +116,14 @@ export default function ProjectsSection() {
                 style={{
                   left: '50%',
                   top: '50%',
-                  width: 'min(100%, 480px)',
+                  width: 'min(100%, 680px)',
                   zIndex: pos === 0 ? 3 : abs === 1 ? 2 : 1,
-                  pointerEvents: abs <= 1 ? 'auto' : 'none',
+                  pointerEvents: pos === 0 ? 'auto' : 'none',
                 }}
                 animate={{
                   x: pos === 0 ? 0 : pos === -1 ? -offset : pos === 1 ? offset : pos < 0 ? -farOffset : farOffset,
                   scale: pos === 0 ? 1 : abs === 1 ? 0.9 : 0.78,
-                  opacity: abs <= 1 ? (pos === 0 ? 1 : 0.7) : 0,
+                  opacity: abs <= 1 ? (pos === 0 ? 1 : 0.4) : 0,
                 }}
                 transition={{
                   type: 'spring',
@@ -131,7 +131,6 @@ export default function ProjectsSection() {
                   damping: 28,
                   mass: 0.8,
                 }}
-                onClick={() => { if (pos !== 0) setCurrentIndex(index); }}
               >
                 <div style={{ transform: 'translate(-50%, -50%)' }}>
                   <ProjectCard project={project} isCenter={pos === 0} />
