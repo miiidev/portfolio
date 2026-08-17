@@ -3,6 +3,11 @@
 Date: 2026-08-17
 Status: Approved (user approved layout mockup, active state, and remaining sections)
 
+## Revision History
+
+- Rev 1 (initial approval): balanced split panes, 3-up carousel at 480px center card.
+- Rev 2 (2026-08-17, user-directed): cards too small → **big center + edge peeks** on desktop/tablet (center card `min(100%, 680px)`, neighbors become subtle edge slivers); mobile keeps the existing MobileCardStack (panes already stack vertically below 640px).
+
 ## Goal
 
 Replace the current project card (tab header + screenshot + text block) with a **split-pane editor card** so the work section reads like an open IDE editor with the project file on one side and its preview on the other — the natural continuation of the IDE theme.
@@ -46,18 +51,17 @@ Replace the current project card (tab header + screenshot + text block) with a *
 - Divider between panes: `border-t sm:border-t-0 sm:border-l border-edge`.
 - Panes themselves: `flex flex-col min-h-0 overflow-hidden`.
 
-## Carousel Geometry
+## Carousel Geometry (Rev 2)
 
-- Center card width: `min(100%, 420px)` → `min(100%, 480px)`.
-- `offset` 260 → 280; `farOffset` 420 → 470 (desktop values; mobile values 60/100 unchanged).
-- Container `min-h-[550px]` → `min-h-[560px]`.
-- Scales, drag/swipe, spring config, click-to-center, `portfolio:project` dispatch: unchanged.
-
-## Mobile Stack (MobileCardStack)
-
-- Same ProjectCard component (already shared) — panes stack vertically at phone width.
-- Card container height unchanged (`h-[450px]`).
-- `isCenter={isTop}` accent border applies on the top card.
+- Center card width: `min(100%, 680px)`.
+- `offset` 100 desktop (60 mobile unchanged); `farOffset` 300 desktop (100 mobile unchanged).
+- Container `min-h-[560px]`; scales: center 1, peek 0.9, far 0.78; opacity: center 1, peek 0.4, far 0.
+- Peeks: neighbor centers at ±`offset`, partially behind the center card — only a ~60px sliver of each is visible. `pointer-events: none` on all non-center cards (peeks are not clickable; arrows + swipe navigate).
+- Far cards (|pos| ≥ 2): opacity 0, still rendered for spring transitions.
+- Click-to-center removed (no clickable side cards anymore).
+- At 769–1023px viewports the peeks are partially clipped by the container's `overflow-clip` — intended.
+- Drag/swipe, spring config, `portfolio:project` dispatch: unchanged.
+- Mobile (≤768px): MobileCardStack unchanged — panes stack vertically below 640px viewport width; `isCenter={isTop}` accent border on the top card.
 
 ## Out of Scope
 
@@ -67,8 +71,8 @@ Replace the current project card (tab header + screenshot + text block) with a *
 
 ## Acceptance Criteria
 
-1. Desktop carousel: center card shows split panes (Preview + README), accent border; side cards dimmed/scaled with hover accent.
-2. `< 640px`: panes stack (Preview above README), stack drag still works, top card accent border.
+1. Desktop (≥769px): center card `min(100%, 680px)` with split panes + accent border; two dim edge slivers (~60px) at scale 0.9 / opacity 0.4; far cards invisible; arrows + swipe navigate.
+2. ≤768px: MobileCardStack unchanged — panes stack below 640px, stack drag works, top card accent border.
 3. URL bar renders but is not interactive (no link, no cursor-pointer).
 4. Code/Demo links open in new tabs; images lazy-load; fallback placeholder shows for missing images.
 5. `npm run build` and `npm run lint` both exit 0.
