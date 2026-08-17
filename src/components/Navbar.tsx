@@ -23,7 +23,7 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-canvas/90 border-b border-nav-edge">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-3 sm:px-6">
         <a href="#" className="flex items-baseline gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity">
-          <span className="font-bold tracking-tighter text-lg">miii.</span>
+          <span className="font-bold tracking-tighter text-lg">miiidev</span>
           <span className="hidden sm:inline font-mono text-xs text-dim">{activeFile}</span>
         </a>
 
