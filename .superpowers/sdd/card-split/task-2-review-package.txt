@@ -1,0 +1,80 @@
+COMMITS:
+b8b7309 feat: widen carousel cards and adjust offsets for split panes
+
+STAT:
+ src/components/ProjectsSection.tsx | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+DIFF:
+diff --git a/src/components/ProjectsSection.tsx b/src/components/ProjectsSection.tsx
+index 2f18a5c..0ef68a1 100644
+--- a/src/components/ProjectsSection.tsx
++++ b/src/components/ProjectsSection.tsx
+@@ -22,22 +22,22 @@ export default function ProjectsSection() {
+       const idx = (e as CustomEvent<number>).detail;
+       if (idx >= 0 && idx < projects.length) {
+         setCurrentIndex(idx);
+         document.getElementById('work')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+       }
+     };
+     window.addEventListener('portfolio:project', handler);
+     return () => window.removeEventListener('portfolio:project', handler);
+   }, []);
+ 
+-  const offset = isMobile ? 60 : 260;
+-  const farOffset = isMobile ? 100 : 420;
++  const offset = isMobile ? 60 : 280;
++  const farOffset = isMobile ? 100 : 470;
+ 
+   const nextProject = () => {
+     setCurrentIndex((prev) => (prev + 1) % projects.length);
+   };
+ 
+   const prevProject = () => {
+     setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
+   };
+ 
+   const getPosition = (index: number) => {
+@@ -90,40 +90,40 @@ export default function ProjectsSection() {
+         <div className="relative w-full h-[450px] mt-8">
+           <MobileCardStack
+             projects={projects}
+             currentIndex={currentIndex}
+             onIndexChange={setCurrentIndex}
+             sensitivity={100}
+           />
+         </div>
+       ) : (
+         <motion.div
+-          className="relative w-full min-h-[550px] mt-8 overflow-clip"
++          className="relative w-full min-h-[560px] mt-8 overflow-clip"
+           drag="x"
+           dragConstraints={{ left: 0, right: 0 }}
+           dragElastic={0.2}
+           dragDirectionLock
+           onDragEnd={handleDragEnd}
+           style={{ touchAction: 'pan-y' }}
+         >
+           {projects.map((project, index) => {
+             const pos = getPosition(index);
+             const abs = Math.abs(pos);
+ 
+             return (
+               <motion.div
+                 key={project.id}
+                 className="absolute"
+                 style={{
+                   left: '50%',
+                   top: '50%',
+-                  width: 'min(100%, 420px)',
++                  width: 'min(100%, 480px)',
+                   zIndex: pos === 0 ? 3 : abs === 1 ? 2 : 1,
+                   pointerEvents: abs <= 1 ? 'auto' : 'none',
+                 }}
+                 animate={{
+                   x: pos === 0 ? 0 : pos === -1 ? -offset : pos === 1 ? offset : pos < 0 ? -farOffset : farOffset,
+                   scale: pos === 0 ? 1 : abs === 1 ? 0.9 : 0.78,
+                   opacity: abs <= 1 ? (pos === 0 ? 1 : 0.7) : 0,
+                 }}
+                 transition={{
+                   type: 'spring',

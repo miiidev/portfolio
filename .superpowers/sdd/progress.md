@@ -18,3 +18,7 @@ Task 13: complete (commit 780dd5f, review clean)
 Task 14: complete (commit 46eaed0, review clean)
 Task 15: complete (commit 6b8c7f6, review clean; ThemeToggle squared per categorical rule, GitHubStats chips kept rounded-full)
 Task 16: complete (pushed main 21 commits, deployed gh-pages be3e9ce, live at https://miiidev.github.io/portfolio/, HTTP 200). FULL IDE-THEME REDESIGN RUN COMPLETE. Deferred to final review: offsetTop scroll-spy robustness, status-bar pb overlap.
+CARD-SPLIT RUN (plan 2026-08-17-project-card-split-pane.md): Task 1: complete (commit e8e7e8e, review clean)
+CARD-SPLIT: Task 2: complete (commit b8b7309, review clean; visual check at 768-900px deferred to Task 3 smoke)
+CARD-SPLIT: Task 3: complete (push f9accca..b8b7309, deployed, smoke 200). FINAL REVIEW: Ready to sign off (build+lint re-run green in-session; 2 Minor doc deviations border-l/r + 55/45 vs 50/50 - non-blocking, mechanics authoritative).
+CARD-SPLIT REV 2: Task 2: complete (commit 1e69096, review clean; Minor: 680px card vs min-h-560 container may crop vertically on desktop - visual QA pending; brief's unused-index note was wrong, implementer handled)
