@@ -29,8 +29,8 @@ export default function ProjectsSection() {
     return () => window.removeEventListener('portfolio:project', handler);
   }, []);
 
-  const offset = isMobile ? 60 : 260;
-  const farOffset = isMobile ? 100 : 420;
+  const offset = isMobile ? 60 : 280;
+  const farOffset = isMobile ? 100 : 470;
 
   const nextProject = () => {
     setCurrentIndex((prev) => (prev + 1) % projects.length);
@@ -97,7 +97,7 @@ export default function ProjectsSection() {
         </div>
       ) : (
         <motion.div
-          className="relative w-full min-h-[550px] mt-8 overflow-clip"
+          className="relative w-full min-h-[560px] mt-8 overflow-clip"
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
@@ -116,7 +116,7 @@ export default function ProjectsSection() {
                 style={{
                   left: '50%',
                   top: '50%',
-                  width: 'min(100%, 420px)',
+                  width: 'min(100%, 480px)',
                   zIndex: pos === 0 ? 3 : abs === 1 ? 2 : 1,
                   pointerEvents: abs <= 1 ? 'auto' : 'none',
                 }}
