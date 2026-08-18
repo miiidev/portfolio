@@ -796,7 +796,7 @@ export default function ProjectCard({ project, isCenter = true }: { project: Pro
     >
       {project.image ? (
         <div className="w-full border-b border-edge overflow-hidden">
-          <LazyImage src={project.image} alt={project.title} className="w-full" imgClassName="w-full h-auto object-cover" />
+          <LazyImage src={project.image} alt={project.title} className="w-full" imgClassName="w-full !h-auto object-cover" />
         </div>
       ) : (
         <div className="w-full aspect-video border-b border-edge bg-elevated/50 flex items-center justify-center">
@@ -1010,10 +1010,10 @@ One line: line 114 `className="rounded-md overflow-hidden w-full h-full"` → `c
 Run: `npm run build; npm run lint` — both must exit 0. Grep for frame leftovers:
 
 ```
-Select-String -Path src -Pattern "portfolio:project|breadcrumb|Ln 1|utf-8|grid-cols-2" -Recurse
+Select-String -Path src -Pattern "portfolio:project|breadcrumb|Ln 1|utf-8|sm:grid-cols-2" -Recurse
 ```
 
-Expected: no matches (the `grid-cols-2` in old AboutSection was already replaced in Task 4).
+Expected: no matches. (Note: `md:grid-cols-2` in SkillsSection/ExperienceSection is intended new code — the old split used `sm:grid-cols-2`, which must be gone.)
 
 - [ ] **Step 5: Commit**
 
@@ -1119,6 +1119,7 @@ Two changes:
 1. Line 12-13 `inputClass`: replace `rounded-md` with `rounded-lg`.
 2. Labels: replace `&gt; name` with `Name`, `&gt; subject` with `Subject`, `&gt; message` with `Message` (lines 76, 101, 117).
 3. Submit button (line 147): replace class `rounded-md bg-inverse text-inverse-copy` with `rounded-full bg-accent text-canvas`.
+4. Form tag (line 73): replace `className="space-y-4 font-mono text-sm"` with `className="space-y-4 text-sm"` (no font-mono anywhere in the bento design).
 
 - [ ] **Step 3: Update `src/components/BackToTop.tsx`**
 
@@ -1129,7 +1130,7 @@ Line 20: replace `rounded-md` with `rounded-full` and `bg-surface border-edge` w
 Run: `npm run build; npm run lint` — both must exit 0. Grep:
 
 ```
-Select-String -Path src -Pattern "TODO: hire me|contact.ts|bg-inverse|rounded-md" -Recurse
+Select-String -Path src -Pattern "TODO: hire me|contact\.ts|bg-inverse|rounded-md|font-mono|&gt;" -Recurse
 ```
 
 Expected: no matches.
