@@ -112,7 +112,6 @@ export default function MobileCardStack({
           >
             <motion.div
               className="rounded-2xl overflow-hidden w-full h-full"
-              onClick={() => sendToBack(card.id)}
               animate={{
                 rotateZ: isTop ? 0 : rotate,
                 scale: isTop ? 0.9 : scale * 0.9,
