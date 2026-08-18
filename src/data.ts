@@ -107,14 +107,14 @@ export const education: EducationItem[] = [
   {
     period: "Jul 2025 - Jun 2026",
     title: "Foundation in Computer Science",
-    org: "CFS IIUM",
-    description: "",
+    org: "Centre for Foundation Studies, IIUM",
+    description: "• 4.00 CGPA",
   },
   {
     period: "2020 - 2024",
     title: "Secondary School",
     org: "SMK Bandar Tasik Puteri",
-    description: "",
+    description: "• 9A SPM",
   },
 ];
 
@@ -122,7 +122,7 @@ export const achievements: AchievementItem[] = [
   {
     year: "2023",
     title: "3rd Place, Pertandingan Pembangunan Aplikasi Android",
-    description: "Built an Android app from scratch and placed 3rd in a state-level competition.",
+    description: "My team built an Android app, CourseFit, from scratch and placed 3rd in a state-level competition.",
   },
 ];
 
