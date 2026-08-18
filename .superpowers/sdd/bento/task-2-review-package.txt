@@ -1,0 +1,225 @@
+﻿diff --git a/src/App.tsx b/src/App.tsx
+index e451c6b..e74fefa 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,14 +1,14 @@
+ import { useEffect } from 'react';
+ import { MotionConfig } from 'framer-motion';
+ import { ThemeProvider } from './context/ThemeContext';
+-import Navbar from './components/Navbar';
++import NavBar from './components/NavBar';
+ import FileExplorer from './components/FileExplorer';
+ import HeroSection from './components/HeroSection';
+ import AboutSection from './components/AboutSection';
+ import ExperienceSection from './components/ExperienceSection';
+ import EducationSection from './components/EducationSection';
+ import AchievementsSection from './components/AchievementsSection';
+ import SkillsSection from './components/SkillsSection';
+ import ProjectsSection from './components/ProjectsSection';
+ import ContactFooter from './components/ContactFooter';
+ import StatusBar from './components/StatusBar';
+@@ -17,21 +17,21 @@ import BackToTop from './components/BackToTop';
+ export default function App() {
+   useEffect(() => {
+     history.scrollRestoration = 'manual';
+     window.scrollTo(0, 0);
+   }, []);
+ 
+   return (
+     <ThemeProvider>
+       <MotionConfig reducedMotion="user">
+         <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
+-          <Navbar />
++          <NavBar />
+           <FileExplorer />
+           <main className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden pb-28 md:pb-12">
+             <HeroSection />
+             <AboutSection />
+             <ExperienceSection />
+             <EducationSection />
+             <AchievementsSection />
+             <SkillsSection />
+             <ProjectsSection />
+             <ContactFooter />
+diff --git a/src/components/NavBar.tsx b/src/components/NavBar.tsx
+new file mode 100644
+index 0000000..19bb4c6
+--- /dev/null
++++ b/src/components/NavBar.tsx
+@@ -0,0 +1,70 @@
++import ThemeToggle from './ThemeToggle';
++import { useActiveSection } from '../hooks/useActiveSection';
++
++const items = [
++  { id: 'work', label: 'Work' },
++  { id: 'skills', label: 'Skills' },
++  { id: 'about', label: 'About' },
++  { id: 'contact', label: 'Talk' },
++];
++
++export default function NavBar() {
++  const active = useActiveSection();
++
++  return (
++    <>
++      <nav
++        aria-label="Primary"
++        className="hidden md:flex items-center gap-1 sticky top-0 z-50 bg-canvas/95 px-4 lg:px-8 border-b border-edge"
++      >
++        <a href="#hero" className="flex items-center gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity mr-4">
++          <span className="font-extrabold tracking-tight text-lg">miiidev</span>
++        </a>
++        <div className="flex items-center gap-1">
++          {items.map((item) => (
++            <a
++              key={item.id}
++              href={`#${item.id}`}
++              aria-current={active === item.id ? 'page' : undefined}
++              className={`inline-flex items-center min-h-11 px-4 rounded-full text-sm font-semibold transition-colors duration-200 ${
++                active === item.id
++                  ? 'bg-accent/15 text-accent'
++                  : 'text-muted hover:text-copy hover:bg-elevated'
++              }`}
++            >
++              {item.label}
++            </a>
++          ))}
++        </div>
++        <div className="ml-auto">
++          <ThemeToggle />
++        </div>
++      </nav>
++
++      <nav
++        aria-label="Primary"
++        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
++      >
++        <div className="flex items-center justify-around rounded-full border border-edge bg-surface card-shadow px-2 py-1.5">
++          {items.map((item) => (
++            <a
++              key={item.id}
++              href={`#${item.id}`}
++              aria-current={active === item.id ? 'page' : undefined}
++              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full text-xs font-bold transition-colors duration-200 ${
++                active === item.id
++                  ? 'bg-accent/15 text-accent'
++                  : 'text-muted hover:text-copy'
++              }`}
++            >
++              {item.label}
++            </a>
++          ))}
++          <div className="ml-1">
++            <ThemeToggle />
++          </div>
++        </div>
++      </nav>
++    </>
++  );
++}
+diff --git a/src/components/Navbar.tsx b/src/components/Navbar.tsx
+deleted file mode 100644
+index 6945974..0000000
+--- a/src/components/Navbar.tsx
++++ /dev/null
+@@ -1,99 +0,0 @@
+-import { useEffect, useState } from 'react';
+-import { AnimatePresence, motion } from 'framer-motion';
+-import ThemeToggle from './ThemeToggle';
+-import { sectionFiles, useActiveSection } from '../hooks/useActiveSection';
+-
+-const tabs = sectionFiles.slice(1);
+-
+-export default function Navbar() {
+-  const [menuOpen, setMenuOpen] = useState(false);
+-  const active = useActiveSection();
+-  const activeFile = sectionFiles.find((s) => s.id === active)?.file ?? sectionFiles[0].file;
+-
+-  useEffect(() => {
+-    if (!menuOpen) return;
+-    const onKey = (e: KeyboardEvent) => {
+-      if (e.key === 'Escape') setMenuOpen(false);
+-    };
+-    window.addEventListener('keydown', onKey);
+-    return () => window.removeEventListener('keydown', onKey);
+-  }, [menuOpen]);
+-
+-  return (
+-    <header className="fixed top-0 left-0 right-0 z-50 bg-canvas/90 border-b border-nav-edge">
+-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-3 sm:px-6">
+-        <a href="#" className="flex items-baseline gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity">
+-          <span className="font-bold tracking-tighter text-lg">miiidev</span>
+-          <span className="hidden sm:inline font-mono text-xs text-dim">{activeFile}</span>
+-        </a>
+-
+-        <nav className="hidden lg:flex items-center h-14 ml-6">
+-          {tabs.map((tab) => (
+-            <a
+-              key={tab.id}
+-              href={`#${tab.id}`}
+-              aria-current={active === tab.id ? 'page' : undefined}
+-              className={`inline-flex items-center h-14 px-3 font-mono text-sm border-b-2 transition-colors duration-200 ${
+-                active === tab.id
+-                  ? 'border-accent text-copy bg-elevated/50'
+-                  : 'border-transparent text-muted hover:text-copy hover:bg-elevated/30'
+-              }`}
+-            >
+-              {tab.file}
+-            </a>
+-          ))}
+-        </nav>
+-
+-        <div className="flex items-center gap-1 ml-auto">
+-          <ThemeToggle />
+-          <button
+-            onClick={() => setMenuOpen((open) => !open)}
+-            aria-expanded={menuOpen}
+-            aria-label={menuOpen ? 'Close file list' : 'Open file list'}
+-            className="lg:hidden w-11 h-11 flex items-center justify-center text-copy hover:opacity-80 transition-opacity"
+-          >
+-            {menuOpen ? (
+-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+-                <path d="M6 6l12 12M6 18L18 6" />
+-              </svg>
+-            ) : (
+-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+-                <path d="M3 6h18M3 12h18M3 18h18" />
+-              </svg>
+-            )}
+-          </button>
+-        </div>
+-      </div>
+-
+-      <AnimatePresence>
+-        {menuOpen && (
+-          <motion.div
+-            initial={{ opacity: 0, height: 0 }}
+-            animate={{ opacity: 1, height: 'auto' }}
+-            exit={{ opacity: 0, height: 0 }}
+-            transition={{ duration: 0.2, ease: 'easeOut' }}
+-            className="lg:hidden overflow-hidden border-b border-nav-edge bg-canvas"
+-          >
+-            <nav className="mx-auto max-w-6xl px-3 sm:px-6 py-2">
+-              {sectionFiles.map((section) => (
+-                <a
+-                  key={section.id}
+-                  href={`#${section.id}`}
+-                  onClick={() => setMenuOpen(false)}
+-                  aria-current={active === section.id ? 'page' : undefined}
+-                  className={`flex items-center min-h-11 px-3 font-mono text-sm rounded-md transition-colors duration-200 ${
+-                    active === section.id
+-                      ? 'text-copy bg-elevated/50 border-l-2 border-accent'
+-                      : 'text-muted hover:text-copy'
+-                  }`}
+-                >
+-                  {section.file}
+-                </a>
+-              ))}
+-            </nav>
+-          </motion.div>
+-        )}
+-      </AnimatePresence>
+-    </header>
+-  );
+-}
+\ No newline at end of file

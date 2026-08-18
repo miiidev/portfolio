@@ -24,3 +24,11 @@ CARD-SPLIT: Task 3: complete (push f9accca..b8b7309, deployed, smoke 200). FINAL
 CARD-SPLIT REV 2: Task 2: complete (commit 1e69096, review clean; Minor: 680px card vs min-h-560 container may crop vertically on desktop - visual QA pending; brief's unused-index note was wrong, implementer handled)
 CARD-SPLIT REV 2: Task 3: complete (push b8b7309..1e69096, deployed, smoke 200). FINAL REVIEW: Ready to sign off (min-h-560 crop concern resolved as non-blocking - card content-height ~295-440px; Info: non-center cards still Tab-focusable, optional inert later).
 CARD-SPLIT REV 3 (2026-08-18): spec+plan f1d91f6. Task 4 f4479a6 (stacked card). Task 5 b436400 (editor frame). REVIEW: 1 FAIL - aria-hidden on frame wrapper hid interactive content; fixed beb04bb (removed). Build+lint green. Task 6: pushed 1e69096..beb04bb, deployed, smoke 200.
+BENTO: Task 1: complete (commits b16f406..150ad53, review clean - spec PASS, approved).
+BENTO: Task 2: complete (commits 150ad53..f32b67e, review clean - spec PASS, approved; Minor: case-insensitive FS hiccup handled, brief behavior section superseded by literal).
+BENTO: Task 3: complete (commits f32b67e..5f0a35a, review clean - spec PASS, approved; Minor: AboutSection dead code-* classes until Task 4, plan-miss GitHubStats import fixed minimally).
+BENTO: Task 4: complete (commits 5f0a35a..355ebc9, review clean - spec PASS, approved; brief grep gate was over-strict vs scope, plan gate used, residuals tracked to Task 5-7 files).
+BENTO: Task 5: complete (commits 355ebc9..790e63a, review clean - spec PASS, approved; brief prose vs literal contradiction resolved in favor of literals).
+BENTO: Task 6: complete (commits 790e63a..e573649, review clean - spec PASS, approved; carousel geometry verified number-by-number).
+BENTO: Task 7: complete (commits e573649..5d5e989, review clean - spec PASS, approved; Task 8 gate needs whitelist: ThemeToggle rounded-md + useActiveSection contact.ts data key).
+BENTO: Task 8: complete - pushed f3bc3fb..cc4bd11, deployed, smoke HTTP 200. FINAL REVIEW: Ready to sign off (build+lint green; Minor: 'Say hello' CTA secondary-style is plan-mandated UX choice vs spec wording; dead data.ts exports githubFallback/Skill.color zero-impact, spec excluded data changes).

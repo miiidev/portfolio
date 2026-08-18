@@ -1,0 +1,3403 @@
+﻿diff --git a/docs/superpowers/plans/2026-08-18-bento-redesign.md b/docs/superpowers/plans/2026-08-18-bento-redesign.md
+new file mode 100644
+index 0000000..44698cd
+--- /dev/null
++++ b/docs/superpowers/plans/2026-08-18-bento-redesign.md
+@@ -0,0 +1,1199 @@
++# Bento Redesign Implementation Plan
++
++> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
++
++**Goal:** Replace the IDE/editor theme with a playful bold bento look (rounded cards, soft shadows, orange accent, sticker chips), mobile-first, keeping light+dark toggle, all sections, and the projects carousel geometry.
++
++**Architecture:** Restyle in place ΓÇö the token names (`bg-canvas`, `bg-surface`, `text-copy`, `border-edge`, `text-accent`, etc.) stay identical, so components migrate without renames. Delete the IDE-only components (MiniTerminal, GitHubStats, StatusBar, FileExplorer, ContactModal, editor frame in ProjectsSection). New NavBar component renders a bottom pill bar (< md) and a top pill bar (ΓëÑ md). Tasks run in dependency order 1ΓåÆ8.
++
++**Tech Stack:** React 19, Vite 8, Tailwind v4 (`@theme` tokens), framer-motion, existing hooks (`useActiveSection`), existing data shapes.
++
++## Global Constraints
++
++- No test framework ΓÇö verification gate is `npm run build` + `npm run lint`, both must exit 0.
++- No new dependencies; no changes to `src/data.ts` shapes.
++- Motion diet: `min-h-11` (44px) touch targets, NO backdrop-blur, no em dashes, no emojis in UI copy, viewport-once reveals, `MotionConfig reducedMotion="user"`.
++- Radius: cards `rounded-2xl`, chips/pills `rounded-full`, inputs `rounded-lg`. No `rounded-md` except where noted.
++- Cards get shadow via the new `.card-shadow` utility (Task 1).
++- Windows PowerShell: no `rg`; use `Select-String`.
++- Spec: `docs/superpowers/specs/2026-08-18-bento-redesign-design.md` ΓÇö read it before starting any task.
++
++---
++
++### Task 1: Tokens + layout foundation
++
++**Files:**
++- Modify: `src/index.css` (full replace)
++- Modify: `src/App.tsx` (imports + main padding)
++
++**Interfaces:**
++- Produces: `--color-accent-2/3/4` tokens, `.card-shadow` utility class, removed `cursor-block`/`skill-icon-base`/code tokens/nav-edge. All other token names unchanged.
++- Consumes: nothing.
++
++- [ ] **Step 1: Replace `src/index.css`**
++
++Replace the whole file with:
++
++```css
++@import "tailwindcss";
++
++@theme {
++  --breakpoint-xs: 25rem;
++  --color-canvas: #141414;
++  --color-surface: #1e1e1e;
++  --color-elevated: #262626;
++  --color-copy: #f5f5f4;
++  --color-muted: #9a9a9a;
++  --color-dim: #6e6e6e;
++  --color-edge: #2e2e2e;
++  --color-edge-hover: #f5f5f4;
++  --color-inverse: #f5f5f4;
++  --color-inverse-copy: #141414;
++  --color-danger: #ff8a5c;
++  --color-accent: #ff6b35;
++  --color-accent-2: #ffb703;
++  --color-accent-3: #4d7cff;
++  --color-accent-4: #00a88e;
++  --color-shadow-card: rgba(0, 0, 0, 0.35);
++}
++
++.light {
++  --color-canvas: #fff8f0;
++  --color-surface: #ffffff;
++  --color-elevated: #f7f0e4;
++  --color-copy: #171717;
++  --color-muted: #6b6b6b;
++  --color-dim: #9c948a;
++  --color-edge: #efe4d4;
++  --color-edge-hover: #171717;
++  --color-inverse: #171717;
++  --color-inverse-copy: #fff8f0;
++  --color-danger: #d94f1d;
++  --color-accent: #ff6b35;
++  --color-accent-2: #b8891a;
++  --color-accent-3: #3a5bd0;
++  --color-accent-4: #007a68;
++  --color-shadow-card: rgba(0, 0, 0, 0.07);
++}
++
++html {
++  scroll-behavior: smooth;
++  overflow-x: hidden;
++}
++
++body {
++  overflow-x: hidden;
++}
++
++.card-shadow {
++  box-shadow: 0 3px 10px var(--color-shadow-card);
++}
++
++@media (prefers-reduced-motion: reduce) {
++  html {
++    scroll-behavior: auto;
++  }
++  *, *::before, *::after {
++    animation-duration: 0.01ms !important;
++    animation-iteration-count: 1 !important;
++    transition-duration: 0.01ms !important;
++  }
++}
++```
++
++Note: accent-2/3/4 get dark-mode-suitable values in `.light` (darker yellow/blue/teal for contrast on white).
++
++- [ ] **Step 2: Update `src/App.tsx` (padding only ΓÇö imports unchanged)**
++
++Change ONLY the `<main>` className. The file keeps its existing imports (Navbar, FileExplorer, StatusBar included ΓÇö they are removed in Tasks 2-3):
++
++```diff
++-          <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6 md:pb-12">
+++          <main className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden pb-28 md:pb-12">
++```
++
++(`pb-28` clears the mobile bottom bar.)
++
++- [ ] **Step 3: Verify tokens compile**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0.
++
++- [ ] **Step 4: Commit**
++
++```bash
++git add src/index.css src/App.tsx
++git commit -m "feat: bento tokens and layout foundation"
++```
++
++---
++
++### Task 2: NavBar ΓÇö bottom bar (mobile) + top pills (desktop)
++
++**Files:**
++- Create: `src/components/NavBar.tsx`
++- Delete: `src/components/Navbar.tsx`
++
++**Interfaces:**
++- Consumes: `useActiveSection` (returns section id string), `ThemeToggle` (existing component, unchanged).
++- Produces: default export `NavBar` ΓÇö no props. Renders: bottom bar below `md` (fixed, `min-h-11` items), top pill bar at `md+` (sticky). Nav items: `[{ id: 'work', label: 'Work' }, { id: 'skills', label: 'Skills' }, { id: 'about', label: 'About' }, { id: 'contact', label: 'Talk' }]`.
++
++- [ ] **Step 1: Create `src/components/NavBar.tsx`**
++
++```tsx
++import ThemeToggle from './ThemeToggle';
++import { useActiveSection } from '../hooks/useActiveSection';
++
++const items = [
++  { id: 'work', label: 'Work' },
++  { id: 'skills', label: 'Skills' },
++  { id: 'about', label: 'About' },
++  { id: 'contact', label: 'Talk' },
++];
++
++export default function NavBar() {
++  const active = useActiveSection();
++
++  return (
++    <>
++      <nav
++        aria-label="Primary"
++        className="hidden md:flex items-center gap-1 sticky top-0 z-50 bg-canvas/95 px-4 lg:px-8 border-b border-edge"
++      >
++        <a href="#hero" className="flex items-center gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity mr-4">
++          <span className="font-extrabold tracking-tight text-lg">miiidev</span>
++        </a>
++        <div className="flex items-center gap-1">
++          {items.map((item) => (
++            <a
++              key={item.id}
++              href={`#${item.id}`}
++              aria-current={active === item.id ? 'page' : undefined}
++              className={`inline-flex items-center min-h-11 px-4 rounded-full text-sm font-semibold transition-colors duration-200 ${
++                active === item.id
++                  ? 'bg-accent/15 text-accent'
++                  : 'text-muted hover:text-copy hover:bg-elevated'
++              }`}
++            >
++              {item.label}
++            </a>
++          ))}
++        </div>
++        <div className="ml-auto">
++          <ThemeToggle />
++        </div>
++      </nav>
++
++      <nav
++        aria-label="Primary"
++        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
++      >
++        <div className="flex items-center justify-around rounded-full border border-edge bg-surface card-shadow px-2 py-1.5">
++          {items.map((item) => (
++            <a
++              key={item.id}
++              href={`#${item.id}`}
++              aria-current={active === item.id ? 'page' : undefined}
++              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full text-xs font-bold transition-colors duration-200 ${
++                active === item.id
++                  ? 'bg-accent/15 text-accent'
++                  : 'text-muted hover:text-copy'
++              }`}
++            >
++              {item.label}
++            </a>
++          ))}
++          <div className="ml-1">
++            <ThemeToggle />
++          </div>
++        </div>
++      </nav>
++    </>
++  );
++}
++```
++
++Note: the desktop nav uses `bg-canvas/95` (a solid-ish canvas, not a blur ΓÇö motion diet allows opacity, not backdrop-blur).
++
++- [ ] **Step 2: Delete the old navbar**
++
++```bash
++git rm src/components/Navbar.tsx
++```
++
++- [ ] **Step 3: Update `src/App.tsx` ΓÇö swap the import and JSX tag**
++
++```diff
++-import Navbar from './components/Navbar';
+++import NavBar from './components/NavBar';
++```
++
++```diff
++-          <Navbar />
+++          <NavBar />
++```
++
++- [ ] **Step 4: Verify**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0.
++
++- [ ] **Step 5: Commit**
++
++```bash
++git add src/components/NavBar.tsx src/App.tsx
++git commit -m "feat: bento nav - bottom bar mobile, top pills desktop"
++```
++
++---
++
++### Task 3: Cut IDE chrome ΓÇö delete components, rewrite Hero
++
++**Files:**
++- Delete: `src/components/MiniTerminal.tsx`, `src/components/GitHubStats.tsx`, `src/components/StatusBar.tsx`, `src/components/FileExplorer.tsx`, `src/components/ContactModal.tsx`
++- Modify: `src/components/HeroSection.tsx` (full replace)
++
++**Interfaces:**
++- Consumes: `personalInfo` (fields `role`, `location`), `LazyImage`, `heroContainerVariants`/`heroItemVariants` from `../utils/animations`.
++- Produces: HeroSection with no editor window, no terminal, no modal, no `portfolio:contact` listener; CTA "Say hello" scrolls to `#contact`.
++- Note: ProjectsSection still imports nothing deleted; its `portfolio:project` listener is removed in Task 6.
++
++- [ ] **Step 1: Delete the five files**
++
++```bash
++git rm src/components/MiniTerminal.tsx src/components/GitHubStats.tsx src/components/StatusBar.tsx src/components/FileExplorer.tsx src/components/ContactModal.tsx
++```
++
++- [ ] **Step 2: Update `src/App.tsx` ΓÇö remove StatusBar and FileExplorer**
++
++```diff
++-import FileExplorer from './components/FileExplorer';
++...
++-import StatusBar from './components/StatusBar';
++```
++
++```diff
++-          <FileExplorer />
++...
++-          <StatusBar />
++```
++
++- [ ] **Step 3: Replace `src/components/HeroSection.tsx`**
++
++```tsx
++import { motion } from 'framer-motion';
++import { personalInfo } from '../data';
++import { heroContainerVariants, heroItemVariants } from '../utils/animations';
++import LazyImage from './LazyImage';
++
++export default function HeroSection() {
++  return (
++    <motion.header
++      id="hero"
++      variants={heroContainerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.1, margin: '-100px' }}
++      className="min-h-screen flex items-center py-24"
++    >
++      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full max-w-6xl mx-auto">
++        <motion.div variants={heroItemVariants}>
++          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-copy">
++            Hey, I&apos;m miii<span className="text-accent">dev</span>
++          </h1>
++          <p className="mt-5 text-lg sm:text-xl text-muted max-w-xl leading-relaxed">
++            {personalInfo.role} based in {personalInfo.location}. Building AI-powered and security-focused applications.
++          </p>
++          <div className="mt-8 flex flex-wrap gap-4">
++            <a
++              href="#work"
++              className="inline-flex items-center min-h-11 px-6 rounded-full bg-accent text-canvas font-bold text-sm transition-opacity hover:opacity-90"
++            >
++              View my work
++            </a>
++            <a
++              href="#contact"
++              className="inline-flex items-center min-h-11 px-6 rounded-full bg-surface border border-edge text-copy font-bold text-sm transition-colors hover:border-accent"
++            >
++              Say hello
++            </a>
++          </div>
++        </motion.div>
++
++        <motion.div variants={heroItemVariants} className="w-full max-w-sm mx-auto">
++          <div className="rounded-2xl overflow-hidden card-shadow">
++            <LazyImage
++              src="/portfolio/assets/profile-image.jpeg"
++              alt={personalInfo.name}
++              className="w-full aspect-square"
++              imgClassName="object-cover w-full h-full"
++              loading="eager"
++              fetchPriority="high"
++              decoding="sync"
++            />
++          </div>
++        </motion.div>
++      </div>
++    </motion.header>
++  );
++}
++```
++
++- [ ] **Step 4: Verify**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0. Also grep for leftovers:
++
++```
++Select-String -Path src -Pattern "portfolio:contact|ContactModal|MiniTerminal|GitHubStats|StatusBar|FileExplorer" -Recurse
++```
++
++Expected: no matches.
++
++- [ ] **Step 5: Commit**
++
++```bash
++git add src/components/HeroSection.tsx src/App.tsx
++git commit -m "feat: hero without editor chrome, cut terminal and stats"
++```
++
++---
++
++### Task 4: SectionHeading + About + Skills
++
++**Files:**
++- Modify: `src/components/SectionHeading.tsx` (full replace)
++- Modify: `src/components/AboutSection.tsx` (full replace)
++- Modify: `src/components/SkillsSection.tsx` (full replace)
++
++**Interfaces:**
++- Consumes: `personalInfo` (`role`, `location`, `skills: { domain, items: { name, icon } }[]`, `socials`), `containerVariants`/`itemVariants`.
++- Produces: `SectionHeading` with signature `{ children: string }` (the `file` prop is GONE ΓÇö all call sites in this and later tasks use the new signature).
++- Produces: `accentCycle` chip classes pattern: `['text-accent bg-accent/10', 'text-accent-2 bg-accent-2/10', 'text-accent-3 bg-accent-3/10', 'text-accent-4 bg-accent-4/10']`.
++
++- [ ] **Step 1: Replace `src/components/SectionHeading.tsx`**
++
++```tsx
++interface SectionHeadingProps {
++  children: string;
++}
++
++export default function SectionHeading({ children }: SectionHeadingProps) {
++  return (
++    <div className="mb-8 flex items-center gap-3">
++      <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-wider">
++        {children}
++      </span>
++    </div>
++  );
++}
++```
++
++- [ ] **Step 2: Replace `src/components/AboutSection.tsx`**
++
++```tsx
++import { motion } from 'framer-motion';
++import { personalInfo } from '../data';
++import { containerVariants, itemVariants } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++
++const socials = [
++  { label: 'GitHub', href: personalInfo.socials.github },
++  { label: 'WhatsApp', href: personalInfo.socials.whatsapp ?? '#' },
++  { label: 'Email', href: `mailto:${personalInfo.socials.email}` },
++];
++
++export default function AboutSection() {
++  return (
++    <motion.section
++      id="about"
++      variants={containerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
++      className="flex flex-col justify-center py-12"
++    >
++      <motion.div variants={itemVariants}>
++        <SectionHeading>About</SectionHeading>
++      </motion.div>
++      <motion.div variants={itemVariants} className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8 max-w-3xl">
++        <p className="text-base sm:text-lg text-copy leading-relaxed mb-4">
++          I&apos;m a {personalInfo.role} based in {personalInfo.location}, building AI-powered and security-focused applications with machine learning, computer vision, and real-time systems.
++        </p>
++        <p className="text-base text-muted leading-relaxed mb-6">
++          I currently tutor Java to beginners. Teaching forces me to keep my fundamentals sharp and to explain complex ideas clearly, which carries into how I build and document software.
++        </p>
++        <div className="flex flex-wrap gap-3">
++          {socials.map((social) => (
++            <a
++              key={social.label}
++              href={social.href}
++              target={social.href.startsWith('mailto:') ? undefined : '_blank'}
++              rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer'}
++              className="inline-flex items-center min-h-11 px-5 rounded-full bg-accent/10 text-accent text-sm font-bold transition-colors hover:bg-accent hover:text-canvas"
++            >
++              {social.label}
++            </a>
++          ))}
++        </div>
++      </motion.div>
++    </motion.section>
++  );
++}
++```
++
++- [ ] **Step 3: Replace `src/components/SkillsSection.tsx`**
++
++```tsx
++import { motion } from 'framer-motion';
++import { personalInfo } from '../data';
++import { containerVariants, itemVariants } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++
++const accentCycle = [
++  'text-accent bg-accent/10',
++  'text-accent-2 bg-accent-2/10',
++  'text-accent-3 bg-accent-3/10',
++  'text-accent-4 bg-accent-4/10',
++];
++
++export default function SkillsSection() {
++  return (
++    <motion.section
++      id="skills"
++      variants={containerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
++      className="flex flex-col justify-center py-12"
++    >
++      <motion.div variants={itemVariants}>
++        <SectionHeading>Skills</SectionHeading>
++      </motion.div>
++      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
++        {personalInfo.skills.map((group, gi) => {
++          const color = accentCycle[gi % accentCycle.length];
++          return (
++            <motion.div
++              key={group.domain}
++              variants={itemVariants}
++              className="rounded-2xl bg-surface border border-edge card-shadow p-6"
++            >
++              <h3 className="text-base font-extrabold text-copy mb-4">{group.domain}</h3>
++              <div className="flex flex-wrap gap-2">
++                {group.items.map((skill) => (
++                  <span
++                    key={skill.name}
++                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold ${color}`}
++                  >
++                    <img
++                      src={`https://cdn.simpleicons.org/${skill.icon}/white`}
++                      alt=""
++                      className="w-4 h-4"
++                    />
++                    {skill.name}
++                  </span>
++                ))}
++              </div>
++            </motion.div>
++          );
++        })}
++      </div>
++    </motion.section>
++  );
++}
++```
++
++Note: `skill-icon-base` inversion CSS was removed in Task 1; the simpleicons icons render white on the tinted chip backgrounds in both themes ΓÇö acceptable (chips have colored translucent backgrounds in both themes).
++
++- [ ] **Step 4: Verify**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0. Grep for old heading usage:
++
++```
++Select-String -Path src -Pattern "file=\"about.ts\"|file=\"skills.ts\"" -Recurse
++```
++
++Expected: no matches.
++
++- [ ] **Step 5: Commit**
++
++```bash
++git add src/components/SectionHeading.tsx src/components/AboutSection.tsx src/components/SkillsSection.tsx
++git commit -m "feat: bento headings, about card, skill chips"
++```
++
++---
++
++### Task 5: Experience + Education + Achievements
++
++**Files:**
++- Modify: `src/components/ExperienceSection.tsx` (full replace)
++- Modify: `src/components/EducationSection.tsx` (full replace)
++- Modify: `src/components/AchievementsSection.tsx` (full replace)
++
++**Interfaces:**
++- Consumes: `experience: { period, title, org?, description, tags: string[] }[]`, `education: { period, title, org, description? }[]`, `achievements: { year, title, description }[]`, `containerVariants`/`itemVariants`.
++- Produces: restyled cards; accordions keep identical state behavior (`openIndex`, chevron rotate).
++
++- [ ] **Step 1: Replace `src/components/ExperienceSection.tsx`**
++
++```tsx
++import { motion } from 'framer-motion';
++import { experience } from '../data';
++import { containerVariants, itemVariants } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++
++export default function ExperienceSection() {
++  return (
++    <motion.section
++      id="experience"
++      variants={containerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
++      className="flex flex-col justify-center py-12"
++    >
++      <motion.div variants={itemVariants}>
++        <SectionHeading>Experience</SectionHeading>
++      </motion.div>
++      <div className="space-y-5 md:grid md:grid-cols-2 md:gap-5 md:space-y-0">
++        {experience.map((item, i) => (
++          <motion.div
++            key={i}
++            variants={itemVariants}
++            className="rounded-2xl bg-surface border border-edge card-shadow p-6"
++          >
++            <p className="text-xs font-bold text-accent uppercase tracking-wider mb-2">{item.period}</p>
++            <h3 className="text-lg font-extrabold text-copy mb-1">{item.title}</h3>
++            {item.org && <p className="text-sm text-muted mb-3">{item.org}</p>}
++            <p className="text-sm text-muted leading-relaxed mb-4">{item.description}</p>
++            {item.tags.length > 0 && (
++              <div className="flex flex-wrap gap-2">
++                {item.tags.map((tag) => (
++                  <span
++                    key={tag}
++                    className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold"
++                  >
++                    {tag}
++                  </span>
++                ))}
++              </div>
++            )}
++          </motion.div>
++        ))}
++      </div>
++    </motion.section>
++  );
++}
++```
++
++- [ ] **Step 2: Replace `src/components/EducationSection.tsx`**
++
++```tsx
++import { useState } from 'react';
++import { AnimatePresence, motion } from 'framer-motion';
++import { education } from '../data';
++import { containerVariants, itemVariants } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++
++export default function EducationSection() {
++  const [openIndex, setOpenIndex] = useState<number | null>(0);
++
++  return (
++    <motion.section
++      id="education"
++      variants={containerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
++      className="flex flex-col justify-center py-12"
++    >
++      <motion.div variants={itemVariants}>
++        <SectionHeading>Education</SectionHeading>
++      </motion.div>
++      <div className="space-y-3 max-w-3xl">
++        {education.map((item, i) => {
++          const isOpen = openIndex === i;
++          return (
++            <motion.div
++              key={i}
++              variants={itemVariants}
++              className="rounded-2xl bg-surface border border-edge card-shadow overflow-hidden"
++            >
++              <button
++                onClick={() => setOpenIndex(isOpen ? null : i)}
++                aria-expanded={isOpen}
++                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left"
++              >
++                <svg
++                  width="16"
++                  height="16"
++                  viewBox="0 0 24 24"
++                  fill="none"
++                  stroke="currentColor"
++                  strokeWidth="2.5"
++                  strokeLinecap="round"
++                  strokeLinejoin="round"
++                  className={`text-accent shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
++                  aria-hidden="true"
++                >
++                  <path d="m9 18 6-6-6-6" />
++                </svg>
++                <div className="min-w-0">
++                  <p className="text-xs font-bold text-accent uppercase tracking-wider mb-0.5">{item.period}</p>
++                  <h3 className="text-base font-extrabold text-copy">{item.title}</h3>
++                  <p className="text-sm text-muted">{item.org}</p>
++                </div>
++              </button>
++              <AnimatePresence initial={false}>
++                {isOpen && (
++                  <motion.div
++                    initial={{ height: 0, opacity: 0 }}
++                    animate={{ height: 'auto', opacity: 1 }}
++                    exit={{ height: 0, opacity: 0 }}
++                    transition={{ duration: 0.25, ease: 'easeOut' }}
++                    className="overflow-hidden"
++                  >
++                    <div className="pl-12 pr-5 pb-4 text-sm text-muted leading-relaxed">
++                      {item.description || 'More details coming soon.'}
++                    </div>
++                  </motion.div>
++                )}
++              </AnimatePresence>
++            </motion.div>
++          );
++        })}
++      </div>
++    </motion.section>
++  );
++}
++```
++
++- [ ] **Step 3: Replace `src/components/AchievementsSection.tsx`**
++
++Same as Step 2's structure with achievements data. Replace the whole file with:
++
++```tsx
++import { useState } from 'react';
++import { AnimatePresence, motion } from 'framer-motion';
++import { achievements } from '../data';
++import { containerVariants, itemVariants } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++
++export default function AchievementsSection() {
++  const [openIndex, setOpenIndex] = useState<number | null>(0);
++
++  return (
++    <motion.section
++      id="achievements"
++      variants={containerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
++      className="flex flex-col justify-center py-12"
++    >
++      <motion.div variants={itemVariants}>
++        <SectionHeading>Achievements</SectionHeading>
++      </motion.div>
++      <div className="space-y-3 max-w-3xl">
++        {achievements.map((item, i) => {
++          const isOpen = openIndex === i;
++          return (
++            <motion.div
++              key={i}
++              variants={itemVariants}
++              className="rounded-2xl bg-surface border border-edge card-shadow overflow-hidden"
++            >
++              <button
++                onClick={() => setOpenIndex(isOpen ? null : i)}
++                aria-expanded={isOpen}
++                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left"
++              >
++                <svg
++                  width="16"
++                  height="16"
++                  viewBox="0 0 24 24"
++                  fill="none"
++                  stroke="currentColor"
++                  strokeWidth="2.5"
++                  strokeLinecap="round"
++                  strokeLinejoin="round"
++                  className={`text-accent shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
++                  aria-hidden="true"
++                >
++                  <path d="m9 18 6-6-6-6" />
++                </svg>
++                <div className="min-w-0">
++                  <p className="text-xs font-bold text-accent uppercase tracking-wider mb-0.5">{item.year}</p>
++                  <h3 className="text-base font-extrabold text-copy">{item.title}</h3>
++                </div>
++              </button>
++              <AnimatePresence initial={false}>
++                {isOpen && (
++                  <motion.div
++                    initial={{ height: 0, opacity: 0 }}
++                    animate={{ height: 'auto', opacity: 1 }}
++                    exit={{ height: 0, opacity: 0 }}
++                    transition={{ duration: 0.25, ease: 'easeOut' }}
++                    className="overflow-hidden"
++                  >
++                    <div className="pl-12 pr-5 pb-4 text-sm text-muted leading-relaxed">
++                      {item.description}
++                    </div>
++                  </motion.div>
++                )}
++              </AnimatePresence>
++            </motion.div>
++          );
++        })}
++      </div>
++    </motion.section>
++  );
++}
++```
++
++- [ ] **Step 4: Verify**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0.
++
++- [ ] **Step 5: Commit**
++
++```bash
++git add src/components/ExperienceSection.tsx src/components/EducationSection.tsx src/components/AchievementsSection.tsx
++git commit -m "feat: bento experience, education, achievements"
++```
++
++---
++
++### Task 6: Projects ΓÇö cards, carousel, no editor frame
++
++**Files:**
++- Modify: `src/components/ProjectCard.tsx` (full replace)
++- Modify: `src/components/ProjectsSection.tsx` (full replace)
++- Modify: `src/components/MobileCardStack.tsx` (one class change)
++
++**Interfaces:**
++- Consumes: `projects: Project[]` (`id`, `title`, `description`, `tags: string[]`, `repo?`, `demo?`, `image?`), `LazyImage`.
++- Produces: `ProjectCard` signature unchanged `{ project, isCenter }`. `ProjectsSection` keeps the carousel geometry EXACTLY (680px center, offset 100/60, farOffset 300/100, scale 1/0.9/0.78, opacity 1/0.4/0, pointer-events none, spring 250/28/0.8, drag, `getPosition`, MobileCardStack for Γëñ768px) ΓÇö the `portfolio:project` listener is REMOVED.
++
++- [ ] **Step 1: Replace `src/components/ProjectCard.tsx`**
++
++```tsx
++import type { Project } from '../data';
++import LazyImage from './LazyImage';
++
++const accentCycle = [
++  'text-accent bg-accent/10',
++  'text-accent-2 bg-accent-2/10',
++  'text-accent-3 bg-accent-3/10',
++  'text-accent-4 bg-accent-4/10',
++];
++
++export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
++  return (
++    <div
++      className={`bg-surface border rounded-2xl overflow-hidden group h-full w-full flex flex-col card-shadow ${
++        isCenter ? 'border-accent' : 'border-edge hover:border-accent'
++      }`}
++    >
++      {project.image ? (
++        <div className="w-full border-b border-edge overflow-hidden">
++          <LazyImage src={project.image} alt={project.title} className="w-full" imgClassName="w-full !h-auto object-cover" />
++        </div>
++      ) : (
++        <div className="w-full aspect-video border-b border-edge bg-elevated/50 flex items-center justify-center">
++          <div className="flex flex-col items-center gap-2 text-muted">
++            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
++              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
++              <line x1="8" y1="21" x2="16" y2="21"/>
++              <line x1="12" y1="17" x2="12" y2="21"/>
++            </svg>
++            <span className="text-xs font-bold opacity-30">Screenshot</span>
++          </div>
++        </div>
++      )}
++      <div className="p-5 flex flex-col flex-1 min-h-0">
++        <h3 className="text-lg font-extrabold text-copy mb-2">{project.title}</h3>
++        <p className="text-sm text-muted leading-relaxed mb-4">{project.description}</p>
++        <div className="flex flex-wrap gap-2 mb-4">
++          {project.tags.map((tag, index) => (
++            <span
++              key={index}
++              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${accentCycle[index % accentCycle.length]}`}
++            >
++              {tag}
++            </span>
++          ))}
++        </div>
++        <div className="flex items-center gap-4 mt-auto pt-1">
++          {project.repo && (
++            <a
++              href={project.repo}
++              target="_blank"
++              rel="noreferrer"
++              className="inline-flex items-center gap-2 min-h-11 text-sm font-bold text-copy hover:text-accent transition-colors duration-200"
++            >
++              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                <polyline points="16 18 22 12 16 6"/>
++                <polyline points="8 6 2 12 8 18"/>
++              </svg>
++              Code
++            </a>
++          )}
++          {project.demo && (
++            <a
++              href={project.demo}
++              target="_blank"
++              rel="noreferrer"
++              className="inline-flex items-center gap-2 min-h-11 text-sm font-bold text-copy hover:text-accent transition-colors duration-200"
++            >
++              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
++                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
++                <polyline points="15 3 21 3 21 9"/>
++                <line x1="10" y1="14" x2="21" y2="3"/>
++              </svg>
++              Demo
++            </a>
++          )}
++        </div>
++      </div>
++    </div>
++  );
++}
++```
++
++Note: screenshot keeps natural aspect (1920x912 = 21:10) ΓÇö `w-full h-auto`, no crop, per the earlier fix.
++
++- [ ] **Step 2: Replace `src/components/ProjectsSection.tsx`**
++
++Keep the exact carousel logic (isMobile state, matchMedia, offset/farOffset, getPosition, handleDragEnd, next/prev) and replace the render with:
++
++```tsx
++import { useState, useEffect } from 'react';
++import { motion, type PanInfo } from 'framer-motion';
++import ProjectCard from './ProjectCard';
++import MobileCardStack from './MobileCardStack';
++import { projects } from '../data';
++import { fadeRightConfig } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++
++export default function ProjectsSection() {
++  const [currentIndex, setCurrentIndex] = useState(0);
++  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
++
++  useEffect(() => {
++    const mq = window.matchMedia('(max-width: 768px)');
++    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
++    mq.addEventListener('change', handler);
++    return () => mq.removeEventListener('change', handler);
++  }, []);
++
++  const offset = isMobile ? 60 : 100;
++  const farOffset = isMobile ? 100 : 300;
++
++  const nextProject = () => {
++    setCurrentIndex((prev) => (prev + 1) % projects.length);
++  };
++
++  const prevProject = () => {
++    setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
++  };
++
++  const getPosition = (index: number) => {
++    const diff = index - currentIndex;
++    const length = projects.length;
++
++    let normalizedDiff = diff;
++    if (diff < -Math.floor(length / 2)) normalizedDiff += length;
++    if (diff > Math.floor(length / 2)) normalizedDiff -= length;
++
++    return normalizedDiff;
++  };
++
++  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
++    const threshold = 50;
++    const velocity = info.velocity.x;
++    const offsetDrag = info.offset.x;
++
++    if (offsetDrag < -threshold || velocity < -500) {
++      nextProject();
++    } else if (offsetDrag > threshold || velocity > 500) {
++      prevProject();
++    }
++  };
++
++  return (
++    <motion.section id="work" {...fadeRightConfig} className="flex flex-col justify-center py-12">
++      <div className="flex items-center justify-between mb-6">
++        <SectionHeading>Work</SectionHeading>
++      </div>
++
++      {isMobile ? (
++        <div className="relative w-full h-[450px] mt-6">
++          <MobileCardStack
++            projects={projects}
++            currentIndex={currentIndex}
++            onIndexChange={setCurrentIndex}
++            sensitivity={100}
++          />
++        </div>
++      ) : (
++        <div className="relative mt-6">
++          <motion.div
++            className="relative w-full min-h-[560px] overflow-clip"
++            drag="x"
++            dragConstraints={{ left: 0, right: 0 }}
++            dragElastic={0.2}
++            dragDirectionLock
++            onDragEnd={handleDragEnd}
++            style={{ touchAction: 'pan-y' }}
++          >
++            {projects.map((project, index) => {
++              const pos = getPosition(index);
++              const abs = Math.abs(pos);
++
++              return (
++                <motion.div
++                  key={project.id}
++                  className="absolute"
++                  style={{
++                    left: '50%',
++                    top: '50%',
++                    width: 'min(100%, 680px)',
++                    zIndex: pos === 0 ? 3 : abs === 1 ? 2 : 1,
++                    pointerEvents: pos === 0 ? 'auto' : 'none',
++                  }}
++                  animate={{
++                    x: pos === 0 ? 0 : pos === -1 ? -offset : pos === 1 ? offset : pos < 0 ? -farOffset : farOffset,
++                    scale: pos === 0 ? 1 : abs === 1 ? 0.9 : 0.78,
++                    opacity: abs <= 1 ? (pos === 0 ? 1 : 0.4) : 0,
++                  }}
++                  transition={{
++                    type: 'spring',
++                    stiffness: 250,
++                    damping: 28,
++                    mass: 0.8,
++                  }}
++                >
++                  <div style={{ transform: 'translate(-50%, -50%)' }}>
++                    <ProjectCard project={project} isCenter={pos === 0} />
++                  </div>
++                </motion.div>
++              );
++            })}
++          </motion.div>
++          <button
++            onClick={prevProject}
++            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 min-h-11 min-w-11 rounded-full bg-surface border border-edge card-shadow text-muted hover:text-copy hover:border-accent transition-all"
++            aria-label="Previous"
++          >
++            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
++          </button>
++          <button
++            onClick={nextProject}
++            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 min-h-11 min-w-11 rounded-full bg-surface border border-edge card-shadow text-muted hover:text-copy hover:border-accent transition-all"
++            aria-label="Next"
++          >
++            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
++          </button>
++        </div>
++      )}
++    </motion.section>
++  );
++}
++```
++
++- [ ] **Step 3: Update `src/components/MobileCardStack.tsx`**
++
++One line: line 114 `className="rounded-md overflow-hidden w-full h-full"` ΓåÆ `className="rounded-2xl overflow-hidden w-full h-full"`. Nothing else changes.
++
++- [ ] **Step 4: Verify**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0. Grep for frame leftovers:
++
++```
++Select-String -Path src -Pattern "portfolio:project|breadcrumb|Ln 1|utf-8|sm:grid-cols-2" -Recurse
++```
++
++Expected: no matches. (Note: `md:grid-cols-2` in SkillsSection/ExperienceSection is intended new code ΓÇö the old split used `sm:grid-cols-2`, which must be gone.)
++
++- [ ] **Step 5: Commit**
++
++```bash
++git add src/components/ProjectCard.tsx src/components/ProjectsSection.tsx src/components/MobileCardStack.tsx
++git commit -m "feat: bento project cards, carousel without editor frame"
++```
++
++---
++
++### Task 7: Contact + BackToTop
++
++**Files:**
++- Modify: `src/components/ContactFooter.tsx` (full replace)
++- Modify: `src/components/ContactForm.tsx` (two class changes)
++- Modify: `src/components/BackToTop.tsx` (one class change)
++
++**Interfaces:**
++- Consumes: `personalInfo` (`socials`, `formspreeId`, `name`), `ContactForm` (existing behavior).
++- Produces: contact card without editor window; form labels without `>` prefix.
++
++- [ ] **Step 1: Replace `src/components/ContactFooter.tsx`**
++
++```tsx
++import { motion } from 'framer-motion';
++import { personalInfo } from '../data';
++import { containerVariants, itemVariants } from '../utils/animations';
++import SectionHeading from './SectionHeading';
++import ContactForm from './ContactForm';
++
++const socialLinks = [
++  { label: 'GitHub', href: personalInfo.socials.github },
++  { label: 'WhatsApp', href: personalInfo.socials.whatsapp ?? '#' },
++  { label: 'Email', href: `mailto:${personalInfo.socials.email}` },
++];
++
++export default function ContactFooter() {
++  return (
++    <motion.footer
++      id="contact"
++      variants={containerVariants}
++      initial="hidden"
++      whileInView="visible"
++      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
++      className="flex flex-col justify-center py-12"
++    >
++      <div className="mx-auto w-full max-w-3xl">
++        <motion.div variants={itemVariants}>
++          <SectionHeading>Contact</SectionHeading>
++        </motion.div>
++
++        <motion.div
++          variants={itemVariants}
++          className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8"
++        >
++          <ContactForm />
++        </motion.div>
++
++        <motion.div
++          variants={itemVariants}
++          className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-edge pt-6"
++        >
++          <div>
++            <p className="text-xs font-bold uppercase tracking-wider text-dim mb-2">Direct</p>
++            <a
++              href={`mailto:${personalInfo.socials.email}`}
++              className="block break-all text-lg font-bold text-copy hover:text-accent transition-colors duration-200"
++            >
++              {personalInfo.socials.email}
++            </a>
++          </div>
++          <div className="flex items-center gap-3">
++            {socialLinks.map((social) => (
++              <a
++                key={social.label}
++                href={social.href}
++                target={social.href.startsWith('mailto:') ? undefined : '_blank'}
++                rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer'}
++                className="inline-flex items-center min-h-11 px-4 rounded-full bg-accent/10 text-accent text-sm font-bold transition-colors hover:bg-accent hover:text-canvas"
++              >
++                {social.label}
++              </a>
++            ))}
++          </div>
++        </motion.div>
++
++        <motion.p
++          variants={itemVariants}
++          className="mt-10 text-center text-xs text-dim"
++        >
++          &copy; {new Date().getFullYear()} {personalInfo.name}. All rights reserved.
++        </motion.p>
++      </div>
++    </motion.footer>
++  );
++}
++```
++
++- [ ] **Step 2: Update `src/components/ContactForm.tsx`**
++
++Two changes:
++
++1. Line 12-13 `inputClass`: replace `rounded-md` with `rounded-lg`.
++2. Labels: replace `&gt; name` with `Name`, `&gt; subject` with `Subject`, `&gt; message` with `Message` (lines 76, 101, 117).
++3. Submit button (line 147): replace class `rounded-md bg-inverse text-inverse-copy` with `rounded-full bg-accent text-canvas`.
++4. Form tag (line 73): replace `className="space-y-4 font-mono text-sm"` with `className="space-y-4 text-sm"` (no font-mono anywhere in the bento design).
++
++- [ ] **Step 3: Update `src/components/BackToTop.tsx`**
++
++Line 20: replace `rounded-md` with `rounded-full` and `bg-surface border-edge` with `bg-surface border border-edge card-shadow`.
++
++- [ ] **Step 4: Verify**
++
++Run: `npm run build; npm run lint` ΓÇö both must exit 0. Grep:
++
++```
++Select-String -Path src -Pattern "TODO: hire me|contact\.ts|bg-inverse|rounded-md|font-mono|&gt;" -Recurse
++```
++
++Expected: no matches.
++
++- [ ] **Step 5: Commit**
++
++```bash
++git add src/components/ContactFooter.tsx src/components/ContactForm.tsx src/components/BackToTop.tsx
++git commit -m "feat: bento contact card and back-to-top"
++```
++
++---
++
++### Task 8: Final QA + push + deploy
++
++**Files:**
++- Verify: whole `src/`
++
++**Interfaces:**
++- Consumes: Tasks 1-7.
++- Produces: shipped site.
++
++- [ ] **Step 1: Grep for IDE leftovers**
++
++```
++Select-String -Path src -Pattern "miii\.ts|about\.ts|experience\.ts|education\.ts|achievements\.ts|skills\.ts|projects\.tsx|contact\.ts|TERMINAL|github-stats|cursor-block|code-keyword|code-string|code-function|code-type|code-comment|code-const|font-mono|Ln 1|localhost:5173|file=\"" -Recurse
++```
++
++Expected: no matches. (Exceptions allowed: `src/data.ts` if it legitimately contains such strings ΓÇö check and confirm they are not UI copy.)
++
++- [ ] **Step 2: Full verification**
++
++Run:
++
++```
++npm run build
++npm run lint
++```
++
++Expected: both exit 0.
++
++- [ ] **Step 3: Manual check summary for the user** (no action, list in report)
++
++- `npm run dev` ΓåÆ check bottom bar on mobile width, top pills on desktop, both themes via toggle, carousel arrows round, no horizontal scroll at 360px width, contact form layout.
++
++- [ ] **Step 4: Push and deploy**
++
++```bash
++git push origin main
++npm run deploy
++```
++
++Expected: push succeeds, `Published` output from gh-pages.
++
++- [ ] **Step 5: Smoke check**
++
++Run: `Invoke-WebRequest -Uri "https://miiidev.github.io/portfolio/" -UseBasicParsing` ΓÇö expected: StatusCode 200.
++
++---
++
++## Self-Review Notes
++
++- **Spec coverage:** tokens (Task 1), nav bottom bar/top pills (Task 2), cut components + hero (Task 3), heading/about/skills (Task 4), experience/education/achievements (Task 5), carousel restyle + frame removal + listener removal (Task 6), contact/backtotop (Task 7), desktop acceptance + QA + deploy (Task 8). `portfolio:project`/`portfolio:contact` events fully removed. Data untouched. No new deps.
++- **Type consistency:** `ProjectCard` signature unchanged; `SectionHeading` props become `{ children: string }` in Task 4 ΓÇö all call sites across Tasks 4-7 use it; no other file imports `sectionFiles` (only Navbar did, deleted in Task 2). `NavBar` default export matches App.tsx import (Task 2).
++- **Placeholders:** none ΓÇö every task has full file literals or exact class changes.
++- **Risk notes:** App.tsx changes are split across Tasks 1-3 so every commit stays green (Task 1: padding only; Task 2: NavBar swap; Task 3: StatusBar/FileExplorer removal).
+diff --git a/docs/superpowers/specs/2026-08-18-bento-redesign-design.md b/docs/superpowers/specs/2026-08-18-bento-redesign-design.md
+new file mode 100644
+index 0000000..ded6d28
+--- /dev/null
++++ b/docs/superpowers/specs/2026-08-18-bento-redesign-design.md
+@@ -0,0 +1,145 @@
++# Bento Redesign ΓÇö miii.dev Portfolio
++
++Date: 2026-08-18
++Status: Draft (user-approved design summary; pending spec review)
++
++## Goal
++
++Replace the IDE/editor theme with a **playful, bold bento** look, designed mobile-first with light and dark variants (existing toggle kept). Cut all editor chrome (windows, tab bars, file names, status bar, file explorer, cursor blink, terminal, GitHub stats card). Keep all sections and the projects carousel (restyled).
++
++## Revision History
++
++- Rev 1 (2026-08-18): initial design approval.
++
++## Design Decisions (user-validated)
++
++- Concept: **Bento blocks** ΓÇö rounded cards (`rounded-2xl`), soft shadows, sticker chips, orange primary accent.
++- Base tone: **both** ΓÇö light cream + dark charcoal via the existing theme toggle.
++- Mobile navigation: **floating bottom pill bar** (4 items: Work / Skills / About / Talk), always visible, below `md` only.
++- Desktop navigation: **top pill bar** (name left, same 4 pills right).
++- Cut: MiniTerminal, GitHubStats card, all editor chrome (editor windows, tab bars, file names, `cursor-block`, FileExplorer sidebar, StatusBar, editor frame around the carousel).
++- Keep: all sections and their content; projects carousel geometry (spotlight 680px + edge peeks, MobileCardStack for Γëñ768px); scroll-spy; ThemeToggle; BackToTop; motion diet (44px touch targets, no backdrop-blur, no em dashes/emojis, viewport-once reveals, `MotionConfig reducedMotion="user"`); `portfolio:project` event contract.
++
++## Tokens (CSS variables in src/index.css)
++
++Replace the IDE token set. Keep the same variable names so existing components migrate without renaming:
++
++| Token | Light | Dark |
++|---|---|---|
++| `--color-canvas` (page base) | `#FFF8F0` | `#141414` |
++| `--color-surface` (card) | `#FFFFFF` | `#1E1E1E` |
++| `--color-elevated` (hover/raised) | `#F7F0E4` | `#262626` |
++| `--color-copy` (ink) | `#171717` | `#F5F5F4` |
++| `--color-muted` | `#6B6B6B` | `#9A9A9A` |
++| `--color-dim` | `#9C948A` | `#6E6E6E` |
++| `--color-edge` (borders) | `#EFE4D4` | `#2E2E2E` |
++| `--color-edge-hover` | `#171717` | `#F5F5F4` |
++| `--color-accent` (primary) | `#FF6B35` | `#FF6B35` |
++| `--color-danger` | `#D94F1D` | `#FF8A5C` |
++
++New token: `--color-accent-2` `#FFB703` (yellow), `--color-accent-3` `#4D7CFF` (blue), `--color-accent-4` `#00A88E` (teal) ΓÇö same in both themes; used for skill chips and sticker labels.
++
++`--color-nav-edge` obsolete (no fixed navbar border); `--color-nav-edge`/`--color-nav-canvas` removed or repurposed. The `.light` class mechanism and `.dark` default stay unchanged. `.cursor-block` animation removed.
++
++Shadows: cards use `shadow-[0_3px_10px_rgba(0,0,0,0.07)]` (light) / `shadow-[0_3px_12px_rgba(0,0,0,0.35)]` (dark) ΓÇö via a `.card` utility class or inline Tailwind shadow tokens; decide at implementation.
++
++Fonts: keep existing font stack; headings use font-extrabold with tight tracking (`tracking-tight`), name hero `text-5xl sm:text-6xl lg:text-7xl`.
++
++## Navigation
++
++### Mobile bottom bar (< md)
++
++- Fixed bottom, centered, `max-w-sm` floating pill: `rounded-full bg-surface border border-edge shadow-lg`, 4 items with icon + label, `min-h-11` tap targets.
++- Active item (scroll-spy, existing `useActiveSection`): accent text + accent tint background.
++- Always visible (simple, predictable; no scroll-direction hide logic).
++
++### Desktop top bar (ΓëÑ md)
++
++- `sticky top-0 z-50`, page base background (no blur ΓÇö motion diet), name left (`miiidev`, bold, `text-copy`), 4 pills right (`Work Skills About Talk`) + ThemeToggle.
++- Pills: `rounded-full px-4 py-2 min-h-11` hover accent tint; active accent.
++- Scroll-spy drives the active pill (same `useActiveSection` hook).
++
++## Sections
++
++### Hero
++
++- Big name: `Hey, I'm miii**dev**` (accent on `dev`), tagline line, `Say hello` pill CTA (accent bg, ink text, `min-h-11`, scrolls to contact). 
++- No editor window, no terminal, no code decorations.
++- Full-height (`min-h-[calc(100vh-...)]`) centered column; desktop: larger type, max-w-6xl.
++
++### About
++
++- One rounded-2xl card: short bio paragraphs, quick facts (role, location), social chips (GitHub / Email / WhatsApp as pill links).
++- Desktop: card max-w-3xl centered (content unchanged).
++
++### Experience / Education / Achievements
++
++- Each section: heading (`SectionHeading` component restyled ΓÇö bold display, sticker label; content structure unchanged) + rows of rounded-2xl cards with soft shadow.
++- Experience: per-item card (title, org, period, bullets). Education: card(s) with degree/school/years + details. Achievements: cards with title/description. Existing accordion patterns kept where present (Education/Achievements currently use tree accordions ΓÇö restyle the tree as stacked cards with chevron headers, same expand/collapse behavior).
++- Desktop: experience items `md:grid md:grid-cols-2 gap-6`; education/achievements single column max-w-3xl.
++
++### Skills
++
++- Domain groups as cards; chips per skill in `rounded-full` with the 4-accent cycle (`accent` orange, `accent-2` yellow, `accent-3` blue, `accent-4` teal), `bg-[accent-tint]` at 12% tint + colored text.
++- Desktop: `md:grid md:grid-cols-2 lg:grid-cols-3` cards.
++
++### Projects (Work)
++
++- Carousel restyle only: cards become `rounded-2xl bg-surface shadow` with `border-accent` (orange, full) on the active card; tag chips ΓåÆ colored pill chips (same 4-accent cycle); screenshot full-width natural aspect on top (no crop, current behavior), content below; arrow buttons `rounded-full bg-surface border border-edge shadow min-h-11 min-w-11`.
++- Geometry unchanged: 680px center, offsets 100/300, scale 1/0.9/0.78, opacity 1/0.4/0, `pointer-events: none` non-center, drag/swipe, `portfolio:project`.
++- Mobile (Γëñ768px): MobileCardStack unchanged structure, restyled cards.
++- **No editor frame** (breadcrumb/gutter/status removed ΓÇö deleted with the rest of the chrome).
++
++### Contact
++
++- One rounded-2xl card: heading, email/WhatsApp/GitHub pill links (large `min-h-11`), no editor window.
++
++## Removed Components
++
++- `MiniTerminal.tsx` ΓÇö delete component + its `portfolio:project` dispatch stays ONLY in... wait, the dispatch lives in MiniTerminal. Removing the terminal removes the terminal's ability to jump to projects. The event contract `portfolio:project` is kept (no other senders needed); ProjectsSection listener stays (harmless).
++- `GitHubStats.tsx` ΓÇö delete (plus `fetchGitHubStats` cache code ΓÇö it lives inside GitHubStats.tsx; remove with it).
++- `StatusBar.tsx` ΓÇö delete.
++- `FileExplorer.tsx` ΓÇö delete.
++- `EditorFrame` chrome in ProjectsSection ΓÇö remove breadcrumb/gutter/status wrappers, restore `mt-8`ΓåÆ`mt-2`? Keep spacing consistent per new design (heading-to-content gap `mt-6`).
++- `cursor-block` CSS animation ΓÇö remove from index.css.
++- Navbar menu-bar tabs + `activeFile` scroll-spy text ΓÇö replaced by top pill bar (desktop) / bottom bar (mobile).
++
++## Architecture
++
++- `App.tsx`: remove StatusBar, FileExplorer, MiniTerminal imports; layout becomes `<div class="bg-canvas text-copy min-h-screen">` + `<main class="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pb-24 md:pb-12">` (pb-24 clears the bottom bar on mobile). ThemeToggle moves into the nav bar (shared by desktop pills and mobile bar).
++- New `NavBar.tsx` (replaces Navbar.tsx): renders top pill bar ΓëÑ md, bottom pill bar < md; both use the same `items` array (`Work Skills About Talk` ΓåÆ section ids `work skills achievements? ...`). Map: WorkΓåÆ#work, SkillsΓåÆ#skills, AboutΓåÆ#about, TalkΓåÆ#contact. Active state from `useActiveSection`.
++- MobileCardStack keeps structure; card styling updated with the new tokens.
++- SectionHeading restyled (bold display + sticker label), same props.
++- `useActiveSection` unchanged. `fadeRightConfig`/animations unchanged.
++
++## Motion Diet (unchanged)
++
++- 44px minimum touch targets (`min-h-11`).
++- No backdrop-blur anywhere.
++- No em dashes; no emojis in UI copy.
++- Viewport-once reveals; `MotionConfig reducedMotion="user"`.
++- Max `rounded-2xl` on cards (chips/pills stay `rounded-full`).
++
++## Desktop Acceptance (explicit, per user concern)
++
++1. ΓëÑ `md`: top pill nav visible, bottom bar hidden; sticky top.
++2. Cards grid out (2-col md, 3-col lg) without overflowing; content max-w-6xl centered.
++3. Carousel: 680px center spotlight + peeks render as before, arrows round and ΓëÑ 44px, no editor frame.
++4. Hero type scales up (lg:text-7xl); page remains balanced (no giant empty areas).
++5. Γëñ768px: bottom bar works, no horizontal scroll anywhere, touch targets ΓëÑ 44px.
++
++## Acceptance Criteria
++
++1. Light + dark toggle works across the whole site with the new tokens; no IDE leftovers (no `miii.ts`, `projects/{title}.tsx` tab strings, `TERMINAL`, `github-stats.ts`, status bar, file explorer, editor frame).
++2. All 8 sections present with existing content (hero, about, experience, education, achievements, skills, work, contact).
++3. Projects carousel: geometry + behavior unchanged; restyled cards; mobile stack restyled.
++4. Nav: bottom bar < md, top pills ΓëÑ md, active states follow scroll-spy, theme toggle accessible on both.
++5. Motion diet respected; no new dependencies; `Project`/`personalInfo` data shapes untouched.
++6. `npm run build` and `npm run lint` both exit 0.
++
++## Out of Scope
++
++- No data changes.
++- No new dependencies.
++- No changes to content text (except removing terminal/stats-driven copy).
++- The `portfolio:project` event was only ever sent by MiniTerminal. With the terminal deleted, remove the listener + `scrollIntoView` handler in ProjectsSection and the dispatch contract entirely (the event is gone from the codebase).
+diff --git a/src/App.tsx b/src/App.tsx
+index dd0bf5c..b9502e0 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,45 +1,41 @@
+ import { useEffect } from 'react';
+ import { MotionConfig } from 'framer-motion';
+ import { ThemeProvider } from './context/ThemeContext';
+-import Navbar from './components/Navbar';
+-import FileExplorer from './components/FileExplorer';
++import NavBar from './components/NavBar';
+ import HeroSection from './components/HeroSection';
+ import AboutSection from './components/AboutSection';
+ import ExperienceSection from './components/ExperienceSection';
+ import EducationSection from './components/EducationSection';
+ import AchievementsSection from './components/AchievementsSection';
+ import SkillsSection from './components/SkillsSection';
+ import ProjectsSection from './components/ProjectsSection';
+ import ContactFooter from './components/ContactFooter';
+-import StatusBar from './components/StatusBar';
+ import BackToTop from './components/BackToTop';
+ 
+ export default function App() {
+   useEffect(() => {
+     history.scrollRestoration = 'manual';
+     window.scrollTo(0, 0);
+   }, []);
+ 
+   return (
+     <ThemeProvider>
+       <MotionConfig reducedMotion="user">
+         <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
+-          <Navbar />
+-          <FileExplorer />
+-          <main className="px-6 md:px-12 lg:pl-48 max-w-6xl mx-auto overflow-hidden pb-6 md:pb-12">
++          <NavBar />
++          <main className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden pb-28 md:pb-12">
+             <HeroSection />
+             <AboutSection />
+             <ExperienceSection />
+             <EducationSection />
+             <AchievementsSection />
+             <SkillsSection />
+             <ProjectsSection />
+             <ContactFooter />
+           </main>
+-          <StatusBar />
+           <BackToTop />
+         </div>
+       </MotionConfig>
+     </ThemeProvider>
+   );
+ }
+diff --git a/src/components/AboutSection.tsx b/src/components/AboutSection.tsx
+index a53a8fc..8d14fd5 100644
+--- a/src/components/AboutSection.tsx
++++ b/src/components/AboutSection.tsx
+@@ -1,45 +1,48 @@
+ import { motion } from 'framer-motion';
+ import { personalInfo } from '../data';
+ import { containerVariants, itemVariants } from '../utils/animations';
+ import SectionHeading from './SectionHeading';
+-import GitHubStats from './GitHubStats';
++
++const socials = [
++  { label: 'GitHub', href: personalInfo.socials.github },
++  { label: 'WhatsApp', href: personalInfo.socials.whatsapp ?? '#' },
++  { label: 'Email', href: `mailto:${personalInfo.socials.email}` },
++];
+ 
+ export default function AboutSection() {
+   return (
+     <motion.section
+       id="about"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="about.ts">About</SectionHeading>
++        <SectionHeading>About</SectionHeading>
++      </motion.div>
++      <motion.div variants={itemVariants} className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8 max-w-3xl">
++        <p className="text-base sm:text-lg text-copy leading-relaxed mb-4">
++          I&apos;m a {personalInfo.role} based in {personalInfo.location}, building AI-powered and security-focused applications with machine learning, computer vision, and real-time systems.
++        </p>
++        <p className="text-base text-muted leading-relaxed mb-6">
++          I currently tutor Java to beginners. Teaching forces me to keep my fundamentals sharp and to explain complex ideas clearly, which carries into how I build and document software.
++        </p>
++        <div className="flex flex-wrap gap-3">
++          {socials.map((social) => (
++            <a
++              key={social.label}
++              href={social.href}
++              target={social.href.startsWith('mailto:') ? undefined : '_blank'}
++              rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer'}
++              className="inline-flex items-center min-h-11 px-5 rounded-full bg-accent/10 text-accent text-sm font-bold transition-colors hover:bg-accent hover:text-canvas"
++            >
++              {social.label}
++            </a>
++          ))}
++        </div>
+       </motion.div>
+-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+-        <motion.div variants={itemVariants} className="rounded-md border border-edge bg-surface overflow-hidden font-mono">
+-          <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+-            <span className="text-xs text-muted">about.ts</span>
+-            <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+-          </div>
+-          <div className="p-6 space-y-3 text-sm">
+-            <p className="text-code-comment">// I&apos;m a {personalInfo.role} based in {personalInfo.location}, building AI-powered and security-focused applications with machine learning, computer vision, and real-time systems.</p>
+-            <p className="text-code-comment">// I currently tutor Java to beginners. Teaching forces me to keep my fundamentals sharp and to explain complex ideas clearly, which carries into how I build and document software.</p>
+-            <div className="pt-3 space-y-1.5">
+-              <p className="text-copy">
+-                <span className="text-code-keyword">const</span> <span className="text-code-function">location</span> = <span className="text-code-string">&apos;{personalInfo.location}&apos;</span>;
+-              </p>
+-              <p className="text-copy">
+-                <span className="text-code-keyword">const</span> <span className="text-code-function">status</span> = <span className="text-code-string">&apos;Open to opportunities&apos;</span>;
+-              </p>
+-            </div>
+-          </div>
+-        </motion.div>
+-        <motion.div variants={itemVariants}>
+-          <GitHubStats />
+-        </motion.div>
+-      </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/AchievementsSection.tsx b/src/components/AchievementsSection.tsx
+index 0d53192..0d48829 100644
+--- a/src/components/AchievementsSection.tsx
++++ b/src/components/AchievementsSection.tsx
+@@ -10,67 +10,67 @@ export default function AchievementsSection() {
+   return (
+     <motion.section
+       id="achievements"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="achievements.ts">Achievements</SectionHeading>
++        <SectionHeading>Achievements</SectionHeading>
+       </motion.div>
+-      <div className="space-y-2">
++      <div className="space-y-3 max-w-3xl">
+         {achievements.map((item, i) => {
+           const isOpen = openIndex === i;
+           return (
+             <motion.div
+               key={i}
+               variants={itemVariants}
+-              className="bg-surface border border-edge rounded-md overflow-hidden"
++              className="rounded-2xl bg-surface border border-edge card-shadow overflow-hidden"
+             >
+               <button
+                 onClick={() => setOpenIndex(isOpen ? null : i)}
+                 aria-expanded={isOpen}
+-                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left font-mono"
++                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left"
+               >
+                 <svg
+                   width="16"
+                   height="16"
+                   viewBox="0 0 24 24"
+                   fill="none"
+                   stroke="currentColor"
+-                  strokeWidth="2"
++                  strokeWidth="2.5"
+                   strokeLinecap="round"
+                   strokeLinejoin="round"
+-                  className={`text-muted shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
++                  className={`text-accent shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
+                   aria-hidden="true"
+                 >
+                   <path d="m9 18 6-6-6-6" />
+                 </svg>
+                 <div className="min-w-0">
+-                  <p className="text-xs text-code-comment mb-0.5">// {item.year}</p>
+-                  <h3 className="text-base font-bold text-copy">{item.title}</h3>
++                  <p className="text-xs font-bold text-accent uppercase tracking-wider mb-0.5">{item.year}</p>
++                  <h3 className="text-base font-extrabold text-copy">{item.title}</h3>
+                 </div>
+               </button>
+               <AnimatePresence initial={false}>
+                 {isOpen && (
+                   <motion.div
+                     initial={{ height: 0, opacity: 0 }}
+                     animate={{ height: 'auto', opacity: 1 }}
+                     exit={{ height: 0, opacity: 0 }}
+                     transition={{ duration: 0.25, ease: 'easeOut' }}
+                     className="overflow-hidden"
+                   >
+-                    <div className="pl-12 pr-5 pb-4 font-mono text-sm text-muted leading-relaxed">
++                    <div className="pl-12 pr-5 pb-4 text-sm text-muted leading-relaxed">
+                       {item.description}
+                     </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+             </motion.div>
+           );
+         })}
+       </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/BackToTop.tsx b/src/components/BackToTop.tsx
+index 52021c4..8c18cbf 100644
+--- a/src/components/BackToTop.tsx
++++ b/src/components/BackToTop.tsx
+@@ -10,19 +10,19 @@ export default function BackToTop() {
+   });
+ 
+   return (
+     <AnimatePresence>
+       {showBackToTop && (
+         <motion.button
+           initial={{ opacity: 0, scale: 0.8 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 0.8 }}
+           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+-          className="fixed bottom-8 right-8 z-40 p-3 bg-surface border-edge rounded-md text-muted hover:text-copy hover:border-copy transition-all shadow-lg"
++          className="fixed bottom-8 right-8 z-40 p-3 bg-surface border border-edge card-shadow rounded-full text-muted hover:text-copy hover:border-copy transition-all shadow-lg"
+           aria-label="Back to top"
+         >
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+         </motion.button>
+       )}
+     </AnimatePresence>
+   );
+ }
+diff --git a/src/components/ContactFooter.tsx b/src/components/ContactFooter.tsx
+index 4aff274..6c9f383 100644
+--- a/src/components/ContactFooter.tsx
++++ b/src/components/ContactFooter.tsx
+@@ -11,69 +11,62 @@ const socialLinks = [
+ ];
+ 
+ export default function ContactFooter() {
+   return (
+     <motion.footer
+       id="contact"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+-      className="min-h-screen flex flex-col justify-center py-12"
++      className="flex flex-col justify-center py-12"
+     >
+-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
++      <div className="mx-auto w-full max-w-3xl">
+         <motion.div variants={itemVariants}>
+-          <SectionHeading file="contact.ts">Contact</SectionHeading>
+-          <p className="font-mono text-sm text-code-const -mt-4 mb-8">// TODO: hire me</p>
++          <SectionHeading>Contact</SectionHeading>
+         </motion.div>
+ 
+         <motion.div
+           variants={itemVariants}
+-          className="w-full max-w-2xl rounded-md border border-edge bg-surface overflow-hidden"
++          className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8"
+         >
+-          <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+-            <span className="text-xs text-muted">contact.ts</span>
+-            <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+-          </div>
+-          <div className="p-4 sm:p-6">
+-            <ContactForm />
+-          </div>
++          <ContactForm />
+         </motion.div>
+ 
+         <motion.div
+           variants={itemVariants}
+-          className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-edge/50 pt-6"
++          className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-edge pt-6"
+         >
+           <div>
+-            <p className="font-mono text-xs uppercase tracking-wide text-dim mb-2">Direct</p>
++            <p className="text-xs font-bold uppercase tracking-wider text-dim mb-2">Direct</p>
+             <a
+               href={`mailto:${personalInfo.socials.email}`}
+-              className="block break-all text-lg text-copy hover:text-accent transition-colors duration-200"
++              className="block break-all text-lg font-bold text-copy hover:text-accent transition-colors duration-200"
+             >
+               {personalInfo.socials.email}
+             </a>
+           </div>
+-          <div className="flex items-center gap-5">
++          <div className="flex items-center gap-3">
+             {socialLinks.map((social) => (
+               <a
+                 key={social.label}
+                 href={social.href}
+                 target={social.href.startsWith('mailto:') ? undefined : '_blank'}
+                 rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer'}
+-                className="inline-flex items-center gap-2 text-sm text-muted hover:text-copy transition-colors duration-200 min-h-11"
++                className="inline-flex items-center min-h-11 px-4 rounded-full bg-accent/10 text-accent text-sm font-bold transition-colors hover:bg-accent hover:text-canvas"
+               >
+                 {social.label}
+               </a>
+             ))}
+           </div>
+         </motion.div>
+ 
+         <motion.p
+           variants={itemVariants}
+-          className="mt-10 text-center font-mono text-xs text-dim"
++          className="mt-10 text-center text-xs text-dim"
+         >
+-          // &copy; {new Date().getFullYear()} {personalInfo.name}. All rights reserved.
++          &copy; {new Date().getFullYear()} {personalInfo.name}. All rights reserved.
+         </motion.p>
+       </div>
+     </motion.footer>
+   );
+ }
+diff --git a/src/components/ContactForm.tsx b/src/components/ContactForm.tsx
+index 7adf6f3..5419aa1 100644
+--- a/src/components/ContactForm.tsx
++++ b/src/components/ContactForm.tsx
+@@ -3,21 +3,21 @@ import { personalInfo } from '../data';
+ 
+ type FormState = 'idle' | 'loading' | 'success' | 'error';
+ 
+ type FieldErrors = {
+   name?: string;
+   subject?: string;
+   message?: string;
+ };
+ 
+ const inputClass =
+-  'w-full rounded-md border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-accent transition-colors duration-200';
++  'w-full rounded-lg border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-accent transition-colors duration-200';
+ 
+ export default function ContactForm() {
+   const [name, setName] = useState('');
+   const [subject, setSubject] = useState('');
+   const [message, setMessage] = useState('');
+   const [formState, setFormState] = useState<FormState>('idle');
+   const [errors, setErrors] = useState<FieldErrors>({});
+   const [submitError, setSubmitError] = useState('');
+ 
+   const validate = (): FieldErrors => {
+@@ -63,24 +63,24 @@ export default function ContactForm() {
+   if (formState === 'success') {
+     return (
+       <div className="text-center py-8">
+         <p className="text-base text-copy/80 font-semibold mb-2">Message sent!</p>
+         <p className="text-sm text-muted">Thanks for reaching out. I'll get back to you soon.</p>
+       </div>
+     );
+   }
+ 
+   return (
+-    <form onSubmit={handleSubmit} className="space-y-4 font-mono text-sm">
++    <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+       <div>
+         <label htmlFor="contact-name" className="block text-xs text-muted mb-1.5">
+-          &gt; name
++          Name
+         </label>
+         <input
+           type="text"
+           id="contact-name"
+           name="name"
+           placeholder="Your name"
+           autoComplete="name"
+           maxLength={80}
+           value={name}
+           onChange={(e) => {
+@@ -91,37 +91,37 @@ export default function ContactForm() {
+           aria-describedby={errors.name ? 'name-error' : undefined}
+           className={inputClass}
+           disabled={formState === 'loading'}
+         />
+         {errors.name && (
+           <p id="name-error" className="text-xs text-danger mt-1.5">{errors.name}</p>
+         )}
+       </div>
+       <div>
+         <label htmlFor="contact-subject" className="block text-xs text-muted mb-1.5">
+-          &gt; subject
++          Subject
+         </label>
+         <input
+           type="text"
+           id="contact-subject"
+           name="subject"
+           placeholder="Subject"
+           maxLength={160}
+           value={subject}
+           onChange={(e) => setSubject(e.target.value)}
+           className={inputClass}
+           disabled={formState === 'loading'}
+         />
+       </div>
+       <div>
+         <label htmlFor="contact-message" className="block text-xs text-muted mb-1.5">
+-          &gt; message
++          Message
+         </label>
+         <textarea
+           id="contact-message"
+           name="message"
+           placeholder="Your message"
+           rows={5}
+           maxLength={2000}
+           value={message}
+           onChange={(e) => {
+             setMessage(e.target.value);
+@@ -137,21 +137,21 @@ export default function ContactForm() {
+         )}
+       </div>
+ 
+       {submitError && (
+         <p role="alert" className="text-xs text-danger">{submitError}</p>
+       )}
+ 
+       <button
+         type="submit"
+         disabled={formState === 'loading'}
+-        className="inline-flex items-center gap-2 rounded-md bg-inverse text-inverse-copy font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
++        className="inline-flex items-center gap-2 rounded-full bg-accent text-canvas font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+       >
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+           <path d="m22 2-7 20-4-9-9-4Z" />
+           <path d="M22 2 11 13" />
+         </svg>
+         {formState === 'loading' ? 'Sending...' : 'Send message'}
+       </button>
+     </form>
+   );
+ }
+\ No newline at end of file
+diff --git a/src/components/ContactModal.tsx b/src/components/ContactModal.tsx
+deleted file mode 100644
+index 5067720..0000000
+--- a/src/components/ContactModal.tsx
++++ /dev/null
+@@ -1,207 +0,0 @@
+-import { useEffect, useRef, useState, type JSX } from 'react';
+-import { motion, AnimatePresence } from 'framer-motion';
+-import { personalInfo } from '../data';
+-import ContactForm from './ContactForm';
+-
+-interface ContactModalProps {
+-  isOpen: boolean;
+-  onClose: () => void;
+-}
+-
+-type PlatformLink = {
+-  name: string;
+-  desc: string;
+-  icon: JSX.Element;
+-  href: string;
+-};
+-
+-type PlatformActions = {
+-  name: string;
+-  desc: string;
+-  icon: JSX.Element;
+-  actions: JSX.Element;
+-};
+-
+-type Platform = PlatformLink | PlatformActions;
+-
+-export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
+-  const [copied, setCopied] = useState(false);
+-  const dialogRef = useRef<HTMLDivElement>(null);
+-  const closeRef = useRef<HTMLButtonElement>(null);
+-  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+-
+-  useEffect(() => {
+-    if (!isOpen) return;
+-    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+-    closeRef.current?.focus();
+-    document.body.style.overflow = 'hidden';
+-
+-    const handleKeydown = (e: KeyboardEvent) => {
+-      if (e.key === 'Escape') {
+-        onClose();
+-        return;
+-      }
+-      if (e.key === 'Tab') {
+-        const dialog = dialogRef.current;
+-        if (!dialog) return;
+-        const focusables = dialog.querySelectorAll<HTMLElement>(
+-          'a[href], button:not([disabled]), input, textarea, [tabindex]:not([tabindex="-1"])'
+-        );
+-        if (focusables.length === 0) return;
+-        const first = focusables[0];
+-        const last = focusables[focusables.length - 1];
+-        const active = document.activeElement;
+-        if (e.shiftKey && active === first) {
+-          e.preventDefault();
+-          last.focus();
+-        } else if (!e.shiftKey && active === last) {
+-          e.preventDefault();
+-          first.focus();
+-        }
+-      }
+-    };
+-
+-    document.addEventListener('keydown', handleKeydown);
+-    return () => {
+-      document.removeEventListener('keydown', handleKeydown);
+-      document.body.style.overflow = '';
+-      previouslyFocusedRef.current?.focus();
+-    };
+-  }, [isOpen, onClose]);
+-
+-  const { socials } = personalInfo;
+-  const cleanEmail = socials.email;
+-
+-  const copyEmail = async () => {
+-    try {
+-      await navigator.clipboard.writeText(cleanEmail);
+-      setCopied(true);
+-      setTimeout(() => setCopied(false), 2000);
+-    } catch {
+-      // clipboard unavailable; nothing to show
+-    }
+-  };
+-
+-  const platforms: Platform[] = [
+-    {
+-      name: 'Email',
+-      desc: cleanEmail,
+-      icon: (
+-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+-      ),
+-      actions: (
+-        <div className="flex items-center gap-2 ml-auto">
+-          <button
+-            onClick={copyEmail}
+-            className="p-2 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
+-            aria-label="Copy email"
+-          >
+-            {copied ? (
+-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+-            ) : (
+-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+-            )}
+-          </button>
+-          <a
+-            href={`mailto:${socials.email}`}
+-            className="p-2 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
+-            aria-label="Open mail client"
+-          >
+-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17v-5a5 5 0 0 1 10 0v5"/><path d="M7 17h10"/><path d="M12 7v4"/></svg>
+-          </a>
+-        </div>
+-      ),
+-    },
+-    {
+-      name: 'GitHub',
+-      desc: socials.github,
+-      icon: (
+-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+-      ),
+-      href: socials.github,
+-    },
+-  ];
+-
+-  if (socials.whatsapp) {
+-    platforms.push({
+-      name: 'WhatsApp',
+-      desc: socials.whatsapp,
+-      icon: (
+-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+-      ),
+-      href: socials.whatsapp,
+-    });
+-  }
+-
+-  return (
+-    <AnimatePresence>
+-      {isOpen && (
+-        <motion.div
+-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+-          initial={{ opacity: 0 }}
+-          animate={{ opacity: 1 }}
+-          exit={{ opacity: 0 }}
+-          transition={{ duration: 0.2 }}
+-        >
+-          <motion.div
+-            className="absolute inset-0 bg-black/60"
+-            onClick={onClose}
+-            initial={{ opacity: 0 }}
+-            animate={{ opacity: 1 }}
+-            exit={{ opacity: 0 }}
+-          />
+-          <motion.div
+-            ref={dialogRef}
+-            role="dialog"
+-            aria-modal="true"
+-            aria-label="Get In Touch"
+-            className="relative bg-surface border border-edge rounded-md w-full max-w-sm overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
+-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+-            animate={{ opacity: 1, scale: 1, y: 0 }}
+-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
+-            transition={{ duration: 0.25, ease: 'easeOut' }}
+-          >
+-            <div className="flex items-center justify-between px-6 py-4 border-b border-edge shrink-0">
+-              <h2 className="text-lg font-semibold text-copy">Get In Touch</h2>
+-              <button
+-                ref={closeRef}
+-                onClick={onClose}
+-                className="p-2 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
+-                aria-label="Close"
+-              >
+-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+-              </button>
+-            </div>
+-            <div className="px-2 py-2 overflow-y-auto">
+-              {platforms.map((p) => (
+-                <div key={p.name} className="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-elevated/50 transition-colors group">
+-                  <span className="text-muted group-hover:text-copy transition-colors shrink-0">{p.icon}</span>
+-                  <div className="min-w-0">
+-                    <p className="text-sm font-medium text-copy">{p.name}</p>
+-                    <p className="text-xs text-muted truncate max-w-[180px]">{p.desc}</p>
+-                  </div>
+-                  {'actions' in p ? (
+-                    p.actions
+-                  ) : (
+-                    <a
+-                      href={p.href}
+-                      target="_blank"
+-                      rel="noreferrer"
+-                      className="ml-auto p-2 rounded-lg hover:bg-elevated transition-colors text-muted hover:text-copy"
+-                      aria-label={`Open ${p.name}`}
+-                    >
+-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17v-5a5 5 0 0 1 10 0v5"/><path d="M7 17h10"/><path d="M12 7v4"/></svg>
+-                    </a>
+-                  )}
+-                </div>
+-              ))}
+-              <div className="px-4 pt-4 pb-2 border-t border-edge">
+-                <ContactForm />
+-              </div>
+-            </div>
+-          </motion.div>
+-        </motion.div>
+-      )}
+-    </AnimatePresence>
+-  );
+-}
+diff --git a/src/components/EducationSection.tsx b/src/components/EducationSection.tsx
+index 9d1779c..450db95 100644
+--- a/src/components/EducationSection.tsx
++++ b/src/components/EducationSection.tsx
+@@ -10,68 +10,68 @@ export default function EducationSection() {
+   return (
+     <motion.section
+       id="education"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="education.ts">Education</SectionHeading>
++        <SectionHeading>Education</SectionHeading>
+       </motion.div>
+-      <div className="space-y-2">
++      <div className="space-y-3 max-w-3xl">
+         {education.map((item, i) => {
+           const isOpen = openIndex === i;
+           return (
+             <motion.div
+               key={i}
+               variants={itemVariants}
+-              className="bg-surface border border-edge rounded-md overflow-hidden"
++              className="rounded-2xl bg-surface border border-edge card-shadow overflow-hidden"
+             >
+               <button
+                 onClick={() => setOpenIndex(isOpen ? null : i)}
+                 aria-expanded={isOpen}
+-                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left font-mono"
++                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left"
+               >
+                 <svg
+                   width="16"
+                   height="16"
+                   viewBox="0 0 24 24"
+                   fill="none"
+                   stroke="currentColor"
+-                  strokeWidth="2"
++                  strokeWidth="2.5"
+                   strokeLinecap="round"
+                   strokeLinejoin="round"
+-                  className={`text-muted shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
++                  className={`text-accent shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
+                   aria-hidden="true"
+                 >
+                   <path d="m9 18 6-6-6-6" />
+                 </svg>
+                 <div className="min-w-0">
+-                  <p className="text-xs text-code-comment mb-0.5">// {item.period}</p>
+-                  <h3 className="text-base font-bold text-copy">{item.title}</h3>
++                  <p className="text-xs font-bold text-accent uppercase tracking-wider mb-0.5">{item.period}</p>
++                  <h3 className="text-base font-extrabold text-copy">{item.title}</h3>
+                   <p className="text-sm text-muted">{item.org}</p>
+                 </div>
+               </button>
+               <AnimatePresence initial={false}>
+                 {isOpen && (
+                   <motion.div
+                     initial={{ height: 0, opacity: 0 }}
+                     animate={{ height: 'auto', opacity: 1 }}
+                     exit={{ height: 0, opacity: 0 }}
+                     transition={{ duration: 0.25, ease: 'easeOut' }}
+                     className="overflow-hidden"
+                   >
+-                    <div className="pl-12 pr-5 pb-4 font-mono text-sm text-code-comment leading-relaxed">
+-                      // {item.description || 'More details coming soon.'}
++                    <div className="pl-12 pr-5 pb-4 text-sm text-muted leading-relaxed">
++                      {item.description || 'More details coming soon.'}
+                     </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+             </motion.div>
+           );
+         })}
+       </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/ExperienceSection.tsx b/src/components/ExperienceSection.tsx
+index e465f64..ff78cac 100644
+--- a/src/components/ExperienceSection.tsx
++++ b/src/components/ExperienceSection.tsx
+@@ -7,44 +7,41 @@ export default function ExperienceSection() {
+   return (
+     <motion.section
+       id="experience"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="experience.ts">Experience</SectionHeading>
++        <SectionHeading>Experience</SectionHeading>
+       </motion.div>
+-      <div className="space-y-3">
++      <div className="space-y-5 md:grid md:grid-cols-2 md:gap-5 md:space-y-0">
+         {experience.map((item, i) => (
+           <motion.div
+             key={i}
+             variants={itemVariants}
+-            className="bg-surface border border-edge rounded-md p-6"
++            className="rounded-2xl bg-surface border border-edge card-shadow p-6"
+           >
+-            <div className="flex items-center justify-between gap-4 mb-3">
+-              <p className="font-mono text-xs text-code-comment">// {item.period}</p>
+-              <span className="font-mono text-xs text-dim border border-edge rounded px-2 py-0.5">experience.ts</span>
+-            </div>
+-            <h3 className="text-lg font-bold text-copy mb-1">{item.title}</h3>
+-            {item.org && <p className="text-sm text-muted mb-2">{item.org}</p>}
++            <p className="text-xs font-bold text-accent uppercase tracking-wider mb-2">{item.period}</p>
++            <h3 className="text-lg font-extrabold text-copy mb-1">{item.title}</h3>
++            {item.org && <p className="text-sm text-muted mb-3">{item.org}</p>}
+             <p className="text-sm text-muted leading-relaxed mb-4">{item.description}</p>
+             {item.tags.length > 0 && (
+               <div className="flex flex-wrap gap-2">
+                 {item.tags.map((tag) => (
+                   <span
+                     key={tag}
+-                    className="font-mono text-xs bg-canvas text-muted px-3 py-1.5 rounded-full border border-edge"
++                    className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold"
+                   >
+                     {tag}
+                   </span>
+                 ))}
+               </div>
+             )}
+           </motion.div>
+         ))}
+       </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/FileExplorer.tsx b/src/components/FileExplorer.tsx
+deleted file mode 100644
+index 895f1d4..0000000
+--- a/src/components/FileExplorer.tsx
++++ /dev/null
+@@ -1,37 +0,0 @@
+-import { sectionFiles, useActiveSection } from '../hooks/useActiveSection';
+-
+-function FileIcon() {
+-  return (
+-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+-      <polyline points="14 2 14 8 20 8" />
+-    </svg>
+-  );
+-}
+-
+-export default function FileExplorer() {
+-  const active = useActiveSection();
+-
+-  return (
+-    <aside className="fixed left-0 top-14 bottom-6 z-30 hidden lg:flex w-48 flex-col border-r border-edge bg-canvas/60">
+-      <p className="px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-dim">Explorer</p>
+-      <nav className="flex-1 overflow-y-auto py-1">
+-        {sectionFiles.map((section) => (
+-          <a
+-            key={section.id}
+-            href={`#${section.id}`}
+-            aria-current={active === section.id ? 'page' : undefined}
+-            className={`flex items-center gap-2 min-h-9 px-3 font-mono text-xs border-l-2 transition-colors duration-200 ${
+-              active === section.id
+-                ? 'text-copy bg-elevated/60 border-accent'
+-                : 'text-muted hover:text-copy border-transparent hover:bg-elevated/30'
+-            }`}
+-          >
+-            <FileIcon />
+-            {section.file}
+-          </a>
+-        ))}
+-      </nav>
+-    </aside>
+-  );
+-}
+\ No newline at end of file
+diff --git a/src/components/GitHubStats.tsx b/src/components/GitHubStats.tsx
+deleted file mode 100644
+index 9ee0008..0000000
+--- a/src/components/GitHubStats.tsx
++++ /dev/null
+@@ -1,112 +0,0 @@
+-import { useEffect, useState } from 'react';
+-import { githubFallback } from '../data';
+-
+-interface GitHubStatsData {
+-  publicRepos: number;
+-  topLanguages: string[];
+-  lastPush: string | null;
+-}
+-
+-const CACHE_KEY = 'portfolio-github-stats';
+-const TTL = 60 * 60 * 1000;
+-
+-async function fetchGitHubStats(): Promise<GitHubStatsData> {
+-  try {
+-    const cachedRaw = localStorage.getItem(CACHE_KEY);
+-    if (cachedRaw) {
+-      const cached = JSON.parse(cachedRaw) as { data: GitHubStatsData; fetchedAt: number };
+-      if (Date.now() - cached.fetchedAt < TTL) return cached.data;
+-    }
+-  } catch {
+-    // cache unavailable; fetch fresh
+-  }
+-
+-  const [userRes, reposRes] = await Promise.all([
+-    fetch('https://api.github.com/users/miiidev'),
+-    fetch('https://api.github.com/users/miiidev/repos?per_page=100'),
+-  ]);
+-  if (!userRes.ok || !reposRes.ok) throw new Error('GitHub API request failed');
+-
+-  const [user, repos] = (await Promise.all([userRes.json(), reposRes.json()])) as [
+-    { public_repos: number },
+-    { language: string | null; pushed_at: string }[],
+-  ];
+-
+-  const counts = new Map<string, number>();
+-  for (const repo of repos) {
+-    if (repo.language) counts.set(repo.language, (counts.get(repo.language) ?? 0) + 1);
+-  }
+-  const topLanguages = [...counts.entries()]
+-    .sort((a, b) => b[1] - a[1])
+-    .slice(0, 3)
+-    .map(([lang]) => lang);
+-  const lastPush = repos.reduce((latest, repo) => (repo.pushed_at > latest ? repo.pushed_at : latest), '');
+-
+-  const data: GitHubStatsData = {
+-    publicRepos: user.public_repos,
+-    topLanguages,
+-    lastPush: lastPush || null,
+-  };
+-  try {
+-    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() }));
+-  } catch {
+-    // storage unavailable; skip caching
+-  }
+-  return data;
+-}
+-
+-function formatLastPush(lastPush: string): string {
+-  return new Date(lastPush).toLocaleDateString('en-MY', { month: 'short', year: 'numeric' });
+-}
+-
+-export default function GitHubStats() {
+-  const [stats, setStats] = useState<GitHubStatsData>(githubFallback);
+-
+-  useEffect(() => {
+-    let cancelled = false;
+-    fetchGitHubStats()
+-      .then((data) => {
+-        if (!cancelled) setStats(data);
+-      })
+-      .catch(() => console.warn('GitHub stats unavailable, showing fallback'));
+-    return () => {
+-      cancelled = true;
+-    };
+-  }, []);
+-
+-  return (
+-    <div className="bg-surface/50 border border-edge rounded-md overflow-hidden">
+-      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+-        <span className="text-xs text-muted">github-stats.ts</span>
+-        <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+-      </div>
+-      <div className="p-6">
+-        <h3 className="text-sm font-semibold text-muted mb-4 font-mono uppercase tracking-wide">GitHub</h3>
+-        <div className="space-y-4">
+-          <div>
+-            <p className="text-3xl font-extrabold text-copy">{stats.publicRepos}+</p>
+-            <p className="text-sm text-muted">repos built</p>
+-          </div>
+-          {stats.topLanguages.length > 0 && (
+-            <div>
+-              <p className="text-sm text-muted mb-2">Top languages</p>
+-              <div className="flex flex-wrap gap-2">
+-                {stats.topLanguages.map((lang) => (
+-                  <span key={lang} className="text-xs font-semibold bg-canvas text-copy/80 px-3 py-1.5 rounded-full border border-edge">
+-                    {lang}
+-                  </span>
+-                ))}
+-              </div>
+-            </div>
+-          )}
+-          <div>
+-            <p className="text-sm text-muted mb-1">Last push</p>
+-            <p className="text-sm text-copy/80 font-medium">
+-              {stats.lastPush ? formatLastPush(stats.lastPush) : 'Always building'}
+-            </p>
+-          </div>
+-        </div>
+-      </div>
+-    </div>
+-  );
+-}
+diff --git a/src/components/HeroSection.tsx b/src/components/HeroSection.tsx
+index a1b131d..d7fa79d 100644
+--- a/src/components/HeroSection.tsx
++++ b/src/components/HeroSection.tsx
+@@ -1,103 +1,56 @@
+-import { useEffect, useState } from 'react';
+ import { motion } from 'framer-motion';
+ import { personalInfo } from '../data';
+ import { heroContainerVariants, heroItemVariants } from '../utils/animations';
+ import LazyImage from './LazyImage';
+-import ContactModal from './ContactModal';
+-import MiniTerminal from './MiniTerminal';
+-
+-const codeLines = [
+-  { key: 'const', text: 'const developer = {', color: 'text-code-keyword' },
+-  { key: 'name', text: "  name: 'Ahmad Syahmi',", color: 'text-code-string' },
+-  { key: 'role', text: "  role: 'Software & AI Developer',", color: 'text-code-string' },
+-  { key: 'location', text: "  location: 'Malaysia',", color: 'text-code-string' },
+-  { key: 'open', text: '  openToWork: true,', color: 'text-code-const' },
+-  { key: 'close', text: '};', color: '' },
+-];
+ 
+ export default function HeroSection() {
+-  const [contactOpen, setContactOpen] = useState(false);
+-
+-  useEffect(() => {
+-    const openContact = () => setContactOpen(true);
+-    window.addEventListener('portfolio:contact', openContact);
+-    return () => window.removeEventListener('portfolio:contact', openContact);
+-  }, []);
+-
+   return (
+     <motion.header
+       id="hero"
+       variants={heroContainerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.1, margin: '-100px' }}
+       className="min-h-screen flex items-center py-24"
+     >
+-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center w-full max-w-6xl mx-auto px-4 sm:px-6">
+-        <motion.div variants={heroItemVariants} className="w-full">
+-          <div className="rounded-md border border-edge bg-surface overflow-hidden">
+-            <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2 group">
+-              <span className="text-xs text-muted">miii.ts</span>
+-              <span className="text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
+-            </div>
+-            <div className="p-5 sm:p-7 font-mono text-sm leading-7 overflow-x-auto">
+-              <div className="flex">
+-                <div className="pr-4 text-right text-dim select-none shrink-0">
+-                  {codeLines.map((_, i) => (
+-                    <div key={i}>{i + 1}</div>
+-                  ))}
+-                  <div className="cursor-block text-copy">&#9632;</div>
+-                </div>
+-                <div>
+-                  {codeLines.map((line) => (
+-                    <div key={line.key} className={line.color || 'text-copy'}>
+-                      {line.text}
+-                    </div>
+-                  ))}
+-                  <div className="cursor-block text-copy">&#9632;</div>
+-                </div>
+-              </div>
+-            </div>
+-          </div>
+-
+-          <div className="flex flex-wrap gap-4 mt-8">
+-            <button
+-              onClick={() => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+-              className="inline-flex items-center gap-2 px-5 py-3 bg-surface hover:border-accent rounded-md text-sm font-medium transition-all border border-edge text-copy min-h-11"
++      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full max-w-6xl mx-auto">
++        <motion.div variants={heroItemVariants}>
++          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-copy">
++            Hey, I&apos;m miii<span className="text-accent">dev</span>
++          </h1>
++          <p className="mt-5 text-lg sm:text-xl text-muted max-w-xl leading-relaxed">
++            {personalInfo.role} based in {personalInfo.location}. Building AI-powered and security-focused applications.
++          </p>
++          <div className="mt-8 flex flex-wrap gap-4">
++            <a
++              href="#work"
++              className="inline-flex items-center min-h-11 px-6 rounded-full bg-accent text-canvas font-bold text-sm transition-opacity hover:opacity-90"
+             >
+-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+-              View All Projects
+-            </button>
+-            <button
+-              onClick={() => setContactOpen(true)}
+-              className="px-5 py-3 bg-inverse text-inverse-copy font-semibold rounded-md text-sm transition-all border border-edge hover:opacity-90 min-h-11"
++              View my work
++            </a>
++            <a
++              href="#contact"
++              className="inline-flex items-center min-h-11 px-6 rounded-full bg-surface border border-edge text-copy font-bold text-sm transition-colors hover:border-accent"
+             >
+-              Get In Touch
+-            </button>
++              Say hello
++            </a>
+           </div>
+         </motion.div>
+ 
+-        <motion.div variants={heroItemVariants} className="w-full max-w-md mx-auto flex flex-col gap-6">
+-          <div className="rounded-md border border-edge bg-surface overflow-hidden">
+-            <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+-              <span className="text-xs text-muted">profile.png</span>
+-              <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+-            </div>
++        <motion.div variants={heroItemVariants} className="w-full max-w-sm mx-auto">
++          <div className="rounded-2xl overflow-hidden card-shadow">
+             <LazyImage
+               src="/portfolio/assets/profile-image.jpeg"
+               alt={personalInfo.name}
+               className="w-full aspect-square"
+               imgClassName="object-cover w-full h-full"
+               loading="eager"
+               fetchPriority="high"
+               decoding="sync"
+             />
+           </div>
+-          <MiniTerminal />
+         </motion.div>
+       </div>
+-
+-      <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
+     </motion.header>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/MiniTerminal.tsx b/src/components/MiniTerminal.tsx
+deleted file mode 100644
+index 6030963..0000000
+--- a/src/components/MiniTerminal.tsx
++++ /dev/null
+@@ -1,131 +0,0 @@
+-import { useEffect, useRef, useState } from 'react';
+-import { motion } from 'framer-motion';
+-import { personalInfo, projects } from '../data';
+-
+-interface Line {
+-  text: string;
+-  kind: 'cmd' | 'out' | 'err';
+-}
+-
+-const HELP = [
+-  'Available commands:',
+-  '  about     - one-line summary',
+-  '  skills    - skill domains',
+-  `  projects  - list projects (then 1-${projects.length} to jump)`,
+-  '  contact   - how to reach me',
+-  '  clear     - clear the terminal',
+-];
+-
+-function outputFor(input: string): Line[] {
+-  const cmd = input.trim().toLowerCase();
+-  switch (cmd) {
+-    case 'help':
+-      return HELP.map((text) => ({ text, kind: 'out' as const }));
+-    case 'about':
+-      return [
+-        {
+-          text: `${personalInfo.role} based in ${personalInfo.location}. Building AI tools and teaching Java.`,
+-          kind: 'out',
+-        },
+-      ];
+-    case 'skills':
+-      return personalInfo.skills.map((group) => ({ text: `- ${group.domain}`, kind: 'out' as const }));
+-    case 'projects':
+-      return [
+-        { text: 'Type a number to jump to a project:', kind: 'out' },
+-        ...projects.map((p, i) => ({ text: `  ${i + 1}. ${p.title}`, kind: 'out' as const })),
+-      ];
+-    case 'contact':
+-      return [
+-        { text: `GitHub: ${personalInfo.socials.github}`, kind: 'out' },
+-        { text: `Email: ${personalInfo.socials.email}`, kind: 'out' },
+-        { text: `WhatsApp: ${personalInfo.socials.whatsapp ?? 'n/a'}`, kind: 'out' },
+-      ];
+-    case 'clear':
+-      return [];
+-    default:
+-      return [{ text: `command not found: ${cmd} (try "help")`, kind: 'err' }];
+-  }
+-}
+-
+-export default function MiniTerminal() {
+-  const [lines, setLines] = useState<Line[]>([
+-    { text: 'type "help" to see what I can do', kind: 'out' },
+-  ]);
+-  const [input, setInput] = useState('');
+-  const endRef = useRef<HTMLDivElement>(null);
+-
+-  useEffect(() => {
+-    endRef.current?.scrollIntoView({ block: 'nearest' });
+-  }, [lines]);
+-
+-  const run = (raw: string) => {
+-    const cmd = raw.trim().toLowerCase();
+-    const next: Line[] = [{ text: `> ${raw.trim()}`, kind: 'cmd' }];
+-    if (cmd === 'clear') {
+-      setLines([]);
+-      return;
+-    }
+-    if (/^\d+$/.test(cmd) && Number(cmd) >= 1 && Number(cmd) <= projects.length) {
+-      const idx = Number(cmd) - 1;
+-      window.dispatchEvent(new CustomEvent('portfolio:project', { detail: idx }));
+-      next.push({ text: `Opening project ${idx + 1}...`, kind: 'out' });
+-    } else {
+-      next.push(...outputFor(raw));
+-    }
+-    setLines((prev) => [...prev, ...next]);
+-  };
+-
+-  return (
+-    <div
+-      className="w-full max-w-md rounded-md border border-edge bg-surface text-sm font-mono overflow-hidden"
+-      role="region"
+-      aria-label="Terminal"
+-    >
+-      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+-        <span className="text-xs text-muted">TERMINAL</span>
+-        <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+-      </div>
+-      <div className="p-4 h-56 overflow-y-auto">
+-        {lines.map((line, i) => (
+-          <motion.div
+-            key={i}
+-            initial={{ opacity: 0, y: 6 }}
+-            animate={{ opacity: 1, y: 0 }}
+-            transition={{ duration: 0.15 }}
+-            className={
+-              line.kind === 'cmd'
+-                ? 'text-copy font-semibold'
+-                : line.kind === 'err'
+-                  ? 'text-danger'
+-                  : 'text-muted'
+-            }
+-          >
+-            {line.text}
+-          </motion.div>
+-        ))}
+-        <div className="flex items-center gap-2 mt-1">
+-          <span className="text-code-keyword font-semibold shrink-0">miii@portfolio:~$</span>
+-          <input
+-            value={input}
+-            onChange={(e) => setInput(e.target.value)}
+-            onKeyDown={(e) => {
+-              if (e.key === 'Escape') {
+-                (e.target as HTMLInputElement).blur();
+-                return;
+-              }
+-              if (e.key === 'Enter' && input.trim()) {
+-                run(input);
+-                setInput('');
+-              }
+-            }}
+-            aria-label="Terminal input"
+-            className="flex-1 bg-transparent text-copy outline-none placeholder:text-dim"
+-            placeholder="type help"
+-          />
+-        </div>
+-        <div ref={endRef} />
+-      </div>
+-    </div>
+-  );
+-}
+diff --git a/src/components/MobileCardStack.tsx b/src/components/MobileCardStack.tsx
+index 0db7ef4..c3f79e4 100644
+--- a/src/components/MobileCardStack.tsx
++++ b/src/components/MobileCardStack.tsx
+@@ -104,21 +104,21 @@ export default function MobileCardStack({
+         const scale = 1 + index * 0.06 - stack.length * 0.06;
+         const rotate = (stack.length - index - 1) * 4 + card.rotation;
+ 
+         return (
+           <CardRotate
+             key={card.id}
+             onSendToBack={() => sendToBack(card.id)}
+             sensitivity={sensitivity}
+           >
+             <motion.div
+-              className="rounded-md overflow-hidden w-full h-full"
++              className="rounded-2xl overflow-hidden w-full h-full"
+               onClick={() => sendToBack(card.id)}
+               animate={{
+                 rotateZ: isTop ? 0 : rotate,
+                 scale: isTop ? 0.9 : scale * 0.9,
+               }}
+               initial={false}
+               transition={{
+                 type: 'spring',
+                 stiffness: animationConfig.stiffness,
+                 damping: animationConfig.damping,
+diff --git a/src/components/NavBar.tsx b/src/components/NavBar.tsx
+new file mode 100644
+index 0000000..19bb4c6
+--- /dev/null
++++ b/src/components/NavBar.tsx
+@@ -0,0 +1,70 @@
++import ThemeToggle from './ThemeToggle';
++import { useActiveSection } from '../hooks/useActiveSection';
++
++const items = [
++  { id: 'work', label: 'Work' },
++  { id: 'skills', label: 'Skills' },
++  { id: 'about', label: 'About' },
++  { id: 'contact', label: 'Talk' },
++];
++
++export default function NavBar() {
++  const active = useActiveSection();
++
++  return (
++    <>
++      <nav
++        aria-label="Primary"
++        className="hidden md:flex items-center gap-1 sticky top-0 z-50 bg-canvas/95 px-4 lg:px-8 border-b border-edge"
++      >
++        <a href="#hero" className="flex items-center gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity mr-4">
++          <span className="font-extrabold tracking-tight text-lg">miiidev</span>
++        </a>
++        <div className="flex items-center gap-1">
++          {items.map((item) => (
++            <a
++              key={item.id}
++              href={`#${item.id}`}
++              aria-current={active === item.id ? 'page' : undefined}
++              className={`inline-flex items-center min-h-11 px-4 rounded-full text-sm font-semibold transition-colors duration-200 ${
++                active === item.id
++                  ? 'bg-accent/15 text-accent'
++                  : 'text-muted hover:text-copy hover:bg-elevated'
++              }`}
++            >
++              {item.label}
++            </a>
++          ))}
++        </div>
++        <div className="ml-auto">
++          <ThemeToggle />
++        </div>
++      </nav>
++
++      <nav
++        aria-label="Primary"
++        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
++      >
++        <div className="flex items-center justify-around rounded-full border border-edge bg-surface card-shadow px-2 py-1.5">
++          {items.map((item) => (
++            <a
++              key={item.id}
++              href={`#${item.id}`}
++              aria-current={active === item.id ? 'page' : undefined}
++              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full text-xs font-bold transition-colors duration-200 ${
++                active === item.id
++                  ? 'bg-accent/15 text-accent'
++                  : 'text-muted hover:text-copy'
++              }`}
++            >
++              {item.label}
++            </a>
++          ))}
++          <div className="ml-1">
++            <ThemeToggle />
++          </div>
++        </div>
++      </nav>
++    </>
++  );
++}
+diff --git a/src/components/Navbar.tsx b/src/components/Navbar.tsx
+deleted file mode 100644
+index 6945974..0000000
+--- a/src/components/Navbar.tsx
++++ /dev/null
+@@ -1,99 +0,0 @@
+-import { useEffect, useState } from 'react';
+-import { AnimatePresence, motion } from 'framer-motion';
+-import ThemeToggle from './ThemeToggle';
+-import { sectionFiles, useActiveSection } from '../hooks/useActiveSection';
+-
+-const tabs = sectionFiles.slice(1);
+-
+-export default function Navbar() {
+-  const [menuOpen, setMenuOpen] = useState(false);
+-  const active = useActiveSection();
+-  const activeFile = sectionFiles.find((s) => s.id === active)?.file ?? sectionFiles[0].file;
+-
+-  useEffect(() => {
+-    if (!menuOpen) return;
+-    const onKey = (e: KeyboardEvent) => {
+-      if (e.key === 'Escape') setMenuOpen(false);
+-    };
+-    window.addEventListener('keydown', onKey);
+-    return () => window.removeEventListener('keydown', onKey);
+-  }, [menuOpen]);
+-
+-  return (
+-    <header className="fixed top-0 left-0 right-0 z-50 bg-canvas/90 border-b border-nav-edge">
+-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-3 sm:px-6">
+-        <a href="#" className="flex items-baseline gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity">
+-          <span className="font-bold tracking-tighter text-lg">miiidev</span>
+-          <span className="hidden sm:inline font-mono text-xs text-dim">{activeFile}</span>
+-        </a>
+-
+-        <nav className="hidden lg:flex items-center h-14 ml-6">
+-          {tabs.map((tab) => (
+-            <a
+-              key={tab.id}
+-              href={`#${tab.id}`}
+-              aria-current={active === tab.id ? 'page' : undefined}
+-              className={`inline-flex items-center h-14 px-3 font-mono text-sm border-b-2 transition-colors duration-200 ${
+-                active === tab.id
+-                  ? 'border-accent text-copy bg-elevated/50'
+-                  : 'border-transparent text-muted hover:text-copy hover:bg-elevated/30'
+-              }`}
+-            >
+-              {tab.file}
+-            </a>
+-          ))}
+-        </nav>
+-
+-        <div className="flex items-center gap-1 ml-auto">
+-          <ThemeToggle />
+-          <button
+-            onClick={() => setMenuOpen((open) => !open)}
+-            aria-expanded={menuOpen}
+-            aria-label={menuOpen ? 'Close file list' : 'Open file list'}
+-            className="lg:hidden w-11 h-11 flex items-center justify-center text-copy hover:opacity-80 transition-opacity"
+-          >
+-            {menuOpen ? (
+-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+-                <path d="M6 6l12 12M6 18L18 6" />
+-              </svg>
+-            ) : (
+-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+-                <path d="M3 6h18M3 12h18M3 18h18" />
+-              </svg>
+-            )}
+-          </button>
+-        </div>
+-      </div>
+-
+-      <AnimatePresence>
+-        {menuOpen && (
+-          <motion.div
+-            initial={{ opacity: 0, height: 0 }}
+-            animate={{ opacity: 1, height: 'auto' }}
+-            exit={{ opacity: 0, height: 0 }}
+-            transition={{ duration: 0.2, ease: 'easeOut' }}
+-            className="lg:hidden overflow-hidden border-b border-nav-edge bg-canvas"
+-          >
+-            <nav className="mx-auto max-w-6xl px-3 sm:px-6 py-2">
+-              {sectionFiles.map((section) => (
+-                <a
+-                  key={section.id}
+-                  href={`#${section.id}`}
+-                  onClick={() => setMenuOpen(false)}
+-                  aria-current={active === section.id ? 'page' : undefined}
+-                  className={`flex items-center min-h-11 px-3 font-mono text-sm rounded-md transition-colors duration-200 ${
+-                    active === section.id
+-                      ? 'text-copy bg-elevated/50 border-l-2 border-accent'
+-                      : 'text-muted hover:text-copy'
+-                  }`}
+-                >
+-                  {section.file}
+-                </a>
+-              ))}
+-            </nav>
+-          </motion.div>
+-        )}
+-      </AnimatePresence>
+-    </header>
+-  );
+-}
+\ No newline at end of file
+diff --git a/src/components/ProjectCard.tsx b/src/components/ProjectCard.tsx
+index d933d88..85a244e 100644
+--- a/src/components/ProjectCard.tsx
++++ b/src/components/ProjectCard.tsx
+@@ -1,76 +1,77 @@
+ import type { Project } from '../data';
+ import LazyImage from './LazyImage';
+ 
+-const tagColors = ['text-code-function', 'text-code-string', 'text-code-type', 'text-code-const'];
++const accentCycle = [
++  'text-accent bg-accent/10',
++  'text-accent-2 bg-accent-2/10',
++  'text-accent-3 bg-accent-3/10',
++  'text-accent-4 bg-accent-4/10',
++];
+ 
+ export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
+   return (
+     <div
+-      className={`bg-surface border rounded-md overflow-hidden group h-full w-full flex flex-col ${
+-        isCenter ? 'border-accent/60' : 'border-edge hover:border-accent/60'
++      className={`bg-surface border rounded-2xl overflow-hidden group h-full w-full flex flex-col card-shadow ${
++        isCenter ? 'border-accent' : 'border-edge hover:border-accent'
+       }`}
+     >
+-      <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2 shrink-0">
+-        <span className="font-mono text-xs text-muted">projects/{project.title}.tsx</span>
+-        <span className="font-mono text-xs text-dim opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">&#10005;</span>
+-      </div>
+       {project.image ? (
+         <div className="w-full border-b border-edge overflow-hidden">
+-          <LazyImage src={project.image} alt={project.title} className="w-full h-full object-cover" />
++          <LazyImage src={project.image} alt={project.title} className="w-full" imgClassName="w-full !h-auto object-cover" />
+         </div>
+       ) : (
+-        <div className="w-full aspect-video border-b border-edge bg-gradient-to-br from-surface via-elevated to-surface flex items-center justify-center">
++        <div className="w-full aspect-video border-b border-edge bg-elevated/50 flex items-center justify-center">
+           <div className="flex flex-col items-center gap-2 text-muted">
+             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
+               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+               <line x1="8" y1="21" x2="16" y2="21"/>
+               <line x1="12" y1="17" x2="12" y2="21"/>
+             </svg>
+-            <span className="text-xs font-mono opacity-30">Screenshot</span>
++            <span className="text-xs font-bold opacity-30">Screenshot</span>
+           </div>
+         </div>
+       )}
+-      <div className="p-3 flex flex-col flex-1 min-h-0">
+-        <p className="font-mono text-xs text-code-comment mb-1">// {project.title}</p>
+-        <p className="font-mono text-xs text-code-comment leading-relaxed mb-3">{project.description}</p>
+-        <div className="flex flex-wrap gap-1.5 mb-3">
++      <div className="p-5 flex flex-col flex-1 min-h-0">
++        <h3 className="text-lg font-extrabold text-copy mb-2">{project.title}</h3>
++        <p className="text-sm text-muted leading-relaxed mb-4">{project.description}</p>
++        <div className="flex flex-wrap gap-2 mb-4">
+           {project.tags.map((tag, index) => (
+             <span
+               key={index}
+-              className={`font-mono text-[10px] bg-canvas px-2.5 py-1 rounded-full border border-edge ${tagColors[index % tagColors.length]}`}
++              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${accentCycle[index % accentCycle.length]}`}
+             >
+               {tag}
+             </span>
+           ))}
+         </div>
+         <div className="flex items-center gap-4 mt-auto pt-1">
+           {project.repo && (
+             <a
+               href={project.repo}
+               target="_blank"
+               rel="noreferrer"
+-              className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
++              className="inline-flex items-center gap-2 min-h-11 text-sm font-bold text-copy hover:text-accent transition-colors duration-200"
+             >
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                 <polyline points="16 18 22 12 16 6"/>
+                 <polyline points="8 6 2 12 8 18"/>
+               </svg>
+               Code
+             </a>
+           )}
+           {project.demo && (
+             <a
+               href={project.demo}
+               target="_blank"
+               rel="noreferrer"
+-              className="inline-flex items-center gap-2 text-xs font-semibold text-copy hover:text-accent transition-colors duration-200"
++              className="inline-flex items-center gap-2 min-h-11 text-sm font-bold text-copy hover:text-accent transition-colors duration-200"
+             >
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                 <polyline points="15 3 21 3 21 9"/>
+                 <line x1="10" y1="14" x2="21" y2="3"/>
+               </svg>
+               Demo
+             </a>
+           )}
+         </div>
+diff --git a/src/components/ProjectsSection.tsx b/src/components/ProjectsSection.tsx
+index 71ccd7d..1896b37 100644
+--- a/src/components/ProjectsSection.tsx
++++ b/src/components/ProjectsSection.tsx
+@@ -10,32 +10,20 @@ export default function ProjectsSection() {
+   const [currentIndex, setCurrentIndex] = useState(0);
+   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+ 
+   useEffect(() => {
+     const mq = window.matchMedia('(max-width: 768px)');
+     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+     mq.addEventListener('change', handler);
+     return () => mq.removeEventListener('change', handler);
+   }, []);
+ 
+-  useEffect(() => {
+-    const handler = (e: Event) => {
+-      const idx = (e as CustomEvent<number>).detail;
+-      if (idx >= 0 && idx < projects.length) {
+-        setCurrentIndex(idx);
+-        document.getElementById('work')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+-      }
+-    };
+-    window.addEventListener('portfolio:project', handler);
+-    return () => window.removeEventListener('portfolio:project', handler);
+-  }, []);
+-
+   const offset = isMobile ? 60 : 100;
+   const farOffset = isMobile ? 100 : 300;
+ 
+   const nextProject = () => {
+     setCurrentIndex((prev) => (prev + 1) % projects.length);
+   };
+ 
+   const prevProject = () => {
+     setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
+   };
+@@ -47,122 +35,98 @@ export default function ProjectsSection() {
+     let normalizedDiff = diff;
+     if (diff < -Math.floor(length / 2)) normalizedDiff += length;
+     if (diff > Math.floor(length / 2)) normalizedDiff -= length;
+ 
+     return normalizedDiff;
+   };
+ 
+   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+     const threshold = 50;
+     const velocity = info.velocity.x;
+-    const offset = info.offset.x;
++    const offsetDrag = info.offset.x;
+ 
+-    if (offset < -threshold || velocity < -500) {
++    if (offsetDrag < -threshold || velocity < -500) {
+       nextProject();
+-    } else if (offset > threshold || velocity > 500) {
++    } else if (offsetDrag > threshold || velocity > 500) {
+       prevProject();
+     }
+   };
+ 
+   return (
+-    <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12">
+-      <div className="flex items-center justify-between mb-2">
+-        <SectionHeading file="projects.tsx">Work</SectionHeading>
++    <motion.section id="work" {...fadeRightConfig} className="flex flex-col justify-center py-12">
++      <div className="flex items-center justify-between mb-6">
++        <SectionHeading>Work</SectionHeading>
+       </div>
+ 
+       {isMobile ? (
+-        <div className="relative w-full h-[450px] mt-8">
++        <div className="relative w-full h-[450px] mt-6">
+           <MobileCardStack
+             projects={projects}
+             currentIndex={currentIndex}
+             onIndexChange={setCurrentIndex}
+             sensitivity={100}
+           />
+         </div>
+       ) : (
+-        <div className="hidden md:block border border-edge rounded-md overflow-hidden relative mt-2 bg-canvas/40">
+-          {/* Breadcrumb bar */}
+-          <div className="flex items-center justify-between px-3 py-1 font-mono text-[10px] border-b border-edge bg-elevated/40" aria-hidden="true">
+-            <span>
+-              <span className="text-dim">work</span>
+-              <span className="text-muted"> / projects.tsx</span>
+-            </span>
+-            <span className="text-dim"> main</span>
+-          </div>
+-          {/* Carousel with gutter */}
+-          <div className="relative">
+-            {/* Gutter */}
+-            <div className="absolute left-0 top-0 bottom-0 w-7 border-r border-edge bg-canvas flex flex-col items-center py-[3px] text-edge font-mono text-[10px] leading-5" aria-hidden="true">
+-              {Array.from({ length: 12 }, (_, i) => (
+-                <span key={i}>{i + 1}</span>
+-              ))}
+-            </div>
+-            <motion.div
+-              className="relative w-full min-h-[560px] overflow-clip pl-7"
+-              drag="x"
+-              dragConstraints={{ left: 0, right: 0 }}
+-              dragElastic={0.2}
+-              dragDirectionLock
+-              onDragEnd={handleDragEnd}
+-              style={{ touchAction: 'pan-y' }}
+-            >
+-              {projects.map((project, index) => {
+-                const pos = getPosition(index);
+-                const abs = Math.abs(pos);
++        <div className="relative mt-6">
++          <motion.div
++            className="relative w-full min-h-[560px] overflow-clip"
++            drag="x"
++            dragConstraints={{ left: 0, right: 0 }}
++            dragElastic={0.2}
++            dragDirectionLock
++            onDragEnd={handleDragEnd}
++            style={{ touchAction: 'pan-y' }}
++          >
++            {projects.map((project, index) => {
++              const pos = getPosition(index);
++              const abs = Math.abs(pos);
+ 
+-                return (
+-                  <motion.div
+-                    key={project.id}
+-                    className="absolute"
+-                    style={{
+-                      left: '50%',
+-                      top: '50%',
+-                      width: 'min(100%, 680px)',
+-                      zIndex: pos === 0 ? 3 : abs === 1 ? 2 : 1,
+-                      pointerEvents: pos === 0 ? 'auto' : 'none',
+-                    }}
+-                    animate={{
+-                      x: pos === 0 ? 0 : pos === -1 ? -offset : pos === 1 ? offset : pos < 0 ? -farOffset : farOffset,
+-                      scale: pos === 0 ? 1 : abs === 1 ? 0.9 : 0.78,
+-                      opacity: abs <= 1 ? (pos === 0 ? 1 : 0.4) : 0,
+-                    }}
+-                    transition={{
+-                      type: 'spring',
+-                      stiffness: 250,
+-                      damping: 28,
+-                      mass: 0.8,
+-                    }}
+-                  >
+-                    <div style={{ transform: 'translate(-50%, -50%)' }}>
+-                      <ProjectCard project={project} isCenter={pos === 0} />
+-                    </div>
+-                  </motion.div>
+-                );
+-              })}
+-            </motion.div>
+-            {/* Arrows repositioned inside frame */}
+-            <button
+-              onClick={prevProject}
+-              className="absolute left-11 top-1/2 -translate-y-1/2 z-10 p-3 bg-surface border border-edge rounded-md text-muted hover:text-copy hover:border-accent transition-all"
+-              aria-label="Previous"
+-            >
+-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+-            </button>
+-            <button
+-              onClick={nextProject}
+-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-3 bg-surface border border-edge rounded-md text-muted hover:text-copy hover:border-accent transition-all"
+-              aria-label="Next"
+-            >
+-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+-            </button>
+-          </div>
+-          {/* Status line */}
+-          <div className="flex items-center justify-between px-3 py-1 font-mono text-[10px] border-t border-edge bg-elevated/40" aria-hidden="true">
+-            <span className="text-dim">Ln 1, Col 7</span>
+-            <span className="text-dim">3 projects</span>
+-            <span className="text-dim">utf-8</span>
+-          </div>
++              return (
++                <motion.div
++                  key={project.id}
++                  className="absolute"
++                  style={{
++                    left: '50%',
++                    top: '50%',
++                    width: 'min(100%, 680px)',
++                    zIndex: pos === 0 ? 3 : abs === 1 ? 2 : 1,
++                    pointerEvents: pos === 0 ? 'auto' : 'none',
++                  }}
++                  animate={{
++                    x: pos === 0 ? 0 : pos === -1 ? -offset : pos === 1 ? offset : pos < 0 ? -farOffset : farOffset,
++                    scale: pos === 0 ? 1 : abs === 1 ? 0.9 : 0.78,
++                    opacity: abs <= 1 ? (pos === 0 ? 1 : 0.4) : 0,
++                  }}
++                  transition={{
++                    type: 'spring',
++                    stiffness: 250,
++                    damping: 28,
++                    mass: 0.8,
++                  }}
++                >
++                  <div style={{ transform: 'translate(-50%, -50%)' }}>
++                    <ProjectCard project={project} isCenter={pos === 0} />
++                  </div>
++                </motion.div>
++              );
++            })}
++          </motion.div>
++          <button
++            onClick={prevProject}
++            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 min-h-11 min-w-11 rounded-full bg-surface border border-edge card-shadow text-muted hover:text-copy hover:border-accent transition-all"
++            aria-label="Previous"
++          >
++            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
++          </button>
++          <button
++            onClick={nextProject}
++            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 min-h-11 min-w-11 rounded-full bg-surface border border-edge card-shadow text-muted hover:text-copy hover:border-accent transition-all"
++            aria-label="Next"
++          >
++            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
++          </button>
+         </div>
+       )}
+     </motion.section>
+   );
+-}
++}
+\ No newline at end of file
+diff --git a/src/components/SectionHeading.tsx b/src/components/SectionHeading.tsx
+index c15b3f7..38baae5 100644
+--- a/src/components/SectionHeading.tsx
++++ b/src/components/SectionHeading.tsx
+@@ -1,16 +1,13 @@
+ interface SectionHeadingProps {
+-  file: string;
+   children: string;
+ }
+ 
+-export default function SectionHeading({ file, children }: SectionHeadingProps) {
++export default function SectionHeading({ children }: SectionHeadingProps) {
+   return (
+-    <div className="mb-8 flex items-baseline gap-3">
+-      <h2 className="font-mono text-2xl font-semibold tracking-tight">
+-        <span className="text-code-comment">// </span>
+-        <span className="text-code-keyword">{children}</span>
+-      </h2>
+-      <span className="font-mono text-xs text-dim">{file}</span>
++    <div className="mb-8 flex items-center gap-3">
++      <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-wider">
++        {children}
++      </span>
+     </div>
+   );
+ }
+diff --git a/src/components/SkillsSection.tsx b/src/components/SkillsSection.tsx
+index 1546a3a..fd77a9f 100644
+--- a/src/components/SkillsSection.tsx
++++ b/src/components/SkillsSection.tsx
+@@ -1,55 +1,57 @@
+ import { motion } from 'framer-motion';
+ import { personalInfo } from '../data';
+ import { containerVariants, itemVariants } from '../utils/animations';
+ import SectionHeading from './SectionHeading';
+ 
+-const domainColors = ['text-code-function', 'text-code-string', 'text-code-type'];
++const accentCycle = [
++  'text-accent bg-accent/10',
++  'text-accent-2 bg-accent-2/10',
++  'text-accent-3 bg-accent-3/10',
++  'text-accent-4 bg-accent-4/10',
++];
+ 
+ export default function SkillsSection() {
+   return (
+     <motion.section
+       id="skills"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="skills.ts">Skills</SectionHeading>
++        <SectionHeading>Skills</SectionHeading>
+       </motion.div>
+-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
++      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+         {personalInfo.skills.map((group, gi) => {
+-          const color = domainColors[gi % domainColors.length];
++          const color = accentCycle[gi % accentCycle.length];
+           return (
+             <motion.div
+               key={group.domain}
+               variants={itemVariants}
+-              className="bg-surface/50 border border-edge rounded-md p-6"
++              className="rounded-2xl bg-surface border border-edge card-shadow p-6"
+             >
+-              <h3 className={`font-mono text-sm mb-4 ${color}`}>
+-                <span className="text-code-comment">// </span>
+-                {group.domain}
+-              </h3>
++              <h3 className="text-base font-extrabold text-copy mb-4">{group.domain}</h3>
+               <div className="flex flex-wrap gap-2">
+                 {group.items.map((skill) => (
+                   <span
+                     key={skill.name}
+-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-canvas text-xs font-mono ${color}`}
++                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold ${color}`}
+                   >
+                     <img
+                       src={`https://cdn.simpleicons.org/${skill.icon}/white`}
+                       alt=""
+-                      className="w-4 h-4 skill-icon-base"
++                      className="w-4 h-4"
+                     />
+                     {skill.name}
+                   </span>
+                 ))}
+               </div>
+             </motion.div>
+           );
+         })}
+       </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/StatusBar.tsx b/src/components/StatusBar.tsx
+deleted file mode 100644
+index 439c60a..0000000
+--- a/src/components/StatusBar.tsx
++++ /dev/null
+@@ -1,12 +0,0 @@
+-export default function StatusBar() {
+-  return (
+-    <div className="fixed bottom-0 left-0 right-0 z-40 hidden md:flex h-6 items-center justify-between bg-surface border-t border-edge px-3 font-mono text-[11px] text-muted">
+-      <div className="flex items-center gap-4">
+-        <span className="text-code-function">main*</span>
+-        <span>TypeScript</span>
+-        <span>UTF-8</span>
+-      </div>
+-      <div>Ln 42, Col 7 &middot; {new Date().getFullYear()} miii.dev</div>
+-    </div>
+-  );
+-}
+diff --git a/src/hooks/useActiveSection.ts b/src/hooks/useActiveSection.ts
+index 3702a2c..ee8da2c 100644
+--- a/src/hooks/useActiveSection.ts
++++ b/src/hooks/useActiveSection.ts
+@@ -1,29 +1,20 @@
+ import { useState } from 'react';
+ import { useMotionValueEvent, useScroll } from 'framer-motion';
+ 
+-export const sectionFiles = [
+-  { id: 'hero', file: 'README.md' },
+-  { id: 'about', file: 'about.ts' },
+-  { id: 'experience', file: 'experience.ts' },
+-  { id: 'education', file: 'education.ts' },
+-  { id: 'achievements', file: 'achievements.ts' },
+-  { id: 'skills', file: 'skills.ts' },
+-  { id: 'work', file: 'projects.tsx' },
+-  { id: 'contact', file: 'contact.ts' },
+-];
++const sectionIds = ['hero', 'about', 'experience', 'education', 'achievements', 'skills', 'work', 'contact'];
+ 
+ export function useActiveSection() {
+-  const [active, setActive] = useState(sectionFiles[0].id);
++  const [active, setActive] = useState(sectionIds[0]);
+   const { scrollY } = useScroll();
+ 
+   useMotionValueEvent(scrollY, 'change', () => {
+-    let current = sectionFiles[0].id;
+-    for (const section of sectionFiles) {
+-      const el = document.getElementById(section.id);
+-      if (el && el.getBoundingClientRect().top <= 200) current = section.id;
++    let current = sectionIds[0];
++    for (const id of sectionIds) {
++      const el = document.getElementById(id);
++      if (el && el.getBoundingClientRect().top <= 200) current = id;
+     }
+     setActive(current);
+   });
+ 
+   return active;
+-}
++}
+\ No newline at end of file
+diff --git a/src/index.css b/src/index.css
+index 1219f3a..05b7445 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -1,80 +1,64 @@
+ @import "tailwindcss";
+ 
+ @theme {
+   --breakpoint-xs: 25rem;
+-  --color-canvas: #0d1117;
+-  --color-surface: #161b22;
+-  --color-elevated: #21262d;
+-  --color-copy: #e6edf3;
+-  --color-muted: #8b949e;
+-  --color-dim: #6e7781;
+-  --color-edge: #30363d;
+-  --color-edge-hover: #e6edf3;
+-  --color-nav-edge: rgba(240, 246, 252, 0.1);
+-  --color-inverse: #e6edf3;
+-  --color-inverse-copy: #0d1117;
+-  --color-danger: #ff7b72;
+-  --color-accent: #58a6ff;
+-  --color-code-keyword: #ff7b72;
+-  --color-code-string: #a5d6ff;
+-  --color-code-function: #d2a8ff;
+-  --color-code-type: #ffa657;
+-  --color-code-comment: #8b949e;
+-  --color-code-const: #79c0ff;
++  --color-canvas: #141414;
++  --color-surface: #1e1e1e;
++  --color-elevated: #262626;
++  --color-copy: #f5f5f4;
++  --color-muted: #9a9a9a;
++  --color-dim: #6e6e6e;
++  --color-edge: #2e2e2e;
++  --color-edge-hover: #f5f5f4;
++  --color-inverse: #f5f5f4;
++  --color-inverse-copy: #141414;
++  --color-danger: #ff8a5c;
++  --color-accent: #ff6b35;
++  --color-accent-2: #ffb703;
++  --color-accent-3: #4d7cff;
++  --color-accent-4: #00a88e;
++  --color-shadow-card: rgba(0, 0, 0, 0.35);
+ }
+ 
+ .light {
+-  --color-canvas: #ffffff;
+-  --color-surface: #f6f8fa;
+-  --color-elevated: #eaeef2;
+-  --color-copy: #1f2328;
+-  --color-muted: #59636e;
+-  --color-dim: #6e7781;
+-  --color-edge: #d0d7de;
+-  --color-edge-hover: #1f2328;
+-  --color-nav-edge: rgba(31, 35, 40, 0.12);
+-  --color-inverse: #1f2328;
+-  --color-inverse-copy: #ffffff;
+-  --color-danger: #cf222e;
+-  --color-accent: #0969da;
+-  --color-code-keyword: #cf222e;
+-  --color-code-string: #0a3069;
+-  --color-code-function: #8250df;
+-  --color-code-type: #953800;
+-  --color-code-comment: #6e7781;
+-  --color-code-const: #0550ae;
++  --color-canvas: #fff8f0;
++  --color-surface: #ffffff;
++  --color-elevated: #f7f0e4;
++  --color-copy: #171717;
++  --color-muted: #6b6b6b;
++  --color-dim: #9c948a;
++  --color-edge: #efe4d4;
++  --color-edge-hover: #171717;
++  --color-inverse: #171717;
++  --color-inverse-copy: #fff8f0;
++  --color-danger: #d94f1d;
++  --color-accent: #ff6b35;
++  --color-accent-2: #b8891a;
++  --color-accent-3: #3a5bd0;
++  --color-accent-4: #007a68;
++  --color-shadow-card: rgba(0, 0, 0, 0.07);
+ }
+ 
+ html {
+   scroll-behavior: smooth;
+   overflow-x: hidden;
+ }
+ 
+ body {
+   overflow-x: hidden;
+ }
+ 
+-@keyframes cursor-blink {
+-  0%, 49% { opacity: 1; }
+-  50%, 100% { opacity: 0; }
+-}
+-
+-.cursor-block {
+-  animation: cursor-blink 1.1s step-end infinite;
+-}
+-
+-/* Skill icon inversion for light mode */
+-.light .skill-icon-base {
+-  filter: invert(1);
++.card-shadow {
++  box-shadow: 0 3px 10px var(--color-shadow-card);
+ }
+ 
+ @media (prefers-reduced-motion: reduce) {
+   html {
+     scroll-behavior: auto;
+   }
+   *, *::before, *::after {
+     animation-duration: 0.01ms !important;
+     animation-iteration-count: 1 !important;
+     transition-duration: 0.01ms !important;
+   }
+-}
+\ No newline at end of file
++}

@@ -1,0 +1,312 @@
+﻿diff --git a/src/components/AboutSection.tsx b/src/components/AboutSection.tsx
+index 3df3d1f..8d14fd5 100644
+--- a/src/components/AboutSection.tsx
++++ b/src/components/AboutSection.tsx
+@@ -1,41 +1,48 @@
+ import { motion } from 'framer-motion';
+ import { personalInfo } from '../data';
+ import { containerVariants, itemVariants } from '../utils/animations';
+ import SectionHeading from './SectionHeading';
+ 
++const socials = [
++  { label: 'GitHub', href: personalInfo.socials.github },
++  { label: 'WhatsApp', href: personalInfo.socials.whatsapp ?? '#' },
++  { label: 'Email', href: `mailto:${personalInfo.socials.email}` },
++];
++
+ export default function AboutSection() {
+   return (
+     <motion.section
+       id="about"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="about.ts">About</SectionHeading>
++        <SectionHeading>About</SectionHeading>
++      </motion.div>
++      <motion.div variants={itemVariants} className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8 max-w-3xl">
++        <p className="text-base sm:text-lg text-copy leading-relaxed mb-4">
++          I&apos;m a {personalInfo.role} based in {personalInfo.location}, building AI-powered and security-focused applications with machine learning, computer vision, and real-time systems.
++        </p>
++        <p className="text-base text-muted leading-relaxed mb-6">
++          I currently tutor Java to beginners. Teaching forces me to keep my fundamentals sharp and to explain complex ideas clearly, which carries into how I build and document software.
++        </p>
++        <div className="flex flex-wrap gap-3">
++          {socials.map((social) => (
++            <a
++              key={social.label}
++              href={social.href}
++              target={social.href.startsWith('mailto:') ? undefined : '_blank'}
++              rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer'}
++              className="inline-flex items-center min-h-11 px-5 rounded-full bg-accent/10 text-accent text-sm font-bold transition-colors hover:bg-accent hover:text-canvas"
++            >
++              {social.label}
++            </a>
++          ))}
++        </div>
+       </motion.div>
+-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 items-start">
+-        <motion.div variants={itemVariants} className="rounded-md border border-edge bg-surface overflow-hidden font-mono">
+-          <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+-            <span className="text-xs text-muted">about.ts</span>
+-            <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+-          </div>
+-          <div className="p-6 space-y-3 text-sm">
+-            <p className="text-code-comment">// I&apos;m a {personalInfo.role} based in {personalInfo.location}, building AI-powered and security-focused applications with machine learning, computer vision, and real-time systems.</p>
+-            <p className="text-code-comment">// I currently tutor Java to beginners. Teaching forces me to keep my fundamentals sharp and to explain complex ideas clearly, which carries into how I build and document software.</p>
+-            <div className="pt-3 space-y-1.5">
+-              <p className="text-copy">
+-                <span className="text-code-keyword">const</span> <span className="text-code-function">location</span> = <span className="text-code-string">&apos;{personalInfo.location}&apos;</span>;
+-              </p>
+-              <p className="text-copy">
+-                <span className="text-code-keyword">const</span> <span className="text-code-function">status</span> = <span className="text-code-string">&apos;Open to opportunities&apos;</span>;
+-              </p>
+-            </div>
+-          </div>
+-        </motion.div>
+-      </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/AchievementsSection.tsx b/src/components/AchievementsSection.tsx
+index 0d53192..bef3b34 100644
+--- a/src/components/AchievementsSection.tsx
++++ b/src/components/AchievementsSection.tsx
+@@ -10,21 +10,21 @@ export default function AchievementsSection() {
+   return (
+     <motion.section
+       id="achievements"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="achievements.ts">Achievements</SectionHeading>
++        <SectionHeading>Achievements</SectionHeading>
+       </motion.div>
+       <div className="space-y-2">
+         {achievements.map((item, i) => {
+           const isOpen = openIndex === i;
+           return (
+             <motion.div
+               key={i}
+               variants={itemVariants}
+               className="bg-surface border border-edge rounded-md overflow-hidden"
+             >
+diff --git a/src/components/ContactFooter.tsx b/src/components/ContactFooter.tsx
+index 4aff274..cb04ce2 100644
+--- a/src/components/ContactFooter.tsx
++++ b/src/components/ContactFooter.tsx
+@@ -15,21 +15,21 @@ export default function ContactFooter() {
+     <motion.footer
+       id="contact"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="min-h-screen flex flex-col justify-center py-12"
+     >
+       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+         <motion.div variants={itemVariants}>
+-          <SectionHeading file="contact.ts">Contact</SectionHeading>
++          <SectionHeading>Contact</SectionHeading>
+           <p className="font-mono text-sm text-code-const -mt-4 mb-8">// TODO: hire me</p>
+         </motion.div>
+ 
+         <motion.div
+           variants={itemVariants}
+           className="w-full max-w-2xl rounded-md border border-edge bg-surface overflow-hidden"
+         >
+           <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
+             <span className="text-xs text-muted">contact.ts</span>
+             <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
+diff --git a/src/components/EducationSection.tsx b/src/components/EducationSection.tsx
+index 9d1779c..9085073 100644
+--- a/src/components/EducationSection.tsx
++++ b/src/components/EducationSection.tsx
+@@ -10,21 +10,21 @@ export default function EducationSection() {
+   return (
+     <motion.section
+       id="education"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="education.ts">Education</SectionHeading>
++        <SectionHeading>Education</SectionHeading>
+       </motion.div>
+       <div className="space-y-2">
+         {education.map((item, i) => {
+           const isOpen = openIndex === i;
+           return (
+             <motion.div
+               key={i}
+               variants={itemVariants}
+               className="bg-surface border border-edge rounded-md overflow-hidden"
+             >
+diff --git a/src/components/ExperienceSection.tsx b/src/components/ExperienceSection.tsx
+index e465f64..45d32bf 100644
+--- a/src/components/ExperienceSection.tsx
++++ b/src/components/ExperienceSection.tsx
+@@ -7,21 +7,21 @@ export default function ExperienceSection() {
+   return (
+     <motion.section
+       id="experience"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="experience.ts">Experience</SectionHeading>
++        <SectionHeading>Experience</SectionHeading>
+       </motion.div>
+       <div className="space-y-3">
+         {experience.map((item, i) => (
+           <motion.div
+             key={i}
+             variants={itemVariants}
+             className="bg-surface border border-edge rounded-md p-6"
+           >
+             <div className="flex items-center justify-between gap-4 mb-3">
+               <p className="font-mono text-xs text-code-comment">// {item.period}</p>
+diff --git a/src/components/ProjectsSection.tsx b/src/components/ProjectsSection.tsx
+index 71ccd7d..6e75d92 100644
+--- a/src/components/ProjectsSection.tsx
++++ b/src/components/ProjectsSection.tsx
+@@ -59,21 +59,21 @@ export default function ProjectsSection() {
+     if (offset < -threshold || velocity < -500) {
+       nextProject();
+     } else if (offset > threshold || velocity > 500) {
+       prevProject();
+     }
+   };
+ 
+   return (
+     <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12">
+       <div className="flex items-center justify-between mb-2">
+-        <SectionHeading file="projects.tsx">Work</SectionHeading>
++        <SectionHeading>Work</SectionHeading>
+       </div>
+ 
+       {isMobile ? (
+         <div className="relative w-full h-[450px] mt-8">
+           <MobileCardStack
+             projects={projects}
+             currentIndex={currentIndex}
+             onIndexChange={setCurrentIndex}
+             sensitivity={100}
+           />
+diff --git a/src/components/SectionHeading.tsx b/src/components/SectionHeading.tsx
+index c15b3f7..38baae5 100644
+--- a/src/components/SectionHeading.tsx
++++ b/src/components/SectionHeading.tsx
+@@ -1,16 +1,13 @@
+ interface SectionHeadingProps {
+-  file: string;
+   children: string;
+ }
+ 
+-export default function SectionHeading({ file, children }: SectionHeadingProps) {
++export default function SectionHeading({ children }: SectionHeadingProps) {
+   return (
+-    <div className="mb-8 flex items-baseline gap-3">
+-      <h2 className="font-mono text-2xl font-semibold tracking-tight">
+-        <span className="text-code-comment">// </span>
+-        <span className="text-code-keyword">{children}</span>
+-      </h2>
+-      <span className="font-mono text-xs text-dim">{file}</span>
++    <div className="mb-8 flex items-center gap-3">
++      <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-wider">
++        {children}
++      </span>
+     </div>
+   );
+ }
+diff --git a/src/components/SkillsSection.tsx b/src/components/SkillsSection.tsx
+index 1546a3a..fd77a9f 100644
+--- a/src/components/SkillsSection.tsx
++++ b/src/components/SkillsSection.tsx
+@@ -1,55 +1,57 @@
+ import { motion } from 'framer-motion';
+ import { personalInfo } from '../data';
+ import { containerVariants, itemVariants } from '../utils/animations';
+ import SectionHeading from './SectionHeading';
+ 
+-const domainColors = ['text-code-function', 'text-code-string', 'text-code-type'];
++const accentCycle = [
++  'text-accent bg-accent/10',
++  'text-accent-2 bg-accent-2/10',
++  'text-accent-3 bg-accent-3/10',
++  'text-accent-4 bg-accent-4/10',
++];
+ 
+ export default function SkillsSection() {
+   return (
+     <motion.section
+       id="skills"
+       variants={containerVariants}
+       initial="hidden"
+       whileInView="visible"
+       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+       className="flex flex-col justify-center py-12"
+     >
+       <motion.div variants={itemVariants}>
+-        <SectionHeading file="skills.ts">Skills</SectionHeading>
++        <SectionHeading>Skills</SectionHeading>
+       </motion.div>
+-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
++      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+         {personalInfo.skills.map((group, gi) => {
+-          const color = domainColors[gi % domainColors.length];
++          const color = accentCycle[gi % accentCycle.length];
+           return (
+             <motion.div
+               key={group.domain}
+               variants={itemVariants}
+-              className="bg-surface/50 border border-edge rounded-md p-6"
++              className="rounded-2xl bg-surface border border-edge card-shadow p-6"
+             >
+-              <h3 className={`font-mono text-sm mb-4 ${color}`}>
+-                <span className="text-code-comment">// </span>
+-                {group.domain}
+-              </h3>
++              <h3 className="text-base font-extrabold text-copy mb-4">{group.domain}</h3>
+               <div className="flex flex-wrap gap-2">
+                 {group.items.map((skill) => (
+                   <span
+                     key={skill.name}
+-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-canvas text-xs font-mono ${color}`}
++                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold ${color}`}
+                   >
+                     <img
+                       src={`https://cdn.simpleicons.org/${skill.icon}/white`}
+                       alt=""
+-                      className="w-4 h-4 skill-icon-base"
++                      className="w-4 h-4"
+                     />
+                     {skill.name}
+                   </span>
+                 ))}
+               </div>
+             </motion.div>
+           );
+         })}
+       </div>
+     </motion.section>
+   );
+-}
+\ No newline at end of file
++}
