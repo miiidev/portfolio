@@ -19,19 +19,19 @@ export default function EducationSection() {
       <motion.div variants={itemVariants}>
         <SectionHeading>Education</SectionHeading>
       </motion.div>
-      <div className="space-y-2">
+      <div className="space-y-3 max-w-3xl">
         {education.map((item, i) => {
           const isOpen = openIndex === i;
           return (
             <motion.div
               key={i}
               variants={itemVariants}
-              className="bg-surface border border-edge rounded-md overflow-hidden"
+              className="rounded-2xl bg-surface border border-edge card-shadow overflow-hidden"
             >
               <button
                 onClick={() => setOpenIndex(isOpen ? null : i)}
                 aria-expanded={isOpen}
-                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left font-mono"
+                className="w-full flex items-center gap-4 px-5 py-4 min-h-11 text-left"
               >
                 <svg
                   width="16"
@@ -39,17 +39,17 @@ export default function EducationSection() {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`text-muted shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
+                  className={`text-accent shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}
                   aria-hidden="true"
                 >
                   <path d="m9 18 6-6-6-6" />
                 </svg>
                 <div className="min-w-0">
-                  <p className="text-xs text-code-comment mb-0.5">// {item.period}</p>
-                  <h3 className="text-base font-bold text-copy">{item.title}</h3>
+                  <p className="text-xs font-bold text-accent uppercase tracking-wider mb-0.5">{item.period}</p>
+                  <h3 className="text-base font-extrabold text-copy">{item.title}</h3>
                   <p className="text-sm text-muted">{item.org}</p>
                 </div>
               </button>
@@ -62,8 +62,8 @@ export default function EducationSection() {
                     transition={{ duration: 0.25, ease: 'easeOut' }}
                     className="overflow-hidden"
                   >
-                    <div className="pl-12 pr-5 pb-4 font-mono text-sm text-code-comment leading-relaxed">
-                      // {item.description || 'More details coming soon.'}
+                    <div className="pl-12 pr-5 pb-4 text-sm text-muted leading-relaxed">
+                      {item.description || 'More details coming soon.'}
                     </div>
                   </motion.div>
                 )}

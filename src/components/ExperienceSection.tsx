@@ -16,26 +16,23 @@ export default function ExperienceSection() {
       <motion.div variants={itemVariants}>
         <SectionHeading>Experience</SectionHeading>
       </motion.div>
-      <div className="space-y-3">
+      <div className="space-y-5 md:grid md:grid-cols-2 md:gap-5 md:space-y-0">
         {experience.map((item, i) => (
           <motion.div
             key={i}
             variants={itemVariants}
-            className="bg-surface border border-edge rounded-md p-6"
+            className="rounded-2xl bg-surface border border-edge card-shadow p-6"
           >
-            <div className="flex items-center justify-between gap-4 mb-3">
-              <p className="font-mono text-xs text-code-comment">// {item.period}</p>
-              <span className="font-mono text-xs text-dim border border-edge rounded px-2 py-0.5">experience.ts</span>
-            </div>
-            <h3 className="text-lg font-bold text-copy mb-1">{item.title}</h3>
-            {item.org && <p className="text-sm text-muted mb-2">{item.org}</p>}
+            <p className="text-xs font-bold text-accent uppercase tracking-wider mb-2">{item.period}</p>
+            <h3 className="text-lg font-extrabold text-copy mb-1">{item.title}</h3>
+            {item.org && <p className="text-sm text-muted mb-3">{item.org}</p>}
             <p className="text-sm text-muted leading-relaxed mb-4">{item.description}</p>
             {item.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {item.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="font-mono text-xs bg-canvas text-muted px-3 py-1.5 rounded-full border border-edge"
+                    className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold"
                   >
                     {tag}
                   </span>
