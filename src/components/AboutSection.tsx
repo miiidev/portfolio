@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { personalInfo } from '../data';
 import { containerVariants, itemVariants } from '../utils/animations';
 import SectionHeading from './SectionHeading';
-import GitHubStats from './GitHubStats';
 
 export default function AboutSection() {
   return (
@@ -17,7 +16,7 @@ export default function AboutSection() {
       <motion.div variants={itemVariants}>
         <SectionHeading file="about.ts">About</SectionHeading>
       </motion.div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 items-start">
         <motion.div variants={itemVariants} className="rounded-md border border-edge bg-surface overflow-hidden font-mono">
           <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
             <span className="text-xs text-muted">about.ts</span>
@@ -35,9 +34,6 @@ export default function AboutSection() {
               </p>
             </div>
           </div>
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <GitHubStats />
         </motion.div>
       </div>
     </motion.section>
