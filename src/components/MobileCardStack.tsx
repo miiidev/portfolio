@@ -111,7 +111,7 @@ export default function MobileCardStack({
             sensitivity={sensitivity}
           >
             <motion.div
-              className="rounded-md overflow-hidden w-full h-full"
+              className="rounded-2xl overflow-hidden w-full h-full"
               onClick={() => sendToBack(card.id)}
               animate={{
                 rotateZ: isTop ? 0 : rotate,
