@@ -1,26 +1,17 @@
 import { useState } from 'react';
 import { useMotionValueEvent, useScroll } from 'framer-motion';
 
-export const sectionFiles = [
-  { id: 'hero', file: 'README.md' },
-  { id: 'about', file: 'about.ts' },
-  { id: 'experience', file: 'experience.ts' },
-  { id: 'education', file: 'education.ts' },
-  { id: 'achievements', file: 'achievements.ts' },
-  { id: 'skills', file: 'skills.ts' },
-  { id: 'work', file: 'projects.tsx' },
-  { id: 'contact', file: 'contact.ts' },
-];
+const sectionIds = ['hero', 'about', 'experience', 'education', 'achievements', 'skills', 'work', 'contact'];
 
 export function useActiveSection() {
-  const [active, setActive] = useState(sectionFiles[0].id);
+  const [active, setActive] = useState(sectionIds[0]);
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', () => {
-    let current = sectionFiles[0].id;
-    for (const section of sectionFiles) {
-      const el = document.getElementById(section.id);
-      if (el && el.getBoundingClientRect().top <= 200) current = section.id;
+    let current = sectionIds[0];
+    for (const id of sectionIds) {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top <= 200) current = id;
     }
     setActive(current);
   });
