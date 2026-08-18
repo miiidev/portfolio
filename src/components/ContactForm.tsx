@@ -10,7 +10,7 @@ type FieldErrors = {
 };
 
 const inputClass =
-  'w-full rounded-md border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-accent transition-colors duration-200';
+  'w-full rounded-lg border border-edge bg-transparent px-3 py-2.5 text-sm text-copy outline-none placeholder:text-dim focus-visible:border-accent transition-colors duration-200';
 
 export default function ContactForm() {
   const [name, setName] = useState('');
@@ -70,10 +70,10 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 font-mono text-sm">
+    <form onSubmit={handleSubmit} className="space-y-4 text-sm">
       <div>
         <label htmlFor="contact-name" className="block text-xs text-muted mb-1.5">
-          &gt; name
+          Name
         </label>
         <input
           type="text"
@@ -98,7 +98,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="contact-subject" className="block text-xs text-muted mb-1.5">
-          &gt; subject
+          Subject
         </label>
         <input
           type="text"
@@ -114,7 +114,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="contact-message" className="block text-xs text-muted mb-1.5">
-          &gt; message
+          Message
         </label>
         <textarea
           id="contact-message"
@@ -144,7 +144,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={formState === 'loading'}
-        className="inline-flex items-center gap-2 rounded-md bg-inverse text-inverse-copy font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-2 rounded-full bg-accent text-canvas font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="m22 2-7 20-4-9-9-4Z" />

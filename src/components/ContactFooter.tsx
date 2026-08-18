@@ -18,48 +18,41 @@ export default function ContactFooter() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15, margin: '-100px' }}
-      className="min-h-screen flex flex-col justify-center py-12"
+      className="flex flex-col justify-center py-12"
     >
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-3xl">
         <motion.div variants={itemVariants}>
           <SectionHeading>Contact</SectionHeading>
-          <p className="font-mono text-sm text-code-const -mt-4 mb-8">// TODO: hire me</p>
         </motion.div>
 
         <motion.div
           variants={itemVariants}
-          className="w-full max-w-2xl rounded-md border border-edge bg-surface overflow-hidden"
+          className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8"
         >
-          <div className="flex items-center justify-between border-b border-edge bg-elevated/50 px-4 py-2">
-            <span className="text-xs text-muted">contact.ts</span>
-            <span className="text-xs text-dim" aria-hidden="true">&#10005;</span>
-          </div>
-          <div className="p-4 sm:p-6">
-            <ContactForm />
-          </div>
+          <ContactForm />
         </motion.div>
 
         <motion.div
           variants={itemVariants}
-          className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-edge/50 pt-6"
+          className="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-edge pt-6"
         >
           <div>
-            <p className="font-mono text-xs uppercase tracking-wide text-dim mb-2">Direct</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-dim mb-2">Direct</p>
             <a
               href={`mailto:${personalInfo.socials.email}`}
-              className="block break-all text-lg text-copy hover:text-accent transition-colors duration-200"
+              className="block break-all text-lg font-bold text-copy hover:text-accent transition-colors duration-200"
             >
               {personalInfo.socials.email}
             </a>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3">
             {socialLinks.map((social) => (
               <a
                 key={social.label}
                 href={social.href}
                 target={social.href.startsWith('mailto:') ? undefined : '_blank'}
                 rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer'}
-                className="inline-flex items-center gap-2 text-sm text-muted hover:text-copy transition-colors duration-200 min-h-11"
+                className="inline-flex items-center min-h-11 px-4 rounded-full bg-accent/10 text-accent text-sm font-bold transition-colors hover:bg-accent hover:text-canvas"
               >
                 {social.label}
               </a>
@@ -69,9 +62,9 @@ export default function ContactFooter() {
 
         <motion.p
           variants={itemVariants}
-          className="mt-10 text-center font-mono text-xs text-dim"
+          className="mt-10 text-center text-xs text-dim"
         >
-          // &copy; {new Date().getFullYear()} {personalInfo.name}. All rights reserved.
+          &copy; {new Date().getFullYear()} {personalInfo.name}. All rights reserved.
         </motion.p>
       </div>
     </motion.footer>
