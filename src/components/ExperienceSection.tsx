@@ -14,7 +14,7 @@ export default function ExperienceSection() {
       className="flex flex-col justify-center py-12"
     >
       <motion.div variants={itemVariants}>
-        <SectionHeading file="experience.ts">Experience</SectionHeading>
+        <SectionHeading>Experience</SectionHeading>
       </motion.div>
       <div className="space-y-3">
         {experience.map((item, i) => (

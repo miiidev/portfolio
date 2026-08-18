@@ -66,7 +66,7 @@ export default function ProjectsSection() {
   return (
     <motion.section id="work" {...fadeRightConfig} className="min-h-screen flex flex-col justify-center py-12">
       <div className="flex items-center justify-between mb-2">
-        <SectionHeading file="projects.tsx">Work</SectionHeading>
+        <SectionHeading>Work</SectionHeading>
       </div>
 
       {isMobile ? (

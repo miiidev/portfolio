@@ -3,7 +3,12 @@ import { personalInfo } from '../data';
 import { containerVariants, itemVariants } from '../utils/animations';
 import SectionHeading from './SectionHeading';
 
-const domainColors = ['text-code-function', 'text-code-string', 'text-code-type'];
+const accentCycle = [
+  'text-accent bg-accent/10',
+  'text-accent-2 bg-accent-2/10',
+  'text-accent-3 bg-accent-3/10',
+  'text-accent-4 bg-accent-4/10',
+];
 
 export default function SkillsSection() {
   return (
@@ -16,31 +21,28 @@ export default function SkillsSection() {
       className="flex flex-col justify-center py-12"
     >
       <motion.div variants={itemVariants}>
-        <SectionHeading file="skills.ts">Skills</SectionHeading>
+        <SectionHeading>Skills</SectionHeading>
       </motion.div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {personalInfo.skills.map((group, gi) => {
-          const color = domainColors[gi % domainColors.length];
+          const color = accentCycle[gi % accentCycle.length];
           return (
             <motion.div
               key={group.domain}
               variants={itemVariants}
-              className="bg-surface/50 border border-edge rounded-md p-6"
+              className="rounded-2xl bg-surface border border-edge card-shadow p-6"
             >
-              <h3 className={`font-mono text-sm mb-4 ${color}`}>
-                <span className="text-code-comment">// </span>
-                {group.domain}
-              </h3>
+              <h3 className="text-base font-extrabold text-copy mb-4">{group.domain}</h3>
               <div className="flex flex-wrap gap-2">
                 {group.items.map((skill) => (
                   <span
                     key={skill.name}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-canvas text-xs font-mono ${color}`}
+                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold ${color}`}
                   >
                     <img
                       src={`https://cdn.simpleicons.org/${skill.icon}/white`}
                       alt=""
-                      className="w-4 h-4 skill-icon-base"
+                      className="w-4 h-4"
                     />
                     {skill.name}
                   </span>

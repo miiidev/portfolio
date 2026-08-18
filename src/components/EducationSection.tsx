@@ -17,7 +17,7 @@ export default function EducationSection() {
       className="flex flex-col justify-center py-12"
     >
       <motion.div variants={itemVariants}>
-        <SectionHeading file="education.ts">Education</SectionHeading>
+        <SectionHeading>Education</SectionHeading>
       </motion.div>
       <div className="space-y-2">
         {education.map((item, i) => {

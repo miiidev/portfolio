@@ -17,7 +17,7 @@ export default function AchievementsSection() {
       className="flex flex-col justify-center py-12"
     >
       <motion.div variants={itemVariants}>
-        <SectionHeading file="achievements.ts">Achievements</SectionHeading>
+        <SectionHeading>Achievements</SectionHeading>
       </motion.div>
       <div className="space-y-2">
         {achievements.map((item, i) => {

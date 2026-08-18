@@ -22,7 +22,7 @@ export default function ContactFooter() {
     >
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
         <motion.div variants={itemVariants}>
-          <SectionHeading file="contact.ts">Contact</SectionHeading>
+          <SectionHeading>Contact</SectionHeading>
           <p className="font-mono text-sm text-code-const -mt-4 mb-8">// TODO: hire me</p>
         </motion.div>
 
