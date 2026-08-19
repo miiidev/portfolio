@@ -32,3 +32,12 @@ BENTO: Task 5: complete (commits 355ebc9..790e63a, review clean - spec PASS, app
 BENTO: Task 6: complete (commits 790e63a..e573649, review clean - spec PASS, approved; carousel geometry verified number-by-number).
 BENTO: Task 7: complete (commits e573649..5d5e989, review clean - spec PASS, approved; Task 8 gate needs whitelist: ThemeToggle rounded-md + useActiveSection contact.ts data key).
 BENTO: Task 8: complete - pushed f3bc3fb..cc4bd11, deployed, smoke HTTP 200. FINAL REVIEW: Ready to sign off (build+lint green; Minor: 'Say hello' CTA secondary-style is plan-mandated UX choice vs spec wording; dead data.ts exports githubFallback/Skill.color zero-impact, spec excluded data changes).
+cyber run started (base 0f296ce)
+CYBER: Task 1: complete (commit 0f296ce..0dbf6ce, review clean - spec PASS, approved)
+CYBER: Task 2: complete (commits 0dbf6ce..c985a23, review clean - spec PASS, approved)
+CYBER: Task 3: complete (commit c985a23..7c4c212, review clean - spec PASS, approved)
+CYBER: Task 4: complete (commit 7c4c212..06a0b8e, review clean - spec PASS, approved)
+CYBER: Task 5: complete (commit 06a0b8e..9adef72, review clean - spec PASS, approved; glow clipping at overflow-clip expected, tuned later if visible)
+CYBER: Task 6: complete (commit 9adef72..eea188d, review clean - spec PASS, approved). ALL 6 TASKS DONE.
+CYBER: RUN COMPLETE - pushed 0f296ce..22a6f79, deployed, smoke 200. FINAL REVIEW: Ready to sign off (1 Minor spec doc staleness fixed in 22a6f79; glow clip at overflow-clip is a tuning knob if visible).
+EDU-LIST RUN (plan 2026-08-19-education-collapsible-list.md): base 2f42c6c
