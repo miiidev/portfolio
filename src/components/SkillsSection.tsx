@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { personalInfo } from '../data';
-import { containerVariants, itemVariants } from '../utils/animations';
+import { skillsContainerVariants as containerVariants, skillsItemVariants as itemVariants } from '../utils/animations';
 import SectionHeading from './SectionHeading';
 
 const accentCycle = [

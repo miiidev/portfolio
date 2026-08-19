@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { personalInfo } from '../data';
-import { containerVariants, itemVariants } from '../utils/animations';
+import { fadeUpConfig } from '../utils/animations';
 import SectionHeading from './SectionHeading';
 
 const socials = [
@@ -13,18 +13,13 @@ export default function AboutSection() {
   return (
     <motion.section
       id="about"
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.15, margin: '-100px' }}
+      {...fadeUpConfig}
       className="flex flex-col justify-center py-12"
     >
-      <motion.div variants={itemVariants}>
-        <SectionHeading>About</SectionHeading>
-      </motion.div>
-      <motion.div variants={itemVariants} className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8 max-w-3xl">
+      <SectionHeading>About</SectionHeading>
+      <div className="rounded-2xl bg-surface border border-edge card-shadow p-6 sm:p-8 max-w-3xl">
         <p className="text-base sm:text-lg text-copy leading-relaxed mb-4">
-          I&apos;m a {personalInfo.role} based in {personalInfo.location}, building AI-powered and security-focused applications with machine learning, computer vision, and real-time systems.
+          I&apos;m a {personalInfo.role} based in {personalInfo.location}. I build with machine learning, computer vision, and real-time systems, and I care about the boring parts too: security, readable code, and apps that stay fast.
         </p>
         <p className="text-base text-muted leading-relaxed mb-6">
           I currently tutor Java to beginners. Teaching forces me to keep my fundamentals sharp and to explain complex ideas clearly, which carries into how I build and document software.
@@ -42,7 +37,7 @@ export default function AboutSection() {
             </a>
           ))}
         </div>
-      </motion.div>
+      </div>
     </motion.section>
   );
 }

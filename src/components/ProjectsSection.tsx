@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, type PanInfo } from 'framer-motion';
 import ProjectCard from './ProjectCard';
 import MobileCardStack from './MobileCardStack';
-import { projects } from '../data';
+import { projects, personalInfo } from '../data';
 import { fadeRightConfig } from '../utils/animations';
 import SectionHeading from './SectionHeading';
 
@@ -50,6 +50,20 @@ export default function ProjectsSection() {
       prevProject();
     }
   };
+
+  const dots = projects.map((project, index) => (
+    <button
+      key={project.id}
+      onClick={() => setCurrentIndex(index)}
+      aria-label={`Show project ${index + 1} of ${projects.length}`}
+      aria-current={index === currentIndex ? 'true' : undefined}
+      className="min-h-11 min-w-11 flex items-center justify-center font-mono text-sm font-bold transition-colors"
+    >
+      <span className={index === currentIndex ? 'text-accent' : 'text-dim hover:text-copy'}>
+        [{index === currentIndex ? '_' : ' '}]
+      </span>
+    </button>
+  ));
 
   return (
     <motion.section id="work" {...fadeRightConfig} className="flex flex-col justify-center py-12">
@@ -127,6 +141,21 @@ export default function ProjectsSection() {
           </button>
         </div>
       )}
+
+      <div className="mt-2 flex justify-center gap-1">
+        {dots}
+      </div>
+      <div className="mt-2 flex justify-center">
+        <a
+          href={personalInfo.socials.github}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 min-h-11 px-4 text-sm font-bold text-dim hover:text-accent transition-colors"
+        >
+          More on GitHub
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+        </a>
+      </div>
     </motion.section>
   );
 }

@@ -43,7 +43,7 @@ export default function NavBar() {
 
       <nav
         aria-label="Primary"
-        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+        className="md:hidden fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
       >
         <div className="flex items-center justify-around rounded-full border border-edge bg-surface card-shadow px-2 py-1.5">
           {items.map((item) => (

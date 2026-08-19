@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { experience } from '../data';
-import { containerVariants, itemVariants } from '../utils/animations';
+import { softContainerVariants as containerVariants, softItemVariants as itemVariants } from '../utils/animations';
 import SectionHeading from './SectionHeading';
 
 export default function ExperienceSection() {

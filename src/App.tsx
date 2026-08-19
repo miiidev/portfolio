@@ -22,8 +22,14 @@ export default function App() {
     <ThemeProvider>
       <MotionConfig reducedMotion="user">
         <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-24 focus:left-4 focus:z-50 focus:inline-flex focus:items-center focus:min-h-11 focus:px-5 focus:rounded-full focus:bg-surface focus:border focus:border-edge focus:card-shadow focus:text-sm focus:font-bold focus:text-copy"
+          >
+            Skip to content
+          </a>
           <NavBar />
-          <main className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden pb-28 md:pb-12">
+          <main id="main-content" className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden pb-28 md:pb-12">
             <HeroSection />
             <AboutSection />
             <ExperienceSection />

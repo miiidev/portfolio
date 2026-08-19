@@ -19,7 +19,7 @@ export default function HeroSection() {
             Hey, I&apos;m miii<span className="text-accent">dev</span>
           </h1>
           <p className="mt-5 text-lg sm:text-xl text-muted max-w-xl leading-relaxed">
-            {personalInfo.role} based in {personalInfo.location}. Building AI-powered and security-focused applications.
+            {personalInfo.role} based in {personalInfo.location}. I build AI, computer vision, and real-time apps.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a
