@@ -30,18 +30,21 @@ Replace the warm bento token set. Keep the same variable names so components mig
 | `--color-elevated` (hover/raised) | `#E9EDF4` | `#1C1F26` |
 | `--color-copy` (ink) | `#14161C` | `#F2F4F8` |
 | `--color-muted` | `#5A6270` | `#9AA3B2` |
-| `--color-dim` | `#6E7683` | `#7A8291` |
+| `--color-dim` | `#666E7B` | `#7A8291` |
 | `--color-edge` (borders) | `#D7DCE5` | `#23262E` |
 | `--color-edge-hover` | `#14161C` | `#F2F4F8` |
-| `--color-accent` (cyan) | `#0091B8` | `#00D4FF` |
+| `--color-accent` (cyan) | `#007A9E` | `#00D4FF` |
 | `--color-accent-2` (violet) | `#5B4BD1` | `#7C6CFF` |
-| `--color-accent-3` (terminal green) | `#0E9F6E` | `#3DDB85` |
+| `--color-accent-3` (terminal green) | `#0B7A52` | `#3DDB85` |
 | `--color-accent-4` (magenta) | `#D6336C` | `#FF5C8A` |
 | `--color-danger` | `#D6336C` | `#FF5C7A` |
+| `--color-inverse` | `#14161C` | `#F2F4F8` |
+| `--color-inverse-copy` | `#F4F6FA` | `#0A0B0E` |
 | `--color-shadow-card` | `rgba(16, 24, 40, 0.08)` | `rgba(0, 10, 24, 0.5)` |
-| `--color-glow` (new) | `rgba(0, 145, 184, 0.18)` | `rgba(0, 212, 255, 0.25)` |
+| `--color-glow` (new) | `rgba(0, 122, 158, 0.18)` | `rgba(0, 212, 255, 0.25)` |
+| `--color-glow-soft` (new) | `rgba(0, 122, 158, 0.10)` | `rgba(0, 212, 255, 0.15)` |
 
-Contrast commitments (verify at implementation): `dim` ≥ 4.5:1 on canvas in both themes; accent used as text (e.g., `text-accent` links/labels) must hit ≥ 4.5:1 on the surface it sits on — light theme darkens the neon set accordingly (values above are chosen for that; verify and tune).
+Contrast commitments (verified against WCAG AA): `dim` ≥ 4.5:1 on canvas in both themes; accent-as-text (links, chips, labels) ≥ 4.5:1 on its surface in both themes — the light-theme accent set above is tuned for that (cyan `#007A9E`, green `#0B7A52`, dim `#666E7B`). Accent-filled buttons use `text-canvas` on the accent fill and pass the bold-≥14px 3:1 threshold. Values in this table are final; re-verify only if a value changes.
 
 The `.light` class mechanism and `.dark` default stay unchanged.
 
