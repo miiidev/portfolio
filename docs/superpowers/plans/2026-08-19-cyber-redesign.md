@@ -479,13 +479,13 @@ to:
 Run: `npm run build; npm run lint`
 Expected: both exit 0.
 
-Grep gate (should return 0 matches for the old pill pattern in the four files):
+Grep gate (should return exactly 1 match — the "Direct" label in ContactFooter.tsx is exempt and stays as-is):
 
 ```powershell
 Get-ChildItem src\components -Filter "*.tsx" | Select-String -Pattern "uppercase tracking-wider"
 ```
 
-Expected: 0 matches (the "Direct" label in ContactFooter.tsx is exempt and stays as-is).
+Expected: exactly 1 match, and it must be `src\components\ContactFooter.tsx` line ~40.
 
 - [ ] **Step 6: Commit**
 
