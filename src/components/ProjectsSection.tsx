@@ -67,12 +67,12 @@ export default function ProjectsSection() {
 
   return (
     <motion.section id="work" {...fadeRightConfig} className="flex flex-col justify-center py-12">
-      <div className="flex items-center justify-between mb-6">
-        <SectionHeading>Work</SectionHeading>
+      <div className="flex items-center justify-between mb-1">
+        <SectionHeading>Projects</SectionHeading>
       </div>
 
       {isMobile ? (
-        <div className="relative w-full h-[450px] mt-6">
+        <div className="relative w-full h-[450px] mt-1">
           <MobileCardStack
             projects={projects}
             currentIndex={currentIndex}
@@ -81,7 +81,7 @@ export default function ProjectsSection() {
           />
         </div>
       ) : (
-        <div className="relative mt-6">
+        <div className="relative mt-1">
           <motion.div
             className="relative w-full min-h-[560px] overflow-clip"
             drag="x"
