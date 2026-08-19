@@ -21,7 +21,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <MotionConfig reducedMotion="user">
-        <div className="min-h-screen bg-canvas text-copy selection:bg-elevated">
+        <div className="min-h-screen bg-canvas text-copy selection:bg-accent/30">
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:fixed focus:top-24 focus:left-4 focus:z-50 focus:inline-flex focus:items-center focus:min-h-11 focus:px-5 focus:rounded-full focus:bg-surface focus:border focus:border-edge focus:card-shadow focus:text-sm focus:font-bold focus:text-copy"
