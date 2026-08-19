@@ -11,10 +11,21 @@ export default function HeroSection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.1, margin: '-100px' }}
-      className="min-h-screen flex items-center py-24"
+      className="relative min-h-screen flex items-center py-24"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full max-w-6xl mx-auto">
+      <div aria-hidden="true" className="absolute inset-0 hero-grid pointer-events-none" />
+      <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full max-w-6xl mx-auto">
         <motion.div variants={heroItemVariants}>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 font-mono text-sm text-muted">
+            <span>
+              ~/miiidev $
+              <span className="cursor-block" aria-hidden="true" />
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-3/10 text-accent-3 px-3 py-1 text-xs font-bold">
+              <span className="status-dot h-1.5 w-1.5 rounded-full bg-accent-3" aria-hidden="true" />
+              all systems go
+            </span>
+          </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-copy">
             Hey, I&apos;m miii<span className="text-accent">dev</span>
           </h1>
@@ -24,13 +35,13 @@ export default function HeroSection() {
           <div className="mt-8 flex flex-wrap gap-4">
             <a
               href="#work"
-              className="inline-flex items-center min-h-11 px-6 rounded-full bg-accent text-canvas font-bold text-sm transition-opacity hover:opacity-90"
+              className="inline-flex items-center min-h-11 px-6 rounded-full bg-accent text-canvas font-bold text-sm transition-all hover:opacity-90 hover:shadow-[0_0_24px_var(--color-glow)]"
             >
               View my work
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center min-h-11 px-6 rounded-full bg-surface border border-edge text-copy font-bold text-sm transition-colors hover:border-accent"
+              className="inline-flex items-center min-h-11 px-6 rounded-full bg-surface border border-edge text-copy font-bold text-sm transition-all hover:border-accent hover:shadow-[0_0_16px_var(--color-glow-soft)]"
             >
               Say hello
             </a>
