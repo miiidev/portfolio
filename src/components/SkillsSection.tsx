@@ -37,7 +37,7 @@ export default function SkillsSection() {
                 {group.items.map((skill) => (
                   <span
                     key={skill.name}
-                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold ${color}`}
+                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full font-mono text-xs font-bold ${color}`}
                   >
                     <img
                       src={`https://cdn.simpleicons.org/${skill.icon}/white`}

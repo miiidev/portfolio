@@ -48,7 +48,7 @@ export default function EducationSection() {
                   <path d="m9 18 6-6-6-6" />
                 </svg>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-accent uppercase tracking-wider mb-0.5">{item.period}</p>
+                  <p className="font-mono text-xs font-bold text-accent lowercase mb-0.5">{item.period}</p>
                   <h3 className="text-base font-extrabold text-copy">{item.title}</h3>
                   <p className="text-sm text-muted">{item.org}</p>
                 </div>

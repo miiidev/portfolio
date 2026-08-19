@@ -23,7 +23,7 @@ export default function ExperienceSection() {
             variants={itemVariants}
             className="rounded-2xl bg-surface border border-edge card-shadow p-6"
           >
-            <p className="text-xs font-bold text-accent uppercase tracking-wider mb-2">{item.period}</p>
+            <p className="font-mono text-xs font-bold text-accent lowercase mb-2">{item.period}</p>
             <h3 className="text-lg font-extrabold text-copy mb-1">{item.title}</h3>
             {item.org && <p className="text-sm text-muted mb-3">{item.org}</p>}
             <p className="text-sm text-muted leading-relaxed mb-4">{item.description}</p>
