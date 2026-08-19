@@ -60,7 +60,7 @@ The `.light` class mechanism and `.dark` default stay unchanged.
 
 ### Hero
 
-- Background: faint 1px grid (CSS `linear-gradient` lines at `rgba(0, 212, 255, 0.05)` dark / `rgba(0, 145, 184, 0.07)` light), confined to the hero section via a positioned pseudo-element or absolutely-positioned div (no backdrop-blur).
+- Background: faint 1px grid (CSS `linear-gradient` lines at `rgba(0, 212, 255, 0.05)` dark / `rgba(0, 122, 158, 0.07)` light, RGB matching the tuned light accent `#007A9E`), confined to the hero section via a positioned pseudo-element or absolutely-positioned div (no backdrop-blur).
 - Above the name: mono status line `~/miiidev $` with a blinking block cursor (existing `cursor-block` keyframes resurrected, `@media (prefers-reduced-motion: reduce)` disables blink).
 - Status chip: `● all systems go` — mono, small pill, green accent, soft pulse on the dot (reduced-motion safe).
 - Layout and photo untouched.
