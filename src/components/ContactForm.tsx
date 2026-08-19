@@ -144,7 +144,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={formState === 'loading'}
-        className="inline-flex items-center gap-2 rounded-full bg-accent text-canvas font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-2 rounded-full bg-accent text-canvas font-semibold h-11 px-5 text-sm transition-all hover:opacity-90 hover:shadow-[0_0_24px_var(--color-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="m22 2-7 20-4-9-9-4Z" />

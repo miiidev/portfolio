@@ -17,7 +17,7 @@ export default function BackToTop() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-8 right-8 z-40 p-3 bg-surface border border-edge card-shadow rounded-full text-muted hover:text-copy hover:border-copy transition-all shadow-lg"
+          className="fixed bottom-8 right-8 z-40 p-3 bg-surface border border-edge card-shadow rounded-full text-muted hover:text-accent hover:border-accent hover:shadow-[0_0_16px_var(--color-glow-soft)] transition-all shadow-lg"
           aria-label="Back to top"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
