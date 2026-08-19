@@ -8,11 +8,21 @@ const accentCycle = [
   'text-accent-4 bg-accent-4/10',
 ];
 
-export default function ProjectCard({ project, isCenter = true }: { project: Project; isCenter?: boolean }) {
+export default function ProjectCard({
+  project,
+  isCenter = true,
+  glow = 'soft',
+}: {
+  project: Project;
+  isCenter?: boolean;
+  glow?: 'full' | 'soft';
+}) {
   return (
     <div
-      className={`bg-surface border rounded-2xl overflow-hidden group h-full w-full flex flex-col card-shadow ${
-        isCenter ? 'border-accent' : 'border-edge hover:border-accent'
+      className={`bg-surface border rounded-2xl overflow-hidden group h-full w-full flex flex-col ${
+        isCenter
+          ? `border-accent ${glow === 'full' ? 'card-glow' : 'card-glow-soft'}`
+          : 'card-shadow border-edge hover:border-accent'
       }`}
     >
       {project.image ? (
