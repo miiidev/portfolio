@@ -26,9 +26,9 @@ export default function NavBar() {
               key={item.id}
               href={`#${item.id}`}
               aria-current={active === item.id ? 'page' : undefined}
-              className={`inline-flex items-center min-h-11 px-4 rounded-full text-sm font-semibold transition-colors duration-200 ${
+              className={`inline-flex items-center min-h-11 px-4 rounded-full font-mono text-sm font-bold transition-all duration-200 ${
                 active === item.id
-                  ? 'bg-accent/15 text-accent'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_16px_var(--color-glow-soft)]'
                   : 'text-muted hover:text-copy hover:bg-elevated'
               }`}
             >
@@ -51,9 +51,9 @@ export default function NavBar() {
               key={item.id}
               href={`#${item.id}`}
               aria-current={active === item.id ? 'page' : undefined}
-              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full text-xs font-bold transition-colors duration-200 ${
+              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full font-mono text-xs font-bold transition-all duration-200 ${
                 active === item.id
-                  ? 'bg-accent/15 text-accent'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_16px_var(--color-glow-soft)]'
                   : 'text-muted hover:text-copy'
               }`}
             >
