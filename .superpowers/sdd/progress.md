@@ -41,3 +41,4 @@ CYBER: Task 5: complete (commit 06a0b8e..9adef72, review clean - spec PASS, appr
 CYBER: Task 6: complete (commit 9adef72..eea188d, review clean - spec PASS, approved). ALL 6 TASKS DONE.
 CYBER: RUN COMPLETE - pushed 0f296ce..22a6f79, deployed, smoke 200. FINAL REVIEW: Ready to sign off (1 Minor spec doc staleness fixed in 22a6f79; glow clip at overflow-clip is a tuning knob if visible).
 EDU-LIST RUN (plan 2026-08-19-education-collapsible-list.md): base 2f42c6c
+CONTACT-LOGOS RUN (plan 2026-08-19-contact-logos-or-divider.md): base a0627c5

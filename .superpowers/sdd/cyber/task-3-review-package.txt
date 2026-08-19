@@ -1,0 +1,56 @@
+﻿diff --git a/src/components/NavBar.tsx b/src/components/NavBar.tsx
+index fe7e5e1..9deb340 100644
+--- a/src/components/NavBar.tsx
++++ b/src/components/NavBar.tsx
+@@ -19,23 +19,23 @@ export default function NavBar() {
+       >
+         <a href="#hero" className="flex items-center gap-2 shrink-0 text-copy hover:opacity-90 transition-opacity mr-4">
+           <span className="font-extrabold tracking-tight text-lg">miiidev</span>
+         </a>
+         <div className="flex items-center gap-1">
+           {items.map((item) => (
+             <a
+               key={item.id}
+               href={`#${item.id}`}
+               aria-current={active === item.id ? 'page' : undefined}
+-              className={`inline-flex items-center min-h-11 px-4 rounded-full text-sm font-semibold transition-colors duration-200 ${
++              className={`inline-flex items-center min-h-11 px-4 rounded-full font-mono text-sm font-bold transition-all duration-200 ${
+                 active === item.id
+-                  ? 'bg-accent/15 text-accent'
++                  ? 'bg-accent/15 text-accent shadow-[0_0_16px_var(--color-glow-soft)]'
+                   : 'text-muted hover:text-copy hover:bg-elevated'
+               }`}
+             >
+               {item.label}
+             </a>
+           ))}
+         </div>
+         <div className="ml-auto">
+           <ThemeToggle />
+         </div>
+@@ -44,23 +44,23 @@ export default function NavBar() {
+       <nav
+         aria-label="Primary"
+         className="md:hidden fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+       >
+         <div className="flex items-center justify-around rounded-full border border-edge bg-surface card-shadow px-2 py-1.5">
+           {items.map((item) => (
+             <a
+               key={item.id}
+               href={`#${item.id}`}
+               aria-current={active === item.id ? 'page' : undefined}
+-              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full text-xs font-bold transition-colors duration-200 ${
++              className={`inline-flex items-center justify-center min-h-11 min-w-14 px-3 rounded-full font-mono text-xs font-bold transition-all duration-200 ${
+                 active === item.id
+-                  ? 'bg-accent/15 text-accent'
++                  ? 'bg-accent/15 text-accent shadow-[0_0_16px_var(--color-glow-soft)]'
+                   : 'text-muted hover:text-copy'
+               }`}
+             >
+               {item.label}
+             </a>
+           ))}
+           <div className="ml-1">
+             <ThemeToggle />
+           </div>
+         </div>
